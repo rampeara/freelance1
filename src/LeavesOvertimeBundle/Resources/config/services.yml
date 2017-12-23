@@ -10,4 +10,4 @@ services:
         class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
         arguments: ["@security.token_storage"]
         tags:
-            - { name: doctrine.event_subscriber }
+            - { name: doctrine.event_subscriber, lazy: true }
