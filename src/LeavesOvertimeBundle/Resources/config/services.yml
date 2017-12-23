@@ -1,0 +1,13 @@
+services:
+    leaves_overtime.admin.employee:
+        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
+        public: true
+
+    doctrine.listener.audit_subsriber:
+        class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
+        arguments: ["@security.token_storage"]
+        tags:
+            - { name: doctrine.event_subscriber }

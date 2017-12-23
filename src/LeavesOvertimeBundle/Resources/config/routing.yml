@@ -1,0 +1,3 @@
+leaves_overtime_homepage:
+    path:     /
+    defaults: { _controller: LeavesOvertimeBundle:Default:index }
