@@ -7,7 +7,11 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
 class AuditSubscriber implements EventSubscriber
 {
-    private $validClasses = ['LeavesOvertimeBundle\Entity\Employee'];
+    private $validClasses = [
+        'LeavesOvertimeBundle\Entity\Employee',
+        'LeavesOvertimeBundle\Entity\JobTitle',
+        'LeavesOvertimeBundle\Entity\BusinessUnit'
+    ];
     private $context;
     
     public function __construct($securityContext){

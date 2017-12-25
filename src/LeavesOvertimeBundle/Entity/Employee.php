@@ -3,6 +3,7 @@
 namespace LeavesOvertimeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Employee
@@ -17,6 +18,41 @@ class Employee extends EntityBase
      * @ORM\JoinColumn(name="job_title_id", referencedColumnName="id")
      */
     private $jobTitle;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
+     * @ORM\JoinColumn(name="supervisor1_id", referencedColumnName="id")
+     */
+    private $supervisor1;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
+     * @ORM\JoinColumn(name="supervisor2_id", referencedColumnName="id")
+     */
+    private $supervisor2;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
+     * @ORM\JoinColumn(name="supervisor3_id", referencedColumnName="id")
+     */
+    private $supervisor3;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="BusinessUnit", inversedBy="employees")
+     * @ORM\JoinColumn(name="business_unit_id", referencedColumnName="id")
+     */
+    private $businessUnit;
+    
+    
+    /**
+     * @ORM\OneToMany(targetEntity="Employee", mappedBy="supervisor1")
+     */
+    private $supervisors;
+    
+    public function __construct()
+    {
+        $this->supervisors = new ArrayCollection();
+    }
   
     /**
      * @var int
@@ -65,13 +101,6 @@ class Employee extends EntityBase
     /**
      * @var string|null
      *
-     * @ORM\Column(name="business_unit", type="string", length=255, nullable=true, unique=false)
-     */
-    private $businessUnit;
-
-    /**
-     * @var string|null
-     *
      * @ORM\Column(name="department", type="string", length=255, nullable=true, unique=false)
      */
     private $department;
@@ -82,27 +111,6 @@ class Employee extends EntityBase
      * @ORM\Column(name="project", type="string", length=255, nullable=true, unique=false)
      */
     private $project;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="approver_n1", type="string", length=255, nullable=true, unique=false)
-     */
-    private $approverN1;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="approver_n2", type="string", length=255, nullable=true, unique=false)
-     */
-    private $approverN2;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="approver_n3", type="string", length=255, nullable=true, unique=false)
-     */
-    private $approverN3;
 
     /**
      * @var \DateTime|null
@@ -336,78 +344,6 @@ class Employee extends EntityBase
     }
 
     /**
-     * Set approverN1.
-     *
-     * @param string|null $approverN1
-     *
-     * @return Employee
-     */
-    public function setApproverN1($approverN1 = null)
-    {
-        $this->approverN1 = $approverN1;
-
-        return $this;
-    }
-
-    /**
-     * Get approverN1.
-     *
-     * @return string|null
-     */
-    public function getApproverN1()
-    {
-        return $this->approverN1;
-    }
-
-    /**
-     * Set approverN2.
-     *
-     * @param string|null $approverN2
-     *
-     * @return Employee
-     */
-    public function setApproverN2($approverN2 = null)
-    {
-        $this->approverN2 = $approverN2;
-
-        return $this;
-    }
-
-    /**
-     * Get approverN2.
-     *
-     * @return string|null
-     */
-    public function getApproverN2()
-    {
-        return $this->approverN2;
-    }
-
-    /**
-     * Set approverN3.
-     *
-     * @param string|null $approverN3
-     *
-     * @return Employee
-     */
-    public function setApproverN3($approverN3 = null)
-    {
-        $this->approverN3 = $approverN3;
-
-        return $this;
-    }
-
-    /**
-     * Get approverN3.
-     *
-     * @return string|null
-     */
-    public function getApproverN3()
-    {
-        return $this->approverN3;
-    }
-
-    /**
      * Set hireDate.
      *
      * @param \DateTime|null $hireDate
@@ -515,5 +451,54 @@ class Employee extends EntityBase
      */
     public function setJobTitle($jobTitle) {
       $this->jobTitle = $jobTitle;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getFullName() {
+        return sprintf("%s %s", $this->lastName, $this->firstName);
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getSupervisor1() {
+        return $this->supervisor1;
+    }
+    
+    /**
+     * @param mixed $supervisor1
+     */
+    public function setSupervisor1($supervisor1) {
+        $this->supervisor1 = $supervisor1;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getSupervisor2() {
+        return $this->supervisor2;
+    }
+    
+    /**
+     * @param mixed $supervisor2
+     */
+    public function setSupervisor2($supervisor2) {
+        $this->supervisor2 = $supervisor2;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getSupervisor3() {
+        return $this->supervisor3;
+    }
+    
+    /**
+     * @param mixed $supervisor3
+     */
+    public function setSupervisor3($supervisor3) {
+        $this->supervisor3 = $supervisor3;
     }
 }

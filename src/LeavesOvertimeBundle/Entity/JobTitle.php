@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="axa_job_title")
  * @ORM\Entity(repositoryClass="LeavesOvertimeBundle\Repository\JobTitleRepository")
  */
-class JobTitle
+class JobTitle extends EntityBase
 {
     /**
      * @ORM\OneToMany(targetEntity="Employee", mappedBy="jobTitle")

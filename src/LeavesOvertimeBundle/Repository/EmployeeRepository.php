@@ -10,4 +10,12 @@ namespace LeavesOvertimeBundle\Repository;
  */
 class EmployeeRepository extends \Doctrine\ORM\EntityRepository
 {
+    
+    public function getQueryBuilderEmployeesByLastName() {
+        return $this->createQueryBuilder('jt')->orderBy('jt.lastName', 'ASC');
+    }
+    
+    public function getEmployeesOrderLastName() {
+        return $this->findAll();
+    }
 }

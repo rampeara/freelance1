@@ -2,6 +2,10 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
+use Doctrine\ORM\EntityManager;
+use LeavesOvertimeBundle\Entity\BusinessUnit;
+use LeavesOvertimeBundle\Entity\Employee;
+use LeavesOvertimeBundle\Repository\EmployeeRepository;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -9,6 +13,7 @@ use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -27,9 +32,9 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('approverN1')
-            ->add('approverN2')
-            ->add('approverN3')
+//            ->add('supervisor1')
+//            ->add('supervisor2')
+//            ->add('supervisor3')
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')
@@ -49,9 +54,9 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('approverN1')
-            ->add('approverN2')
-            ->add('approverN3')
+//            ->add('supervisor1')
+//            ->add('supervisor2')
+//            ->add('supervisor3')
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')
@@ -71,11 +76,11 @@ class EmployeeAdmin extends AbstractAdmin
         $formMapper
             ->add('abNumber')
             ->add('title', ChoiceType::class, [
-              'choices'  => [
+                'choices'  => [
                 'Mr' => 'Mr',
                 'Mrs' => 'Mrs',
                 'Ms' => 'Ms',
-              ]])
+            ]])
             ->add('firstName')
             ->add('lastName')
             ->add('jobTitle', EntityType::class, [
@@ -87,18 +92,57 @@ class EmployeeAdmin extends AbstractAdmin
               'choice_label' => 'value',
             ])
             ->add('email', EmailType::class)
-            ->add('businessUnit')
+            ->add('businessUnit', EntityType::class, [
+                'class' => BusinessUnit::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('bu')
+                        ->orderBy('bu.name', 'ASC');
+                },
+                'choice_label' => 'name',
+                'required'   => false,
+            ])
             ->add('department')
             ->add('project')
-            ->add('approverN1')
-            ->add('approverN2')
-            ->add('approverN3')
+            ->add('supervisor1', EntityType::class, [
+                'class' => Employee::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('em')
+                        ->orderBy('em.lastName', 'ASC');
+                },
+                'choice_label' => 'fullName',
+                'required'   => false,
+            ])
+            ->add('supervisor2', EntityType::class, [
+                'class' => Employee::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('em')
+                        ->orderBy('em.lastName', 'ASC');
+                },
+                'choice_label' => 'fullName',
+                'required'   => false,
+            ])
+            ->add('supervisor3', EntityType::class, [
+                'class' => Employee::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('em')
+                        ->orderBy('em.lastName', 'ASC');
+                },
+                'choice_label' => 'fullName',
+                'required'   => false,
+            ])
             ->add('hireDate')
-            ->add('employmentStatus')
+            ->add('employmentStatus', ChoiceType::class, [
+            'choices'  => [
+                "CDD" => "CDD",
+                "CDI" => "CDI",
+                "YEP" => "YEP",
+                "PART TIME" => "PART TIME",
+            ]])
             ->add('departureDate')
-            ->add('departureReason')
+            ->add('departureReason', TextareaType::class, ['required' => false])
         ;
     }
+
 
     protected function configureShowFields(ShowMapper $showMapper)
     {
@@ -112,9 +156,9 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('approverN1')
-            ->add('approverN2')
-            ->add('approverN3')
+            ->add('supervisor1')
+            ->add('supervisor2')
+            ->add('supervisor3')
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')

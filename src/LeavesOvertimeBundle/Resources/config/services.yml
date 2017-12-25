@@ -1,10 +1,12 @@
 services:
     leaves_overtime.admin.employee:
         class: LeavesOvertimeBundle\Admin\EmployeeAdmin
-        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin]
+        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin, Sonata\DoctrineORMAdminBundle\Model\ModelManager]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
         public: true
+#        calls:
+#            - [getEntityManager, ['@doctrine.orm.entity_manager']]
 
     doctrine.listener.audit_subsriber:
         class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
