@@ -13,6 +13,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Employee extends EntityBase
 {
+    // ManyToOne
+    
     /**
      * @ORM\ManyToOne(targetEntity="JobTitle", inversedBy="employees")
      * @ORM\JoinColumn(name="job_title_id", referencedColumnName="id")
@@ -20,22 +22,16 @@ class Employee extends EntityBase
     private $jobTitle;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
-     * @ORM\JoinColumn(name="supervisor1_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Department", inversedBy="employees")
+     * @ORM\JoinColumn(name="department_id", referencedColumnName="id")
      */
-    private $supervisor1;
+    private $department;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
-     * @ORM\JoinColumn(name="supervisor2_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="Project", inversedBy="employees")
+     * @ORM\JoinColumn(name="project_id", referencedColumnName="id")
      */
-    private $supervisor2;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="supervisors")
-     * @ORM\JoinColumn(name="supervisor3_id", referencedColumnName="id")
-     */
-    private $supervisor3;
+    private $project;
     
     /**
      * @ORM\ManyToOne(targetEntity="BusinessUnit", inversedBy="employees")
@@ -43,15 +39,30 @@ class Employee extends EntityBase
      */
     private $businessUnit;
     
+    // ManyToMany
     
     /**
-     * @ORM\OneToMany(targetEntity="Employee", mappedBy="supervisor1")
+     * @ORM\ManyToMany(targetEntity="Employee")
+     * @ORM\JoinTable(name="axa_supervisors_level1",
+     *      joinColumns={@ORM\JoinColumn(name="employee_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supervisor_level1_id", referencedColumnName="id")}
+     *      )
      */
-    private $supervisors;
+    private $supervisorsLevel1;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="Employee")
+     * @ORM\JoinTable(name="axa_supervisors_level2",
+     *      joinColumns={@ORM\JoinColumn(name="employee_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="supervisor_level2_id", referencedColumnName="id")}
+     *      )
+     */
+    private $supervisorsLevel2;
     
     public function __construct()
     {
-        $this->supervisors = new ArrayCollection();
+        $this->supervisorsLevel1 = new ArrayCollection();
+        $this->supervisorsLevel2 = new ArrayCollection();
     }
   
     /**
@@ -97,20 +108,6 @@ class Employee extends EntityBase
      * @ORM\Column(name="email", type="string", length=255, nullable=false, unique=false)
      */
     private $email;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="department", type="string", length=255, nullable=true, unique=false)
-     */
-    private $department;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="project", type="string", length=255, nullable=true, unique=false)
-     */
-    private $project;
 
     /**
      * @var \DateTime|null
@@ -272,78 +269,6 @@ class Employee extends EntityBase
     }
 
     /**
-     * Set businessUnit.
-     *
-     * @param string|null $businessUnit
-     *
-     * @return Employee
-     */
-    public function setBusinessUnit($businessUnit = null)
-    {
-        $this->businessUnit = $businessUnit;
-
-        return $this;
-    }
-
-    /**
-     * Get businessUnit.
-     *
-     * @return string|null
-     */
-    public function getBusinessUnit()
-    {
-        return $this->businessUnit;
-    }
-
-    /**
-     * Set department.
-     *
-     * @param string|null $department
-     *
-     * @return Employee
-     */
-    public function setDepartment($department = null)
-    {
-        $this->department = $department;
-
-        return $this;
-    }
-
-    /**
-     * Get department.
-     *
-     * @return string|null
-     */
-    public function getDepartment()
-    {
-        return $this->department;
-    }
-
-    /**
-     * Set project.
-     *
-     * @param string|null $project
-     *
-     * @return Employee
-     */
-    public function setProject($project = null)
-    {
-        $this->project = $project;
-
-        return $this;
-    }
-
-    /**
-     * Get project.
-     *
-     * @return string|null
-     */
-    public function getProject()
-    {
-        return $this->project;
-    }
-
-    /**
      * Set hireDate.
      *
      * @param \DateTime|null $hireDate
@@ -443,14 +368,14 @@ class Employee extends EntityBase
      * @return mixed
      */
     public function getJobTitle() {
-      return $this->jobTitle;
+        return $this->jobTitle;
     }
     
     /**
      * @param mixed $jobTitle
      */
     public function setJobTitle($jobTitle) {
-      $this->jobTitle = $jobTitle;
+        $this->jobTitle = $jobTitle;
     }
     
     /**
@@ -463,42 +388,116 @@ class Employee extends EntityBase
     /**
      * @return mixed
      */
-    public function getSupervisor1() {
-        return $this->supervisor1;
+    public function getDepartment() {
+        return $this->department;
     }
     
     /**
-     * @param mixed $supervisor1
+     * @param mixed $department
      */
-    public function setSupervisor1($supervisor1) {
-        $this->supervisor1 = $supervisor1;
-    }
-    
-    /**
-     * @return mixed
-     */
-    public function getSupervisor2() {
-        return $this->supervisor2;
-    }
-    
-    /**
-     * @param mixed $supervisor2
-     */
-    public function setSupervisor2($supervisor2) {
-        $this->supervisor2 = $supervisor2;
+    public function setDepartment($department) {
+        $this->department = $department;
     }
     
     /**
      * @return mixed
      */
-    public function getSupervisor3() {
-        return $this->supervisor3;
+    public function getProject() {
+        return $this->project;
     }
     
     /**
-     * @param mixed $supervisor3
+     * @param mixed $project
      */
-    public function setSupervisor3($supervisor3) {
-        $this->supervisor3 = $supervisor3;
+    public function setProject($project) {
+        $this->project = $project;
+    }
+    
+    /**
+     * @return mixed
+     */
+    public function getBusinessUnit() {
+        return $this->businessUnit;
+    }
+    
+    /**
+     * @param mixed $businessUnit
+     */
+    public function setBusinessUnit($businessUnit) {
+        $this->businessUnit = $businessUnit;
+    }
+    
+    
+
+    /**
+     * Add supervisorsLevel1.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $supervisorsLevel1
+     *
+     * @return Employee
+     */
+    public function addSupervisorsLevel1(\LeavesOvertimeBundle\Entity\Employee $supervisorsLevel1)
+    {
+        $this->supervisorsLevel1[] = $supervisorsLevel1;
+
+        return $this;
+    }
+
+    /**
+     * Remove supervisorsLevel1.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $supervisorsLevel1
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeSupervisorsLevel1(\LeavesOvertimeBundle\Entity\Employee $supervisorsLevel1)
+    {
+        return $this->supervisorsLevel1->removeElement($supervisorsLevel1);
+    }
+
+    /**
+     * Get supervisorsLevel1.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSupervisorsLevel1()
+    {
+        return $this->supervisorsLevel1;
+    }
+
+    /**
+     * Add supervisorsLevel2.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $supervisorsLevel2
+     *
+     * @return Employee
+     */
+    public function addSupervisorsLevel2(\LeavesOvertimeBundle\Entity\Employee $supervisorsLevel2)
+    {
+        $this->supervisorsLevel2[] = $supervisorsLevel2;
+
+        return $this;
+    }
+
+    /**
+     * Remove supervisorsLevel2.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $supervisorsLevel2
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeSupervisorsLevel2(\LeavesOvertimeBundle\Entity\Employee $supervisorsLevel2)
+    {
+        return $this->supervisorsLevel2->removeElement($supervisorsLevel2);
+    }
+
+    /**
+     * Get supervisorsLevel2.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getSupervisorsLevel2()
+    {
+        return $this->supervisorsLevel2;
     }
 }

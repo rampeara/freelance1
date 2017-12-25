@@ -2,10 +2,10 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
-use Doctrine\ORM\EntityManager;
 use LeavesOvertimeBundle\Entity\BusinessUnit;
+use LeavesOvertimeBundle\Entity\Department;
 use LeavesOvertimeBundle\Entity\Employee;
-use LeavesOvertimeBundle\Repository\EmployeeRepository;
+use LeavesOvertimeBundle\Entity\Project;
 use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
@@ -14,6 +14,7 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -101,9 +102,25 @@ class EmployeeAdmin extends AbstractAdmin
                 'choice_label' => 'name',
                 'required'   => false,
             ])
-            ->add('department')
-            ->add('project')
-            ->add('supervisor1', EntityType::class, [
+            ->add('department', EntityType::class, [
+                'class' => Department::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('dt')
+                        ->orderBy('dt.name', 'ASC');
+                },
+                'choice_label' => 'name',
+                'required'   => false,
+            ])
+            ->add('project', EntityType::class, [
+                'class' => Project::class,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('pr')
+                        ->orderBy('pr.name', 'ASC');
+                },
+                'choice_label' => 'name',
+                'required'   => false,
+            ])
+            ->add('supervisorsLevel1', EntityType::class, [
                 'class' => Employee::class,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('em')
@@ -111,8 +128,10 @@ class EmployeeAdmin extends AbstractAdmin
                 },
                 'choice_label' => 'fullName',
                 'required'   => false,
+                'expanded' => false,
+                'multiple' => true,
             ])
-            ->add('supervisor2', EntityType::class, [
+            ->add('supervisorsLevel2', EntityType::class, [
                 'class' => Employee::class,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('em')
@@ -120,25 +139,22 @@ class EmployeeAdmin extends AbstractAdmin
                 },
                 'choice_label' => 'fullName',
                 'required'   => false,
+                'expanded' => false,
+                'multiple' => true,
             ])
-            ->add('supervisor3', EntityType::class, [
-                'class' => Employee::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('em')
-                        ->orderBy('em.lastName', 'ASC');
-                },
-                'choice_label' => 'fullName',
-                'required'   => false,
+            ->add('hireDate', DateType::class, [
+                'widget'  => 'single_text'
             ])
-            ->add('hireDate')
             ->add('employmentStatus', ChoiceType::class, [
-            'choices'  => [
-                "CDD" => "CDD",
-                "CDI" => "CDI",
-                "YEP" => "YEP",
-                "PART TIME" => "PART TIME",
+                'choices'  => [
+                    "CDD" => "CDD",
+                    "CDI" => "CDI",
+                    "YEP" => "YEP",
+                    "PART TIME" => "PART TIME",
             ]])
-            ->add('departureDate')
+            ->add('departureDate', DateType::class, [
+                'widget'  => 'single_text'
+            ])
             ->add('departureReason', TextareaType::class, ['required' => false])
         ;
     }
