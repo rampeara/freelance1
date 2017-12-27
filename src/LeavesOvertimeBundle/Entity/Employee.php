@@ -87,6 +87,13 @@ class Employee extends EntityBase
      * @ORM\Column(name="title", type="string", length=255, nullable=true, unique=false)
      */
     private $title;
+    
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="gender", type="string", length=255, nullable=true, unique=false)
+     */
+    private $gender;
 
     /**
      * @var string|null
@@ -194,6 +201,30 @@ class Employee extends EntityBase
     public function getTitle()
     {
         return $this->title;
+    }
+    
+    /**
+     * Set gender.
+     *
+     * @param string|null $gender
+     *
+     * @return Employee
+     */
+    public function setGender($gender = null)
+    {
+        $this->gender = $gender;
+        
+        return $this;
+    }
+    
+    /**
+     * Get gender.
+     *
+     * @return string|null
+     */
+    public function getGender()
+    {
+        return $this->gender;
     }
 
     /**
@@ -499,5 +530,39 @@ class Employee extends EntityBase
     public function getSupervisorsLevel2()
     {
         return $this->supervisorsLevel2;
+    }
+    
+    /**
+     * Diff in years since hire date till departure date or now
+     * @return int
+     */
+    public function getYearsOfService() {
+        if (!empty($this->hireDate) && !empty($this->departureDate)) {
+            return $this->departureDate->diff($this->hireDate)->y;
+        }
+        return $this->hireDate->diff(new \DateTime('now'))->y;
+    }
+    
+    public function getSupervisorsLevel1String() {
+        return $this->getSupervisorsString($this->supervisorsLevel1);
+    }
+    
+    public function getSupervisorsLevel2String() {
+        return $this->getSupervisorsString($this->supervisorsLevel2);
+    }
+    
+    /**
+     * Converts array collection of supervisors into comma separated string
+     * @param $supervisorsArray ArrayCollection
+     * @return string
+     */
+    protected function getSupervisorsString($supervisorsArray) {
+        $supervisors = [];
+        /* @var $supervisor \LeavesOvertimeBundle\Entity\Employee */
+        foreach ($supervisorsArray as $supervisor) {
+            $supervisors[] = $supervisor->getFullName();
+        }
+        
+        return join(', ', $supervisors);
     }
 }

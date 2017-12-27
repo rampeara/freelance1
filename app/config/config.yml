@@ -43,6 +43,7 @@ sonata_block:
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    date_format_export: 'd M Y H:i:s'
 
 framework:
     templating:

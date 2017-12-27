@@ -10,7 +10,9 @@ class AuditSubscriber implements EventSubscriber
     private $validClasses = [
         'LeavesOvertimeBundle\Entity\Employee',
         'LeavesOvertimeBundle\Entity\JobTitle',
-        'LeavesOvertimeBundle\Entity\BusinessUnit'
+        'LeavesOvertimeBundle\Entity\BusinessUnit',
+        'LeavesOvertimeBundle\Entity\Department',
+        'LeavesOvertimeBundle\Entity\Project'
     ];
     private $context;
     

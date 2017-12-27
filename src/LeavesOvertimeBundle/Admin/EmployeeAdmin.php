@@ -18,9 +18,15 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class EmployeeAdmin extends AbstractAdmin
 {
+    protected $datagridValues = [
+        '_sort_order' => 'ASC',
+        '_sort_by' => 'lastName',
+    ];
+    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
@@ -33,9 +39,6 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-//            ->add('supervisor1')
-//            ->add('supervisor2')
-//            ->add('supervisor3')
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')
@@ -55,13 +58,11 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-//            ->add('supervisor1')
-//            ->add('supervisor2')
-//            ->add('supervisor3')
-            ->add('hireDate')
             ->add('employmentStatus')
-            ->add('departureDate')
-            ->add('departureReason')
+//            ->add('createdAt')
+//            ->add('createdBy')
+//            ->add('updatedAt')
+//            ->add('updatedBy')
             ->add('_action', null, [
                 'actions' => [
                     'show' => [],
@@ -82,8 +83,13 @@ class EmployeeAdmin extends AbstractAdmin
                 'Mrs' => 'Mrs',
                 'Ms' => 'Ms',
             ]])
-            ->add('firstName')
-            ->add('lastName')
+            ->add('gender', ChoiceType::class, [
+                'choices'  => [
+                    'Male' => 'Male',
+                    'Female' => 'Female',
+                ]])
+            ->add('firstName', TextType::class, ['required' => true])
+            ->add('lastName', TextType::class, ['required' => true])
             ->add('jobTitle', EntityType::class, [
               'class' => JobTitle::class,
               'query_builder' => function (EntityRepository $er) {
@@ -153,7 +159,8 @@ class EmployeeAdmin extends AbstractAdmin
                     "PART TIME" => "PART TIME",
             ]])
             ->add('departureDate', DateType::class, [
-                'widget'  => 'single_text'
+                'widget'  => 'single_text',
+                'required'   => false,
             ])
             ->add('departureReason', TextareaType::class, ['required' => false])
         ;
@@ -172,13 +179,51 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('supervisor1')
-            ->add('supervisor2')
-            ->add('supervisor3')
+            ->add('supervisorsLevel1', null, ['associated_property' => 'fullName'])
+            ->add('supervisorsLevel2', null, ['associated_property' => 'fullName'])
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')
             ->add('departureReason')
+            ->add('yearsOfService', null, ['associated_property' => 'yearsOfService'])
+            ->add('createdAt')
+            ->add('createdBy')
+            ->add('updatedAt')
+            ->add('updatedBy')
         ;
+    }
+    
+    public function getExportFields()
+    {
+        return [
+            'AB number' => 'abNumber',
+            'Title' => 'title',
+            'First name' => 'firstName',
+            'Last name' => 'lastName',
+            'Job title' => 'jobTitle',
+            'Email' => 'email',
+            'Business unit' => 'businessUnit',
+            'Department' => 'department',
+            'Project' => 'project',
+            'Supervisors level 1' => 'supervisorsLevel1String',
+            'Supervisors level 2' => 'supervisorsLevel2String',
+            'Hire date' => 'hireDate',
+            'Employment status' => 'employmentStatus',
+            'Departure date' => 'departureDate',
+            'Departure reason' => 'departureReason',
+            'Years of service' => 'yearsOfService',
+            'Created at' => 'createdAt',
+            'Created by' => 'createdBy',
+            'Updated at' => 'updatedAt',
+            'Updated by' => 'updatedBy',
+        ];
+    }
+    
+    public function getDataSourceIterator()
+    {
+        $iterator = parent::getDataSourceIterator();
+        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('date_format_export');
+        $iterator->setDateTimeFormat($exportDateFormat);
+        return $iterator;
     }
 }
