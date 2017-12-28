@@ -24,7 +24,7 @@ class BusinessUnit extends EntityBase
     }
     
     public function __toString() {
-        return $this->name;
+        return !empty($this->name) ? $this->name : '';
     }
     
     /**
@@ -76,5 +76,41 @@ class BusinessUnit extends EntityBase
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Add employee.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $employee
+     *
+     * @return BusinessUnit
+     */
+    public function addEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
+    {
+        $this->employees[] = $employee;
+
+        return $this;
+    }
+
+    /**
+     * Remove employee.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $employee
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
+    {
+        return $this->employees->removeElement($employee);
+    }
+
+    /**
+     * Get employees.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEmployees()
+    {
+        return $this->employees;
     }
 }

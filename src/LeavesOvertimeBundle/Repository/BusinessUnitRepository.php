@@ -10,4 +10,21 @@ namespace LeavesOvertimeBundle\Repository;
  */
 class BusinessUnitRepository extends \Doctrine\ORM\EntityRepository
 {
+    
+    /**
+     * @param $businessUnitId
+     *
+     * @return mixed
+     */
+    public function findReferencedEmployees($businessUnitId) {
+        $query = $this->getEntityManager()->createQuery(
+        'SELECT e.id, e.lastName, e.firstName
+                FROM LeavesOvertimeBundle:Employee e
+                JOIN e.businessUnit bu
+                WHERE bu.id = :buID
+                ORDER BY e.lastName, e.firstName ASC'
+        )->setParameter('buID', $businessUnitId);
+    
+        return $query->getResult();
+    }
 }

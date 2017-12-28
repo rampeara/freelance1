@@ -51,6 +51,7 @@ class EmployeeAdmin extends AbstractAdmin
         $listMapper
             ->add('abNumber')
             ->add('title')
+            ->add('gender')
             ->add('firstName')
             ->add('lastName')
             ->add('jobTitle')
@@ -91,12 +92,13 @@ class EmployeeAdmin extends AbstractAdmin
             ->add('firstName', TextType::class, ['required' => true])
             ->add('lastName', TextType::class, ['required' => true])
             ->add('jobTitle', EntityType::class, [
-              'class' => JobTitle::class,
-              'query_builder' => function (EntityRepository $er) {
+                'class' => JobTitle::class,
+                'query_builder' => function (EntityRepository $er) {
                 return $er->createQueryBuilder('jt')
                   ->orderBy('jt.value', 'ASC');
-              },
-              'choice_label' => 'value',
+                },
+                'choice_label' => 'value',
+                'required'   => false,
             ])
             ->add('email', EmailType::class)
             ->add('businessUnit', EntityType::class, [
@@ -172,6 +174,7 @@ class EmployeeAdmin extends AbstractAdmin
         $showMapper
             ->add('abNumber')
             ->add('title')
+            ->add('gender')
             ->add('firstName')
             ->add('lastName')
             ->add('jobTitle')
@@ -198,6 +201,7 @@ class EmployeeAdmin extends AbstractAdmin
         return [
             'AB number' => 'abNumber',
             'Title' => 'title',
+            'Gender' => 'gender',
             'First name' => 'firstName',
             'Last name' => 'lastName',
             'Job title' => 'jobTitle',

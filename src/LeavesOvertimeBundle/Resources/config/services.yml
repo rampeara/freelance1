@@ -13,3 +13,17 @@ services:
         arguments: ["@security.token_storage"]
         tags:
             - { name: doctrine.event_subscriber, lazy: true }
+
+    leaves_overtime.admin.business_unit:
+        class: LeavesOvertimeBundle\Admin\BusinessUnitAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\BusinessUnit, LeavesOvertimeBundle:BusinessUnitAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Business Unit }
+        public: true
+
+    leaves_overtime.admin.department:
+        class: LeavesOvertimeBundle\Admin\DepartmentAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\Department, LeavesOvertimeBundle:DepartmentAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Department }
+        public: true

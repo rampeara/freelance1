@@ -17,25 +17,25 @@ class Employee extends EntityBase
     
     /**
      * @ORM\ManyToOne(targetEntity="JobTitle", inversedBy="employees")
-     * @ORM\JoinColumn(name="job_title_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="job_title_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $jobTitle;
     
     /**
      * @ORM\ManyToOne(targetEntity="Department", inversedBy="employees")
-     * @ORM\JoinColumn(name="department_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="department_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $department;
     
     /**
      * @ORM\ManyToOne(targetEntity="Project", inversedBy="employees")
-     * @ORM\JoinColumn(name="project_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="project_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $project;
     
     /**
      * @ORM\ManyToOne(targetEntity="BusinessUnit", inversedBy="employees")
-     * @ORM\JoinColumn(name="business_unit_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="business_unit_id", referencedColumnName="id", onDelete="SET NULL")
      */
     private $businessUnit;
     

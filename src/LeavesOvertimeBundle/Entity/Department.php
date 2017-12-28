@@ -24,7 +24,7 @@ class Department extends EntityBase
     }
     
     public function __toString() {
-        return $this->name;
+        return !empty($this->name) ? $this->name : '';
     }
     
     /**
