@@ -34,10 +34,10 @@ class EmployeeAdmin extends CommonAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('hireDate')
+//            ->add('hireDate')
             ->add('employmentStatus')
-            ->add('departureDate')
-            ->add('departureReason')
+//            ->add('departureDate')
+//            ->add('departureReason')
         ;
     }
 
@@ -71,6 +71,31 @@ class EmployeeAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
+        $orderListByNameASC = function (EntityRepository $er) {
+            return $er->createQueryBuilder('e')
+                ->orderBy('e.name', 'ASC');
+        };
+        
+        $orderListByLastNameASC = function (EntityRepository $er) {
+            return $er->createQueryBuilder('em')
+                ->orderBy('em.lastName', 'ASC');
+        };
+        
+        $supervisorOptions = [
+            'class' => Employee::class,
+            'query_builder' => $orderListByLastNameASC,
+            'choice_label' => 'fullName',
+            'required'   => false,
+            'expanded' => false,
+            'multiple' => true,
+        ];
+        
+        $simpleEntityOptions = [
+            'query_builder' => $orderListByNameASC,
+            'choice_label' => 'name',
+            'required'   => false,
+        ];
+        
         $formMapper
             ->add('abNumber')
             ->add('title', ChoiceType::class, [
@@ -86,65 +111,21 @@ class EmployeeAdmin extends CommonAdmin
                 ]])
             ->add('firstName', TextType::class, ['required' => true])
             ->add('lastName', TextType::class, ['required' => true])
-            ->add('jobTitle', EntityType::class, [
-                'class' => JobTitle::class,
-                'query_builder' => function (EntityRepository $er) {
-                return $er->createQueryBuilder('jt')
-                  ->orderBy('jt.value', 'ASC');
-                },
-                'choice_label' => 'value',
-                'required'   => false,
-            ])
             ->add('email', EmailType::class)
-            ->add('businessUnit', EntityType::class, [
-                'class' => BusinessUnit::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('bu')
-                        ->orderBy('bu.name', 'ASC');
-                },
-                'choice_label' => 'name',
-                'required'   => false,
-            ])
-            ->add('department', EntityType::class, [
-                'class' => Department::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('dt')
-                        ->orderBy('dt.name', 'ASC');
-                },
-                'choice_label' => 'name',
-                'required'   => false,
-            ])
-            ->add('project', EntityType::class, [
-                'class' => Project::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('pr')
-                        ->orderBy('pr.name', 'ASC');
-                },
-                'choice_label' => 'name',
-                'required'   => false,
-            ])
-            ->add('supervisorsLevel1', EntityType::class, [
-                'class' => Employee::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('em')
-                        ->orderBy('em.lastName', 'ASC');
-                },
-                'choice_label' => 'fullName',
-                'required'   => false,
-                'expanded' => false,
-                'multiple' => true,
-            ])
-            ->add('supervisorsLevel2', EntityType::class, [
-                'class' => Employee::class,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('em')
-                        ->orderBy('em.lastName', 'ASC');
-                },
-                'choice_label' => 'fullName',
-                'required'   => false,
-                'expanded' => false,
-                'multiple' => true,
-            ])
+            ->add('jobTitle', EntityType::class, array_merge($simpleEntityOptions, [
+                'class' => JobTitle::class
+            ]))
+            ->add('businessUnit', EntityType::class, array_merge($simpleEntityOptions, [
+                'class' => BusinessUnit::class
+            ]))
+            ->add('department', EntityType::class, array_merge($simpleEntityOptions, [
+                'class' => Department::class
+            ]))
+            ->add('project', EntityType::class, array_merge($simpleEntityOptions, [
+                'class' => Project::class
+            ]))
+            ->add('supervisorsLevel1', EntityType::class, $supervisorOptions)
+            ->add('supervisorsLevel2', EntityType::class, $supervisorOptions)
             ->add('hireDate', DateType::class, [
                 'widget'  => 'single_text'
             ])
@@ -162,7 +143,6 @@ class EmployeeAdmin extends CommonAdmin
             ->add('departureReason', TextareaType::class, ['required' => false])
         ;
     }
-
 
     protected function configureShowFields(ShowMapper $showMapper)
     {

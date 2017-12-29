@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="axa_job_title")
  * @ORM\Entity(repositoryClass="LeavesOvertimeBundle\Repository\JobTitleRepository")
  */
-class JobTitle extends EntityBase
+class JobTitle extends SimpleEntity
 {
     /**
      * @ORM\OneToMany(targetEntity="Employee", mappedBy="jobTitle")
@@ -22,59 +22,40 @@ class JobTitle extends EntityBase
     {
       $this->employees = new ArrayCollection();
     }
-  
-    public function __toString() {
-        return $this->name;
-    }
-  
+    
     /**
-     * @var int
+     * Add employee.
      *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="name", type="string", length=255, nullable=true, unique=false)
-     */
-    private $name;
-
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param string|null $name
+     * @param \LeavesOvertimeBundle\Entity\Employee $employee
      *
      * @return JobTitle
      */
-    public function setName($name = null)
+    public function addEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
     {
-        $this->name = $name;
-
+        $this->employees[] = $employee;
+        
         return $this;
     }
-
+    
     /**
-     * Get name.
+     * Remove employee.
      *
-     * @return string|null
+     * @param \LeavesOvertimeBundle\Entity\Employee $employee
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function getName()
+    public function removeEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
     {
-        return $this->name;
+        return $this->employees->removeElement($employee);
+    }
+    
+    /**
+     * Get employees.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEmployees()
+    {
+        return $this->employees;
     }
 }

@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="axa_business_unit")
  * @ORM\Entity(repositoryClass="LeavesOvertimeBundle\Repository\BusinessUnitRepository")
  */
-class BusinessUnit extends EntityBase
+class BusinessUnit extends SimpleEntity
 {
     /**
      * @ORM\OneToMany(targetEntity="Employee", mappedBy="businessUnit")
@@ -21,61 +21,6 @@ class BusinessUnit extends EntityBase
     public function __construct()
     {
         $this->employees = new ArrayCollection();
-    }
-    
-    public function __toString() {
-        return !empty($this->name) ? $this->name : '';
-    }
-    
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255, nullable=false, unique=false)
-     */
-    private $name;
-
-
-    /**
-     * Get id.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set name.
-     *
-     * @param string $name
-     *
-     * @return BusinessUnit
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * Get name.
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**
