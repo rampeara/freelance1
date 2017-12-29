@@ -4,6 +4,13 @@ imports:
     - { resource: services.yml }
     - { resource: "@LeavesOvertimeBundle/Resources/config/services.yml" }
 
+sonata_admin:
+    title: Leaves & Overtime
+#    title_logo: web/bundles/leavesovertime/axa-logo.svg
+    templates:
+        # Override default template
+        layout: LeavesOvertimeBundle:SonataAdmin:standard_layout.html.twig
+
 # Sonata User Bundle
 sonata_user:
     security_acl: true

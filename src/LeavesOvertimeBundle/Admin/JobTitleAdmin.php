@@ -2,6 +2,6 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
-class BusinessUnitAdmin extends SimpleAdmin
+class JobTitleAdmin extends SimpleAdmin
 {
 }

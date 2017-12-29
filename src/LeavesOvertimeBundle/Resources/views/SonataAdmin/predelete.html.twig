@@ -25,7 +25,7 @@ file that was distributed with this source code.
                 <h3 class="box-title">{{ 'title_delete'|trans({}, 'SonataAdminBundle') }}</h3>
             </div>
             <div class="box-body">
-                <p>Warning!</p>
+                <p><b>Warning!</b></p>
                 <p>The following employees have the current element selected in their profiles:</p>
                 <ol>
                 {% for employee in linkedEmployees %}
@@ -34,7 +34,7 @@ file that was distributed with this source code.
                     {% endif %}
                 {% endfor %}
                 </ol>
-                <p>Please change them by clicking on each of the above URLs OR automatically set it to empty in each of the above by clicking the delete button below.</p>
+                <p>Please change them by clicking on each of the above URLs <b>OR</b> automatically set it to empty in each of the above by clicking the delete button below.</p>
                 {{ 'message_delete_confirmation'|trans({'%object%': admin.toString(object)}, 'SonataAdminBundle') }}
             </div>
             <div class="box-footer clearfix">

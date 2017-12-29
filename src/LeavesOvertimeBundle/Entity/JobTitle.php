@@ -24,7 +24,7 @@ class JobTitle extends EntityBase
     }
   
     public function __toString() {
-        return $this->value;
+        return $this->name;
     }
   
     /**
@@ -39,9 +39,9 @@ class JobTitle extends EntityBase
     /**
      * @var string|null
      *
-     * @ORM\Column(name="value", type="string", length=255, nullable=true, unique=false)
+     * @ORM\Column(name="name", type="string", length=255, nullable=true, unique=false)
      */
-    private $value;
+    private $name;
 
 
     /**
@@ -55,26 +55,26 @@ class JobTitle extends EntityBase
     }
 
     /**
-     * Set value.
+     * Set name.
      *
-     * @param string|null $value
+     * @param string|null $name
      *
      * @return JobTitle
      */
-    public function setValue($value = null)
+    public function setName($name = null)
     {
-        $this->value = $value;
+        $this->name = $name;
 
         return $this;
     }
 
     /**
-     * Get value.
+     * Get name.
      *
      * @return string|null
      */
-    public function getValue()
+    public function getName()
     {
-        return $this->value;
+        return $this->name;
     }
 }

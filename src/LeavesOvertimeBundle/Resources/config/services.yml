@@ -1,18 +1,18 @@
 services:
-    leaves_overtime.admin.employee:
-        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
-        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin, Sonata\DoctrineORMAdminBundle\Model\ModelManager]
-        tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
-        public: true
-#        calls:
-#            - [getEntityManager, ['@doctrine.orm.entity_manager']]
-
     doctrine.listener.audit_subsriber:
         class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
         arguments: ["@security.token_storage"]
         tags:
             - { name: doctrine.event_subscriber, lazy: true }
+
+    leaves_overtime.admin.employee:
+        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
+        public: true
+#        calls:
+#            - [getEntityManager, ['@doctrine.orm.entity_manager']]
 
     leaves_overtime.admin.business_unit:
         class: LeavesOvertimeBundle\Admin\BusinessUnitAdmin
@@ -26,4 +26,18 @@ services:
         arguments: [~, LeavesOvertimeBundle\Entity\Department, LeavesOvertimeBundle:DepartmentAdmin]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Department }
+        public: true
+
+    leaves_overtime.admin.job_title:
+        class: LeavesOvertimeBundle\Admin\JobTitleAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\JobTitle, LeavesOvertimeBundle:JobTitleAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Job Title }
+        public: true
+
+    leaves_overtime.admin.project:
+        class: LeavesOvertimeBundle\Admin\ProjectAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\Project, LeavesOvertimeBundle:ProjectAdmin]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Project }
         public: true

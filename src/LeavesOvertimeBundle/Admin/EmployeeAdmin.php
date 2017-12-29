@@ -20,13 +20,8 @@ use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-class EmployeeAdmin extends AbstractAdmin
+class EmployeeAdmin extends CommonAdmin
 {
-    protected $datagridValues = [
-        '_sort_order' => 'ASC',
-        '_sort_by' => 'lastName',
-    ];
-    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
@@ -221,13 +216,5 @@ class EmployeeAdmin extends AbstractAdmin
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
         ];
-    }
-    
-    public function getDataSourceIterator()
-    {
-        $iterator = parent::getDataSourceIterator();
-        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('date_format_export');
-        $iterator->setDateTimeFormat($exportDateFormat);
-        return $iterator;
     }
 }
