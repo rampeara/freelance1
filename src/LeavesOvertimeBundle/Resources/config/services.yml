@@ -1,4 +1,8 @@
 services:
+    leaves_overtime.data_fixtures.email_template_fixture:
+        class: LeavesOvertimeBundle\DataFixtures\GeneralDataFixture
+        tags: [doctrine.fixture.orm]
+
     doctrine.listener.audit_subsriber:
         class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
         arguments: ["@security.token_storage"]
@@ -40,4 +44,18 @@ services:
         arguments: [~, LeavesOvertimeBundle\Entity\Project, LeavesOvertimeBundle:ProjectAdmin]
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Project }
+        public: true
+
+    leaves_overtime.admin.email_template:
+        class: LeavesOvertimeBundle\Admin\EmailTemplateAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\EmailTemplate, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Email Template }
+        public: true
+
+    leaves_overtime.admin.public_holiday:
+        class: LeavesOvertimeBundle\Admin\PublicHolidayAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\PublicHoliday, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Public Holiday }
         public: true

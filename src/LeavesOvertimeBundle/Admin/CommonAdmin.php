@@ -14,7 +14,7 @@ class CommonAdmin extends AbstractAdmin
     public function getDataSourceIterator()
     {
         $iterator = parent::getDataSourceIterator();
-        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('date_format_export');
+        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('datetime_format_export');
         $iterator->setDateTimeFormat($exportDateFormat);
         return $iterator;
     }

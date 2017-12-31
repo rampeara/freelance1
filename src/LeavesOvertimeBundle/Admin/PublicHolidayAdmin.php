@@ -2,25 +2,27 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
+use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 
-class SimpleAdmin extends CommonAdmin
+class PublicHolidayAdmin extends AbstractAdmin
 {
-    public function configureBatchActions($actions)
+    public function getDataSourceIterator()
     {
-        // remove delete to avoid deleting entries with foreign keys without
-        // giving a warning like customised in its Controller
-        unset($actions['delete']);
-        return $actions;
+        $iterator = parent::getDataSourceIterator();
+        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('date_format_export');
+        $iterator->setDateTimeFormat($exportDateFormat);
+        return $iterator;
     }
     
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
             ->add('name')
+            ->add('date')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
             ->add('updatedAt', 'doctrine_orm_datetime')
@@ -32,6 +34,7 @@ class SimpleAdmin extends CommonAdmin
     {
         $listMapper
             ->add('name')
+            ->add('date')
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')
@@ -50,6 +53,7 @@ class SimpleAdmin extends CommonAdmin
     {
         $formMapper
             ->add('name')
+            ->add('date')
         ;
     }
 
@@ -57,22 +61,11 @@ class SimpleAdmin extends CommonAdmin
     {
         $showMapper
             ->add('name')
+            ->add('date')
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')
             ->add('updatedBy')
         ;
-    }
-    
-    public function getExportFields()
-    {
-        return [
-            'ID' => 'id',
-            'Name' => 'name',
-            'Created at' => 'createdAt',
-            'Created by' => 'createdBy',
-            'Updated at' => 'updatedAt',
-            'Updated by' => 'updatedBy',
-        ];
     }
 }

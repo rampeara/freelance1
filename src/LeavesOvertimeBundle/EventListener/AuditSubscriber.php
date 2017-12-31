@@ -12,7 +12,9 @@ class AuditSubscriber implements EventSubscriber
         'LeavesOvertimeBundle\Entity\JobTitle',
         'LeavesOvertimeBundle\Entity\BusinessUnit',
         'LeavesOvertimeBundle\Entity\Department',
-        'LeavesOvertimeBundle\Entity\Project'
+        'LeavesOvertimeBundle\Entity\Project',
+        'LeavesOvertimeBundle\Entity\EmailTemplate',
+        'LeavesOvertimeBundle\Entity\PublicHoliday',
     ];
     private $context;
     
@@ -24,7 +26,7 @@ class AuditSubscriber implements EventSubscriber
         if ($this->context->getToken() != null) {
             return $this->context->getToken()->getUser();
         }
-        return null;
+        return 'system';
     }
     
     public function isValidClass($object, $classNames)
