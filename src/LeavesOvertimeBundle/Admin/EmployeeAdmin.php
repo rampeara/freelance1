@@ -81,6 +81,16 @@ class EmployeeAdmin extends CommonAdmin
                 ->orderBy('em.lastName', 'ASC');
         };
         
+//        $disabledDates = [];
+//        if ($d) {
+//            foreach ($this->getDisabledDates() as $date) {
+//                if ($date) {
+//                    $obj = $date['date'];
+//                    $disabledDates[] = $obj->format('M/d/y');
+//                }
+//            }
+//        }
+        
         $supervisorOptions = [
             'class' => Employee::class,
             'query_builder' => $orderListByLastNameASC,
@@ -126,8 +136,9 @@ class EmployeeAdmin extends CommonAdmin
             ]))
             ->add('supervisorsLevel1', EntityType::class, $supervisorOptions)
             ->add('supervisorsLevel2', EntityType::class, $supervisorOptions)
-            ->add('hireDate', DateType::class, [
-                'widget'  => 'single_text'
+            ->add('hireDate', 'sonata_type_date_picker', [
+                'dp_disabled_dates' => $this->getDisabledDatesFormatted(),
+                'dp_use_current' => false,
             ])
             ->add('employmentStatus', ChoiceType::class, [
                 'choices'  => [
@@ -136,9 +147,10 @@ class EmployeeAdmin extends CommonAdmin
                     "YEP" => "YEP",
                     "PART TIME" => "PART TIME",
             ]])
-            ->add('departureDate', DateType::class, [
-                'widget'  => 'single_text',
-                'required'   => false,
+            ->add('departureDate', 'sonata_type_date_picker', [
+                'dp_disabled_dates' => $this->getDisabledDatesFormatted(),
+                'dp_use_current' => false,
+                'required' => false
             ])
             ->add('departureReason', TextareaType::class, ['required' => false])
         ;
