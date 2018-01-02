@@ -5,11 +5,74 @@
                   http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
 
     <entity name="Application\Sonata\UserBundle\Entity\User" table="fos_user_user">
+        <many-to-one
+                field="jobTitle"
+                target-entity="LeavesOvertimeBundle\Entity\JobTitle"
+                inversed-by="employees">
+            <join-column name="job_title_id" referenced-column-name="id" on-delete="SET NULL" />
+        </many-to-one>
+        <many-to-one
+                field="department"
+                target-entity="LeavesOvertimeBundle\Entity\Department"
+                inversed-by="employees">
+            <join-column name="department_id" referenced-column-name="id" on-delete="SET NULL" />
+        </many-to-one>
+        <many-to-one
+                field="project"
+                target-entity="LeavesOvertimeBundle\Entity\Project"
+                inversed-by="employees">
+            <join-column name="project_id" referenced-column-name="id" on-delete="SET NULL" />
+        </many-to-one>
+        <many-to-one
+                field="businessUnit"
+                target-entity="LeavesOvertimeBundle\Entity\BusinessUnit"
+                inversed-by="employees">
+            <join-column name="business_unit_id" referenced-column-name="id" on-delete="SET NULL" />
+        </many-to-one>
+
+        <one-to-many
+                field="leaves"
+                target-entity="LeavesOvertimeBundle\Entity\Leaves"
+                mapped-by="user" />
+
+        <many-to-many field="supervisorsLevel1" target-entity="Application\Sonata\UserBundle\Entity\User">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+            <join-table name="axa_supervisors_level1">
+                <join-columns>
+                    <join-column name="user_id" referenced-column-name="id" />
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="supervisor_level1_id" referenced-column-name="id" />
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
+        <many-to-many field="supervisorsLevel2" target-entity="Application\Sonata\UserBundle\Entity\User">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+            <join-table name="axa_supervisors_level2">
+                <join-columns>
+                    <join-column name="user_id" referenced-column-name="id" />
+                </join-columns>
+                <inverse-join-columns>
+                    <join-column name="supervisor_level2_id" referenced-column-name="id" />
+                </inverse-join-columns>
+            </join-table>
+        </many-to-many>
 
         <id name="id" column="id" type="integer">
             <generator strategy="AUTO" />
         </id>
-
+        <field name="abNumber" column="ab_number" type="string" length="255" nullable="true" />
+        <field name="title" column="title" type="string" length="255" nullable="true" />
+        <field name="hireDate" column="hire_date" type="date" nullable="true" />
+        <field name="employmentStatus" column="employment_status" type="string" length="255" nullable="true" />
+        <field name="departureDate" column="departure_date" type="date" nullable="true" />
+        <field name="departureReason" column="departure_reason" type="string" length="255" nullable="true" />
+        <field name="createdBy" column="created_by" type="string" length="255" nullable="true" />
+        <field name="updatedBy" column="updated_by" type="string" length="255" nullable="true" />
     </entity>
 
 </doctrine-mapping>

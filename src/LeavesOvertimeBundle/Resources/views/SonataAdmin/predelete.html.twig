@@ -26,11 +26,11 @@ file that was distributed with this source code.
             </div>
             <div class="box-body">
                 <p><b>Warning!</b></p>
-                <p>The following employees have the current element selected in their profiles:</p>
+                <p>The following users have the current element selected in their profiles:</p>
                 <ol>
-                {% for employee in linkedEmployees %}
-                    {% if employee is not empty %}
-                    <li><a href="{{ path('admin_leavesovertime_employee_edit', {'id': employee.id}) }}" target="_blank">{{ employee.lastName ~ ' ' ~ employee.firstName }}</a></li>
+                {% for user in linkedUsers %}
+                    {% if user is not empty %}
+                    <li><a href="{{ path('admin_sonata_user_user_edit', {'id': user.id}) }}" target="_blank">{{ employee.lastName ~ ' ' ~ employee.firstName }}</a></li>
                     {% endif %}
                 {% endfor %}
                 </ol>

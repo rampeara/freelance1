@@ -6,20 +6,20 @@ class CommonRepository extends \Doctrine\ORM\EntityRepository
 {
     
     /**
-     * Finds employees referenced with passed entity
+     * Finds users referenced with passed entity
      * @param string $entityId
      * @param string $entityName
      *
      * @return array
      */
-    public function findReferencedEmployees($entityId, $entityName) {
-        $entityName = 'e.' . $entityName;
+    public function findReferencedUsers($entityId, $entityName) {
+        $entityName = 'u.' . $entityName;
         $query = $this->getEntityManager()->createQueryBuilder()
-            ->select('e.id, e.lastName, e.firstName')
-            ->from('LeavesOvertimeBundle:Employee', 'e')
+            ->select('u.id, u.lastname, u.firstname')
+            ->from('Application\Sonata\UserBundle\Entity\User', 'u')
             ->join($entityName, 'je')
             ->where('je.id = :id')
-            ->orderBy('e.lastName, e.firstName', 'ASC')
+            ->orderBy('u.lastname, u.firstname', 'ASC')
             ->setParameter('id', $entityId)
             ->getQuery()
         ;

@@ -9,7 +9,7 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Doctrine\ORM\EntityRepository;
-use LeavesOvertimeBundle\Entity\Employee;
+use Application\Sonata\UserBundle\Entity\User;
 
 class LeavesAdmin extends CommonAdmin
 {
@@ -57,18 +57,18 @@ class LeavesAdmin extends CommonAdmin
     
         $orderListByLastNameASC = function (EntityRepository $er) {
             return $er->createQueryBuilder('em')
-                ->orderBy('em.lastName', 'ASC');
+                ->orderBy('em.lastname', 'ASC');
         };
     
         $employeeOptions = [
-            'class' => Employee::class,
+            'class' => User::class,
             'query_builder' => $orderListByLastNameASC,
-            'choice_label' => 'fullName',
+            'choice_label' => 'fullname',
             'required'   => false
         ];
         
         $formMapper
-            ->add('employee', EntityType::class, $employeeOptions)
+            ->add('user', EntityType::class, $employeeOptions)
             ->add('type', ChoiceType::class, [
                 'choices'  => [
                     'Local leave' => 'Local leave',

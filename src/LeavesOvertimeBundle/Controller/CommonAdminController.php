@@ -15,16 +15,16 @@ class CommonAdminController extends CRUDController
     
     public function preDelete(Request $request, $object) {
         if (!$request->request->get('skip')) {
-            $linkedEmployees = $this->getDoctrine()
+            $linkedUsers = $this->getDoctrine()
                 ->getRepository($this->entity)
-                ->findReferencedEmployees($object->getId(), lcfirst(basename($this->entity)));
+                ->findReferencedUsers($object->getId(), lcfirst(basename($this->entity)));
             
-            if (!empty($linkedEmployees)) {
+            if (!empty($linkedUsers)) {
                 return $this->renderWithExtraParams('LeavesOvertimeBundle:SonataAdmin:predelete.html.twig', [
                     'object' => $object,
                     'action' => 'delete',
                     'csrf_token' => $this->getCsrfToken('sonata.delete'),
-                    'linkedEmployees' => $linkedEmployees
+                    'linkedUsers' => $linkedUsers
                 ]);
             }
         }

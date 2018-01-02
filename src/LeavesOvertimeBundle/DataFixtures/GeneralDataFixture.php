@@ -23,7 +23,7 @@ class GeneralDataFixture extends Fixture
         $this->loadJobTitle($manager);
         $this->loadBusinessUnit($manager);
         $this->loadProject($manager);
-        $this->loadEmployee($manager);
+        $this->loadUser($manager);
         $this->loadPublicHoliday($manager);
         
         $manager->flush();
@@ -37,7 +37,7 @@ class GeneralDataFixture extends Fixture
         $admin->setUsername('admin')
             ->setPlainPassword('admin')
             ->setEmail('admin@admin.com')
-            ->setRoles(['ROLE_ADMIN'])
+            ->setRoles(['ROLE_SUPERADMIN'])
             ->setEnabled(true)
         ;
         
@@ -225,15 +225,20 @@ class GeneralDataFixture extends Fixture
     /**
      * @param \Doctrine\Common\Persistence\ObjectManager $manager
      */
-    public function loadEmployee(ObjectManager &$manager) {
+    public function loadUser(ObjectManager &$manager) {
         for ($x = 1; $x < 34; $x++) {
-            $employee = new Employee();
-            $employee->setFirstName('First Name' . $x)
-                ->setLastName('Last Name ' . $x)
-                ->setEmail(sprintf('email_%s@email.com', $x))
+            $user = new User();
+            $user->setFirstname('Firstname' . $x)
+                ->setLastname('Lastname ' . $x)
+                ->setEmail(sprintf('email%s@email.com', $x))
                 ->setHireDate(new \DateTime())
+                ->setUsername('user' . $x)
+                ->setPlainPassword($user->getUsername())
+                ->setRoles(['ROLE_USER'])
+                ->setEnabled(true)
             ;
-            $manager->persist($employee);
+            
+            $manager->persist($user);
         }
     }
     

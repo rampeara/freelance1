@@ -8,13 +8,13 @@ services:
         arguments: ["@security.token_storage"]
         tags:
             - { name: doctrine.event_subscriber, lazy: true }
-
-    leaves_overtime.admin.employee:
-        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
-        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin, '@doctrine.orm.entity_manager']
-        tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
-        public: true
+#
+#    leaves_overtime.admin.employee:
+#        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
+#        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin, '@doctrine.orm.entity_manager']
+#        tags:
+#            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
+#        public: true
 
     leaves_overtime.admin.business_unit:
         class: LeavesOvertimeBundle\Admin\BusinessUnitAdmin

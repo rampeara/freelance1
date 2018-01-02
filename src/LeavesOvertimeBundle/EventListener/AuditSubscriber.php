@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 class AuditSubscriber implements EventSubscriber
 {
     private $validClasses = [
-        'LeavesOvertimeBundle\Entity\Employee',
+        'Application\Sonata\UserBundle\Entity\User',
         'LeavesOvertimeBundle\Entity\JobTitle',
         'LeavesOvertimeBundle\Entity\BusinessUnit',
         'LeavesOvertimeBundle\Entity\Department',

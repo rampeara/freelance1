@@ -13,10 +13,10 @@ use Doctrine\ORM\Mapping as ORM;
 class Leaves extends EntityBase
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Employee", inversedBy="leaves")
-     * @ORM\JoinColumn(name="employee_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="leaves")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
      */
-    private $employee;
+    private $user;
     
     /**
      * @var int
@@ -132,26 +132,26 @@ class Leaves extends EntityBase
     }
 
     /**
-     * Set employee.
+     * Set user.
      *
-     * @param \LeavesOvertimeBundle\Entity\Employee|null $employee
+     * @param \Application\Sonata\UserBundle\Entity\User|null $user
      *
      * @return Leaves
      */
-    public function setEmployee(\LeavesOvertimeBundle\Entity\Employee $employee = null)
+    public function setUser(\Application\Sonata\UserBundle\Entity\User $user = null)
     {
-        $this->employee = $employee;
+        $this->user = $user;
 
         return $this;
     }
 
     /**
-     * Get employee.
+     * Get user.
      *
-     * @return \LeavesOvertimeBundle\Entity\Employee|null
+     * @return \Application\Sonata\UserBundle\Entity\User|null
      */
-    public function getEmployee()
+    public function getUser()
     {
-        return $this->employee;
+        return $this->user;
     }
 }

@@ -14,48 +14,48 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Department extends SimpleEntity
 {
     /**
-     * @ORM\OneToMany(targetEntity="Employee", mappedBy="department")
+     * @ORM\OneToMany(targetEntity="Application\Sonata\UserBundle\Entity\User", mappedBy="department")
      */
-    private $employees;
+    protected $users;
     
     public function __construct()
     {
-        $this->employees = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
     
     /**
-     * Add employee.
+     * Add user.
      *
-     * @param \LeavesOvertimeBundle\Entity\Employee $employee
+     * @param \Application\Sonata\UserBundle\Entity\User $user
      *
      * @return Department
      */
-    public function addEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
+    public function addUser(\Application\Sonata\UserBundle\Entity\User $user)
     {
-        $this->employees[] = $employee;
+        $this->users[] = $user;
         
         return $this;
     }
     
     /**
-     * Remove employee.
+     * Remove user.
      *
-     * @param \LeavesOvertimeBundle\Entity\Employee $employee
+     * @param \Application\Sonata\UserBundle\Entity\User $user
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removeEmployee(\LeavesOvertimeBundle\Entity\Employee $employee)
+    public function removeUser(\Application\Sonata\UserBundle\Entity\User $user)
     {
-        return $this->employees->removeElement($employee);
+        return $this->users->removeElement($user);
     }
     
     /**
-     * Get employees.
+     * Get users.
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getEmployees()
+    public function getUsers()
     {
-        return $this->employees;
+        return $this->users;
     }
 }
