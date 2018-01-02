@@ -6,7 +6,6 @@ use LeavesOvertimeBundle\Entity\BusinessUnit;
 use LeavesOvertimeBundle\Entity\Department;
 use LeavesOvertimeBundle\Entity\Employee;
 use LeavesOvertimeBundle\Entity\Project;
-use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
@@ -14,14 +13,16 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Doctrs\SonataImportBundle\Admin\AdminImportTrait;
 
 class EmployeeAdmin extends CommonAdmin
 {
+    use AdminImportTrait;
+    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
@@ -80,16 +81,6 @@ class EmployeeAdmin extends CommonAdmin
             return $er->createQueryBuilder('em')
                 ->orderBy('em.lastName', 'ASC');
         };
-        
-//        $disabledDates = [];
-//        if ($d) {
-//            foreach ($this->getDisabledDates() as $date) {
-//                if ($date) {
-//                    $obj = $date['date'];
-//                    $disabledDates[] = $obj->format('M/d/y');
-//                }
-//            }
-//        }
         
         $supervisorOptions = [
             'class' => Employee::class,

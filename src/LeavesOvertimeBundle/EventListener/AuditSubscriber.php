@@ -15,6 +15,7 @@ class AuditSubscriber implements EventSubscriber
         'LeavesOvertimeBundle\Entity\Project',
         'LeavesOvertimeBundle\Entity\EmailTemplate',
         'LeavesOvertimeBundle\Entity\PublicHoliday',
+        'LeavesOvertimeBundle\Entity\Leaves',
     ];
     private $context;
     

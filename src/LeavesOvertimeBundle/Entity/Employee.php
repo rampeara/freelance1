@@ -39,6 +39,11 @@ class Employee extends EntityBase
      */
     private $businessUnit;
     
+    /**
+     * @ORM\OneToMany(targetEntity="Employee", mappedBy="employee")
+     */
+    private $leaves;
+    
     // ManyToMany
     
     /**
@@ -564,5 +569,41 @@ class Employee extends EntityBase
         }
         
         return join(', ', $supervisors);
+    }
+
+    /**
+     * Add leave
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $leave
+     *
+     * @return Employee
+     */
+    public function addLeave(\LeavesOvertimeBundle\Entity\Employee $leave)
+    {
+        $this->leaves[] = $leave;
+
+        return $this;
+    }
+
+    /**
+     * Remove leave
+     *
+     * @param \LeavesOvertimeBundle\Entity\Employee $leave
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeLeave(\LeavesOvertimeBundle\Entity\Employee $leave)
+    {
+        return $this->leaves->removeElement($leave);
+    }
+
+    /**
+     * Get leaves.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLeaves()
+    {
+        return $this->leaves;
     }
 }

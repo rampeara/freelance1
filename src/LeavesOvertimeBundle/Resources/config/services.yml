@@ -57,3 +57,10 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Public Holiday }
         public: true
+
+    leaves_overtime.admin.leaves:
+        class: LeavesOvertimeBundle\Admin\LeavesAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\Leaves, LeavesOvertimeBundle:LeavesAdmin, '@doctrine.orm.entity_manager']
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: Leaves }
+        public: true
