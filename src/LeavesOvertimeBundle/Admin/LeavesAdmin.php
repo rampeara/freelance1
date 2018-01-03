@@ -2,6 +2,7 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
+use LeavesOvertimeBundle\Common\DatepickerOptions;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
@@ -48,8 +49,11 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
+        $datepickerOptions = new DatepickerOptions($this->configurationPool->getContainer()->get('doctrine'));
+        $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
+        
         $datetimeOptions = [
-            'dp_disabled_dates' => $this->getDisabledDatesFormatted(),
+            'dp_disabled_dates' => $disabledDatesFormatted,
             'dp_use_current' => true,
             'dp_side_by_side' => true,
             //                'required' => false

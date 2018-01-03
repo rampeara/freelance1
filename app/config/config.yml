@@ -18,6 +18,11 @@ sonata_user:
     class:
         user: Application\Sonata\UserBundle\Entity\User
         group: Application\Sonata\UserBundle\Entity\Group
+    admin:                  # Admin Classes
+        user:
+            class:          LeavesOvertimeBundle\Admin\UserAdmin
+            controller:     SonataAdminBundle:CRUD
+            translation:    SonataUserBundle
 
 fos_user:
     db_driver:      orm # can be orm or odm

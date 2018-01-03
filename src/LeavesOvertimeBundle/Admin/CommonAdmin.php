@@ -7,43 +7,12 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 class CommonAdmin extends AbstractAdmin
 {
     public $container;
-    /* @var $entityManager \Doctrine\ORM\EntityManager */
-    public $entityManager;
-    
-    public $disabledDates;
-    public $disabledDatesFormatted;
-    
-    public function __construct($code, $class, $baseControllerName, $entityManager = null) {
-        parent::__construct($code, $class, $baseControllerName);
-        $this->entityManager = $entityManager;
-    }
-
-    protected function getDisabledDates() {
-        return $this->disabledDates = $this->entityManager->getRepository('LeavesOvertimeBundle:PublicHoliday')->createQueryBuilder('ph')->select('ph.date')
-            ->getQuery()->getArrayResult();
-    }
-    
+   
     /**
-     * Transforms date objects to array of string dates with specific format only
-     * Used to specify which dates to disabled in Sonata datepicker using Public Holidays table
-     * @return array|null
+     * @return null|\Symfony\Component\DependencyInjection\ContainerInterface
      */
-    public function getDisabledDatesFormatted() {
-        if ($this->disabledDatesFormatted) {
-            return $this->disabledDatesFormatted;
-        }
-        
-        $disabledDatesFormatted = [];
-        $disabledDates = $this->getDisabledDates();
-        if ($disabledDates) {
-            foreach ($disabledDates as $disabledDate) {
-                if ($disabledDate) {
-                    $obj = $disabledDate['date'];
-                    $disabledDatesFormatted[] = $obj->format('M/d/y');
-                }
-            }
-        }
-        return $this->disabledDatesFormatted = $disabledDatesFormatted;
+    public function getContainer() {
+        return $this->container = $this->getConfigurationPool()->getContainer();
     }
     
     protected $datagridValues = [
@@ -57,12 +26,5 @@ class CommonAdmin extends AbstractAdmin
         $exportDateFormat = $this->getContainer()->getParameter('datetime_format_export');
         $iterator->setDateTimeFormat($exportDateFormat);
         return $iterator;
-    }
-    
-    /**
-     * @return null|\Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    public function getContainer() {
-        return $this->container = $this->getConfigurationPool()->getContainer();
     }
 }

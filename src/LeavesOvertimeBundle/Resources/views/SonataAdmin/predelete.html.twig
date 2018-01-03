@@ -30,7 +30,7 @@ file that was distributed with this source code.
                 <ol>
                 {% for user in linkedUsers %}
                     {% if user is not empty %}
-                    <li><a href="{{ path('admin_sonata_user_user_edit', {'id': user.id}) }}" target="_blank">{{ employee.lastName ~ ' ' ~ employee.firstName }}</a></li>
+                    <li><a href="{{ path('admin_sonata_user_user_edit', {'id': user.id}) }}" target="_blank">{{ user.firstname ~ ' ' ~ user.lastname }}</a></li>
                     {% endif %}
                 {% endfor %}
                 </ol>

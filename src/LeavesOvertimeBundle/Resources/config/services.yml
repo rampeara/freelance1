@@ -9,11 +9,11 @@ services:
         tags:
             - { name: doctrine.event_subscriber, lazy: true }
 #
-#    leaves_overtime.admin.employee:
-#        class: LeavesOvertimeBundle\Admin\EmployeeAdmin
-#        arguments: [~, LeavesOvertimeBundle\Entity\Employee, LeavesOvertimeBundle:EmployeeAdmin, '@doctrine.orm.entity_manager']
+#    leaves_overtime.admin.user:
+#        class: LeavesOvertimeBundle\Admin\UserAdmin
+#        arguments: [~, Application\Sonata\UserBundle\Entity\User, LeavesOvertimeBundle:UserAdmin, '@doctrine.orm.entity_manager']
 #        tags:
-#            - { name: sonata.admin, manager_type: orm, group: admin, label: Employee }
+#            - { name: sonata.admin, manager_type: orm, group: admin, label: User }
 #        public: true
 
     leaves_overtime.admin.business_unit:

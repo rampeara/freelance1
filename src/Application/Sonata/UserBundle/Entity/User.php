@@ -92,9 +92,12 @@ class User extends BaseUser
      */
     public function getYearsOfService() {
         if (!empty($this->hireDate) && !empty($this->departureDate)) {
+            if (empty($this->departureDate)) {
+                return $this->hireDate->diff(new \DateTime('now'))->y;
+            }
             return $this->departureDate->diff($this->hireDate)->y;
         }
-        return $this->hireDate->diff(new \DateTime('now'))->y;
+        return 0;
     }
     
     public function getSupervisorsLevel1String() {
