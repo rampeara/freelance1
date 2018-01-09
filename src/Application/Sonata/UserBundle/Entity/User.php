@@ -87,6 +87,16 @@ class User extends BaseUser
     protected $updatedBy;
     
     /**
+     * Returns a string representation.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getFullname() ?: '-';
+    }
+    
+    /**
      * Diff in years since hire date till departure date or now
      * @return int
      */
@@ -115,14 +125,14 @@ class User extends BaseUser
      */
     protected function getSupervisorsString($supervisorsArray) {
         $supervisors = [];
-        /* @var $supervisor \LeavesOvertimeBundle\Entity\Employee */
+        /* @var $supervisor \Application\Sonata\UserBundle\Entity\User */
         foreach ($supervisorsArray as $supervisor) {
-            $supervisors[] = $supervisor->getFullName();
+            $supervisors[] = $supervisor->getFullname();
         }
         
         return join(', ', $supervisors);
     }
-
+    
     /**
      * Get id
      *
@@ -535,4 +545,27 @@ class User extends BaseUser
     {
         return $this->supervisorsLevel2;
     }
+    
+    /**
+     * @param \Doctrine\Common\Collections\ArrayCollection $supervisorsLevel1
+     *
+     * @return \Application\Sonata\UserBundle\Entity\User
+     */
+    public function setSupervisorsLevel1($supervisorsLevel1) {
+        $this->supervisorsLevel1 = $supervisorsLevel1;
+    
+        return $this;
+    }
+    
+    /**
+     * @param \Doctrine\Common\Collections\ArrayCollection $supervisorsLevel2
+     *
+     * @return \Application\Sonata\UserBundle\Entity\User
+     */
+    public function setSupervisorsLevel2($supervisorsLevel2) {
+        $this->supervisorsLevel2 = $supervisorsLevel2;
+    
+        return $this;
+    }
+    
 }

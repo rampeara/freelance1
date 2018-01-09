@@ -24,6 +24,8 @@ use Sonata\UserBundle\Form\Type\UserGenderListType;
 class UserAdmin extends BaseUserAdmin
 {
     use AdminImportTrait;
+
+
     
     protected $datagridValues = [
         '_sort_order' => 'DESC',
@@ -60,7 +62,8 @@ class UserAdmin extends BaseUserAdmin
     protected function configureListFields(ListMapper $listMapper): void
     {
         $listMapper
-            ->addIdentifier('abNumber')
+            ->addIdentifier('id')
+            ->add('abNumber')
             ->add('title')
             ->add('gender')
             ->add('firstname')
@@ -121,9 +124,25 @@ class UserAdmin extends BaseUserAdmin
         $formMapper->removeGroup('Profile', 'User');
         $formMapper->removeGroup('Social', 'User');
         $formMapper->removeGroup('Keys', 'Security');
+        $formMapper->removeGroup('Status', 'Security');
+    
+        $formMapper
+            ->tab('User')
+                ->with('General', ['class' => 'col-md-6'])->end()
+                ->with('Status', ['class' => 'col-md-6'])->end()
+                ->with('Profile', ['class' => 'col-md-12'])->end()
+            ->end()
+            ->tab('Security')
+                ->with('Groups', ['class' => 'col-md-12'])->end()
+                ->with('Roles', ['class' => 'col-md-12'])->end()
+            ->end()
+        ;
         
         $formMapper
             ->tab('User')
+                ->with('Status')
+                    ->add('enabled', null, ['required' => false])
+                ->end()
                 ->with('Profile')
                     ->add('abNumber')
                     ->add('title', ChoiceType::class, [
@@ -182,6 +201,7 @@ class UserAdmin extends BaseUserAdmin
     protected function configureShowFields(ShowMapper $showMapper): void
     {
         $showMapper
+            ->add('id')
             ->add('abNumber')
             ->add('username')
             ->add('email')
@@ -210,6 +230,7 @@ class UserAdmin extends BaseUserAdmin
     public function getExportFields()
     {
         return [
+            'ID' => 'id',
             'AB number' => 'abNumber',
             'Username' => 'username',
             'Email' => 'email',

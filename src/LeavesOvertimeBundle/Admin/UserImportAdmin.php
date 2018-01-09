@@ -5,10 +5,20 @@ namespace LeavesOvertimeBundle\Admin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 
-class SimpleAdmin extends CommonAdmin
+class UserImportAdmin extends CommonAdmin
 {
+    public function getExportFields()
+    {
+        return [
+            'File name' => 'fileName',
+            'Created at' => 'createdAt',
+            'Created by' => 'createdBy',
+        ];
+    }
+    
     public function configureBatchActions($actions)
     {
         // remove delete to avoid deleting entries with foreign keys without
@@ -17,30 +27,31 @@ class SimpleAdmin extends CommonAdmin
         return $actions;
     }
     
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection->remove('edit');
+    }
+    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('name')
+            ->add('fileName')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
-            ->add('updatedAt', 'doctrine_orm_datetime')
-            ->add('updatedBy')
         ;
     }
 
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
-            ->add('name')
+            ->add('fileName')
             ->add('createdAt')
             ->add('createdBy')
-            ->add('updatedAt')
-            ->add('updatedBy')
             ->add('_action', null, [
                 'actions' => [
                     'show' => [],
-                    'edit' => [],
-                    'delete' => [],
+//                    'edit' => [],
+//                    'delete' => [],
                 ],
             ])
         ;
@@ -49,30 +60,18 @@ class SimpleAdmin extends CommonAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('name')
+            ->add('file', 'file', [
+                'required' => false
+            ])
         ;
     }
 
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
-            ->add('name')
+            ->add('fileName')
             ->add('createdAt')
             ->add('createdBy')
-            ->add('updatedAt')
-            ->add('updatedBy')
         ;
-    }
-    
-    public function getExportFields()
-    {
-        return [
-//            'ID' => 'id',
-            'Name' => 'name',
-            'Created at' => 'createdAt',
-            'Created by' => 'createdBy',
-            'Updated at' => 'updatedAt',
-            'Updated by' => 'updatedBy',
-        ];
     }
 }

@@ -30,6 +30,7 @@ class LeavesAdmin extends CommonAdmin
     protected function configureListFields(ListMapper $listMapper)
     {
         $listMapper
+            ->add('user')
             ->add('type')
             ->add('startDate')
             ->add('endDate')
@@ -106,5 +107,18 @@ class LeavesAdmin extends CommonAdmin
             ->add('updatedAt')
             ->add('updatedBy')
         ;
+    }
+    
+    public function getExportFields()
+    {
+        return [
+            'Type of Leave' => 'type',
+            'Start date' => 'startDate',
+            'End date' => 'endDate',
+            'Created at' => 'createdAt',
+            'Created by' => 'createdBy',
+            'Updated at' => 'updatedAt',
+            'Updated by' => 'updatedBy',
+        ];
     }
 }

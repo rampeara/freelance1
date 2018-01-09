@@ -64,3 +64,10 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: admin, label: Leaves }
         public: true
+
+    leaves_overtime.admin.user_import:
+        class: LeavesOvertimeBundle\Admin\UserImportAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\UserImport, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: admin, label: User Import }
+        public: true

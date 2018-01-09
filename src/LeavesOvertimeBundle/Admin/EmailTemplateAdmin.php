@@ -60,4 +60,16 @@ class EmailTemplateAdmin extends CommonAdmin
             ->add('updatedBy')
         ;
     }
+    
+    public function getExportFields()
+    {
+        return [
+            'Name' => 'name',
+            'Content' => 'content',
+            'Created at' => 'createdAt',
+            'Created by' => 'createdBy',
+            'Updated at' => 'updatedAt',
+            'Updated by' => 'updatedBy',
+        ];
+    }
 }

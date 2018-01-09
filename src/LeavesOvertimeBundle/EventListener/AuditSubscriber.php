@@ -2,6 +2,7 @@
 
 namespace LeavesOvertimeBundle\EventListener;
 
+use Application\Sonata\UserBundle\Entity\User;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 
@@ -16,6 +17,7 @@ class AuditSubscriber implements EventSubscriber
         'LeavesOvertimeBundle\Entity\EmailTemplate',
         'LeavesOvertimeBundle\Entity\PublicHoliday',
         'LeavesOvertimeBundle\Entity\Leaves',
+        'LeavesOvertimeBundle\Entity\UserImport',
     ];
     private $context;
     
@@ -23,11 +25,15 @@ class AuditSubscriber implements EventSubscriber
         $this->context= $securityContext;
     }
     
+    /**
+     * @return $this|\FOS\UserBundle\Model\UserInterface
+     */
     private function getUser(){
         if ($this->context->getToken() != null) {
             return $this->context->getToken()->getUser();
         }
-        return 'system';
+        $user = new User();
+        return $user->setUsername('system');
     }
     
     public function isValidClass($object, $classNames)
@@ -54,7 +60,7 @@ class AuditSubscriber implements EventSubscriber
         $entity = $args->getObject();
         if ($this->isValidClass($entity, $this->validClasses)) {
             $entity->setUpdatedAt(new \DateTime());
-            $entity->setUpdatedBy($this->getUser());
+            $entity->setUpdatedBy($this->getUser()->getUsername());
         }
     }
     
@@ -63,7 +69,7 @@ class AuditSubscriber implements EventSubscriber
         $entity = $args->getObject();
         if ($this->isValidClass($entity, $this->validClasses)) {
             $entity->setCreatedAt(new \DateTime());
-            $entity->setCreatedBy($this->getUser());
+            $entity->setCreatedBy($this->getUser()->getUsername());
         }
     }
     
