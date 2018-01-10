@@ -17,15 +17,24 @@ use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Doctrs\SonataImportBundle\Admin\AdminImportTrait;
 use Sonata\UserBundle\Admin\Model\UserAdmin as BaseUserAdmin;
 use Sonata\UserBundle\Form\Type\UserGenderListType;
 
 class UserAdmin extends BaseUserAdmin
 {
-    use AdminImportTrait;
-
-
+    /**
+     * @return null|\FOS\UserBundle\Model\UserInterface
+     */
+    public function getUser() {
+        return $this->getContainer()->get('security.token_storage')->getToken()->getUser();
+    }
+    
+    /**
+     * @return null|\Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    public function getContainer() {
+        return $this->getConfigurationPool()->getContainer();
+    }
     
     protected $datagridValues = [
         '_sort_order' => 'DESC',
@@ -35,7 +44,7 @@ class UserAdmin extends BaseUserAdmin
     public function getDataSourceIterator()
     {
         $iterator = parent::getDataSourceIterator();
-        $exportDateFormat = $this->getConfigurationPool()->getContainer()->getParameter('datetime_format_export');
+        $exportDateFormat = $this->getContainer()->getParameter('datetime_format_export');
         $iterator->setDateTimeFormat($exportDateFormat);
         return $iterator;
     }
@@ -93,32 +102,9 @@ class UserAdmin extends BaseUserAdmin
     {
         parent::configureFormFields($formMapper);
         
-        $orderListByNameASC = function (EntityRepository $er) {
-            return $er->createQueryBuilder('e')
-                ->orderBy('e.name', 'ASC');
-        };
-        
-        $orderListByLastNameASC = function (EntityRepository $er) {
-            return $er->createQueryBuilder('em')
-                ->orderBy('em.lastname', 'ASC');
-        };
-        
-        $supervisorOptions = [
-            'class' => User::class,
-            'query_builder' => $orderListByLastNameASC,
-            'choice_label' => 'fullname',
-            'required'   => false,
-            'expanded' => false,
-            'multiple' => true,
-        ];
-        
-        $simpleEntityOptions = [
-            'query_builder' => $orderListByNameASC,
-            'choice_label' => 'name',
-            'required'   => false,
-        ];
-    
-        $datepickerOptions = new DatepickerOptions($this->configurationPool->getContainer()->get('doctrine'));
+        $supervisorOptions = $this->getSupervisorFormOptions($this->getUser());
+        $simpleEntityOptions = $this->getSimpleEntityOptions();
+        $datepickerOptions = new DatepickerOptions($this->getContainer()->get('doctrine'));
         $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
         
         $formMapper->removeGroup('Profile', 'User');
@@ -151,11 +137,6 @@ class UserAdmin extends BaseUserAdmin
                         'Mrs' => 'Mrs',
                         'Ms' => 'Ms',
                     ]])
-    //                ->add('gender', ChoiceType::class, [
-    //                    'choices'  => [
-    //                        'Male' => 'Male',
-    //                        'Female' => 'Female',
-    //                    ]])
                     ->add('gender', UserGenderListType::class, [
                         'required' => true,
                         'translation_domain' => $this->getTranslationDomain(),
@@ -213,8 +194,8 @@ class UserAdmin extends BaseUserAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('supervisorsLevel1', null, ['associated_property' => 'fullName'])
-            ->add('supervisorsLevel2', null, ['associated_property' => 'fullName'])
+            ->add('supervisorsLevel1', null, ['associated_property' => 'fullname'])
+            ->add('supervisorsLevel2', null, ['associated_property' => 'fullname'])
             ->add('hireDate')
             ->add('employmentStatus')
             ->add('departureDate')
@@ -253,6 +234,41 @@ class UserAdmin extends BaseUserAdmin
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
+        ];
+    }
+    
+    /**
+     * @param User $user
+     * @return array
+     */
+    public function getSupervisorFormOptions($user = null) {
+        $queryBuilder = $this->getContainer()->get('doctrine')
+            ->getRepository('ApplicationSonataUserBundle:User')
+            ->getUsersQueryBuilder($user);
+        
+        $supervisorOptions = [
+            'class' => User::class,
+            'query_builder' => $queryBuilder,
+            'choice_label' => 'fullname',
+            'required' => FALSE,
+            'expanded' => FALSE,
+            'multiple' => TRUE,
+        ];
+        return $supervisorOptions;
+    }
+    
+    /**
+     * @return array
+     */
+    protected function getSimpleEntityOptions(): array {
+        $orderListByNameASC = function (EntityRepository $er) {
+            return $er->createQueryBuilder('e')
+                ->orderBy('e.name', 'ASC');
+        };
+        return [
+            'query_builder' => $orderListByNameASC,
+            'choice_label' => 'name',
+            'required' => FALSE,
         ];
     }
 }

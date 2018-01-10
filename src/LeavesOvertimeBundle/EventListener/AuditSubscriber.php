@@ -32,6 +32,7 @@ class AuditSubscriber implements EventSubscriber
         if ($this->context->getToken() != null) {
             return $this->context->getToken()->getUser();
         }
+        // maintain single return type, i.e User object
         $user = new User();
         return $user->setUsername('system');
     }

@@ -22,7 +22,7 @@ class PublicHolidayAdmin extends AbstractAdmin
     {
         $datagridMapper
             ->add('name')
-            ->add('date')
+            ->add('date', 'doctrine_orm_datetime')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
             ->add('updatedAt', 'doctrine_orm_datetime')

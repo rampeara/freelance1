@@ -47,7 +47,13 @@ class Leaves extends EntityBase
      * @ORM\Column(name="endDate", type="datetime", nullable=true)
      */
     private $endDate;
-
+    
+    /**
+     * @var string|null
+     *
+     * @ORM\Column(name="status", type="string", length=255, nullable=true)
+     */
+    private $status;
 
     /**
      * Get id.
@@ -153,5 +159,23 @@ class Leaves extends EntityBase
     public function getUser()
     {
         return $this->user;
+    }
+    
+    /**
+     * @return null|string
+     */
+    public function getStatus() {
+        return $this->status;
+    }
+    
+    /**
+     * @param null|string $status
+     *
+     * @return \LeavesOvertimeBundle\Entity\Leaves
+     */
+    public function setStatus($status) {
+        $this->status = $status;
+        
+        return $this;
     }
 }

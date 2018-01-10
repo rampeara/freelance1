@@ -6,13 +6,18 @@ use Sonata\AdminBundle\Admin\AbstractAdmin;
 
 class CommonAdmin extends AbstractAdmin
 {
-    public $container;
+    /**
+     * @return null|\FOS\UserBundle\Model\UserInterface
+     */
+    public function getUser() {
+        return $this->getContainer()->get('security.token_storage')->getToken()->getUser();
+    }
    
     /**
      * @return null|\Symfony\Component\DependencyInjection\ContainerInterface
      */
     public function getContainer() {
-        return $this->container = $this->getConfigurationPool()->getContainer();
+        return $this->getConfigurationPool()->getContainer();
     }
     
     protected $datagridValues = [

@@ -17,7 +17,12 @@ class LeavesAdmin extends CommonAdmin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('type')
+            ->add('type','doctrine_orm_string', [], 'choice', [
+                'choices' => $this->getTypeChoices()
+            ])
+            ->add('status', 'doctrine_orm_string', [], 'choice', [
+                'choices' => $this->getStatusChoices()
+            ])
             ->add('startDate', 'doctrine_orm_datetime')
             ->add('endDate', 'doctrine_orm_datetime')
             ->add('createdAt', 'doctrine_orm_datetime')
@@ -34,6 +39,10 @@ class LeavesAdmin extends CommonAdmin
             ->add('type')
             ->add('startDate')
             ->add('endDate')
+            ->add('status', 'choice', [
+                'choices'=> $this->getStatusChoices(),
+                'editable'=>true,
+            ])
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')
@@ -50,49 +59,17 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $datepickerOptions = new DatepickerOptions($this->configurationPool->getContainer()->get('doctrine'));
-        $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
-        
-        $datetimeOptions = [
-            'dp_disabled_dates' => $disabledDatesFormatted,
-            'dp_use_current' => true,
-            'dp_side_by_side' => true,
-            //                'required' => false
-        ];
-    
-        $orderListByLastNameASC = function (EntityRepository $er) {
-            return $er->createQueryBuilder('em')
-                ->orderBy('em.lastname', 'ASC');
-        };
-    
-        $employeeOptions = [
-            'class' => User::class,
-            'query_builder' => $orderListByLastNameASC,
-            'choice_label' => 'fullname',
-            'required'   => false
-        ];
-        
+        $datetimeOptions = $this->getDateTimeFormOptions();
         $formMapper
-            ->add('user', EntityType::class, $employeeOptions)
+            ->add('user', EntityType::class, $this->getUserFormOptions())
             ->add('type', ChoiceType::class, [
-                'choices'  => [
-                    'Local leave' => 'Local leave',
-                    'Sick leave' => 'Sick leave',
-                    'Absence from work' => 'Absence from work',
-                    'Leave without pay' => 'Leave without pay',
-                    'Special paid leave' => 'Special paid leave',
-                    'Maternity leave' => 'Maternity leave',
-                    'Maternity leave without pay' => 'Maternity leave without pay',
-                    'Paternity leave' => 'Paternity leave',
-                    'Paternity leaves without pay' => 'Paternity leaves without pay',
-                    'Compassionate leave' => 'Compassionate leave',
-                    'Wedding leave' => 'Wedding leave',
-                    'Wedding leave without pay' => 'Wedding leave without pay',
-                    'Injury leave' => 'Injury leave',
-                    'Injury leave without pay' => 'Injury leave without pay',
-            ]])
+                'choices'  => $this->getTypeChoices()
+            ])
             ->add('startDate', 'sonata_type_datetime_picker', $datetimeOptions)
             ->add('endDate', 'sonata_type_datetime_picker', $datetimeOptions)
+            ->add('status', ChoiceType::class, [
+                'choices'  => $this->getStatusChoices()
+            ])
         ;
     }
 
@@ -102,6 +79,7 @@ class LeavesAdmin extends CommonAdmin
             ->add('type')
             ->add('startDate')
             ->add('endDate')
+            ->add('status')
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')
@@ -115,10 +93,80 @@ class LeavesAdmin extends CommonAdmin
             'Type of Leave' => 'type',
             'Start date' => 'startDate',
             'End date' => 'endDate',
+            'Status' => 'status',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
         ];
+    }
+    
+    /**
+     * @return array
+     */
+    public function getStatusChoices() {
+        return [
+            'Pending' => 'Pending',
+            'Withdrawn' => 'Withdrawn',
+            'Approved' => 'Approved',
+            'Rejected' => 'Rejected',
+            'Cancelled' => 'Cancelled',
+        ];
+    }
+    
+    /**
+     * @return array
+     */
+    public function getTypeChoices() {
+        return [
+            'Local leave' => 'Local leave',
+            'Sick leave' => 'Sick leave',
+            'Absence from work' => 'Absence from work',
+            'Leave without pay' => 'Leave without pay',
+            'Special paid leave' => 'Special paid leave',
+            'Maternity leave' => 'Maternity leave',
+            'Maternity leave without pay' => 'Maternity leave without pay',
+            'Paternity leave' => 'Paternity leave',
+            'Paternity leaves without pay' => 'Paternity leaves without pay',
+            'Compassionate leave' => 'Compassionate leave',
+            'Wedding leave' => 'Wedding leave',
+            'Wedding leave without pay' => 'Wedding leave without pay',
+            'Injury leave' => 'Injury leave',
+            'Injury leave without pay' => 'Injury leave without pay',
+        ];
+    }
+    
+    /**
+     * @param User $user
+     * @return array
+     */
+    protected function getUserFormOptions($user = null) {
+        $queryBuilder = $this->getContainer()->get('doctrine')
+            ->getRepository('ApplicationSonataUserBundle:User')
+            ->getUsersQueryBuilder($user);
+        
+        $userOptions = [
+            'class' => User::class,
+            'query_builder' => $queryBuilder,
+            'choice_label' => 'fullname',
+            'required' => FALSE
+        ];
+        return $userOptions;
+    }
+    
+    /**
+     * @return array
+     */
+    protected function getDateTimeFormOptions() {
+        $datepickerOptions = new DatepickerOptions($this->getContainer()->get('doctrine'));
+        $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
+        
+        $datetimeOptions = [
+            'dp_disabled_dates' => $disabledDatesFormatted,
+            'dp_use_current' => TRUE,
+            'dp_side_by_side' => TRUE,
+            //                'required' => false
+        ];
+        return $datetimeOptions;
     }
 }
