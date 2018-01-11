@@ -44,7 +44,6 @@ class EmailTemplateAdmin extends CommonAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('name')
             ->add('content')
         ;
     }

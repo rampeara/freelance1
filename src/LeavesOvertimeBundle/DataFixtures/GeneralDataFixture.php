@@ -49,9 +49,11 @@ class GeneralDataFixture extends Fixture
      */
     public function loadEmailTemplate(ObjectManager &$manager) {
         $templateNames = [
-            'Request',
-            'Cancellation',
-            'Rejection'
+            'Requested',
+            'Withdrawn',
+            'Approved',
+            'Rejected',
+            'Cancelled',
         ];
         
         foreach ($templateNames as $templateName) {

@@ -8,6 +8,14 @@ services:
         arguments: ["@security.token_storage"]
         tags:
             - { name: doctrine.event_subscriber, lazy: true }
+
+    doctrine.listener.leaves_listener:
+      class: LeavesOvertimeBundle\EventListener\LeavesListener
+      arguments: ["@security.token_storage", "@service_container"]
+#      calls:
+#        - [setContainer,  ["@service_container"]]
+      tags:
+        - { name: doctrine.event_listener, event: onFlush, lazy: true }
 #
 #    leaves_overtime.admin.user:
 #        class: LeavesOvertimeBundle\Admin\UserAdmin

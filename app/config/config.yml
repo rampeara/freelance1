@@ -4,6 +4,14 @@ imports:
     - { resource: services.yml }
     - { resource: "@LeavesOvertimeBundle/Resources/config/services.yml" }
 
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+    datetime_format_export: 'd M Y H:i:s'
+    date_format_export: 'd M Y'
+    from_email: 'noreply@leaves-system.com'
+
 sonata_admin:
     title: Leaves & Overtime
 #    title_logo: web/bundles/leavesovertime/axa-logo.svg
@@ -37,7 +45,7 @@ fos_user:
         user_manager: sonata.user.orm.user_manager
 
     from_email:
-        address:        noreply@leaves-system.com
+        address:        '%from_email%'
         sender_name:    AXA Leaves & Overtime System
 
 # Sonata Admin Bundle
@@ -46,17 +54,10 @@ sonata_block:
     blocks:
         # enable the SonataAdminBundle block
         sonata.admin.block.admin_list:
-            contexts: [admin]    
+            contexts: [admin]
         sonata.user.block.menu:    # used to display the menu in profile pages
         sonata.user.block.account: # used to display menu option (login option)
         sonata.block.service.text: # used to if you plan to use Sonata user routes
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
-parameters:
-    locale: en
-    datetime_format_export: 'd M Y H:i:s'
-    date_format_export: 'd M Y'
 
 framework:
     templating:
