@@ -127,11 +127,11 @@ class User extends BaseUser implements LdapUserInterface
      * @return int
      */
     public function getYearsOfService() {
-        if (!empty($this->hireDate) && !empty($this->departureDate)) {
-            if (empty($this->departureDate)) {
-                return $this->hireDate->diff(new \DateTime('now'))->y;
+        if (!empty($this->hireDate)) {
+            if (!empty($this->departureDate)) {
+                return $this->departureDate->diff($this->hireDate)->y;
             }
-            return $this->departureDate->diff($this->hireDate)->y;
+            return $this->hireDate->diff(new \DateTime('now'))->y;
         }
         return 0;
     }

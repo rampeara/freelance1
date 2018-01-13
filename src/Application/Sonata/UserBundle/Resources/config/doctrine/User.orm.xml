@@ -37,7 +37,7 @@
 
         <many-to-many field="supervisorsLevel1" target-entity="Application\Sonata\UserBundle\Entity\User">
             <cascade>
-                <cascade-all/>
+                <cascade-persist/>
             </cascade>
             <join-table name="axa_supervisors_level1">
                 <join-columns>
@@ -50,7 +50,7 @@
         </many-to-many>
         <many-to-many field="supervisorsLevel2" target-entity="Application\Sonata\UserBundle\Entity\User">
             <cascade>
-                <cascade-all/>
+                <cascade-persist/>
             </cascade>
             <join-table name="axa_supervisors_level2">
                 <join-columns>

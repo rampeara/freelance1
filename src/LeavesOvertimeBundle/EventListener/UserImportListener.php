@@ -87,10 +87,11 @@ class UserImportListener
                     ->setEmploymentStatus($this->cleanData($data['Employment status']))
                     ->setSupervisorsLevel1($supervisorsLevel1)
                     ->setSupervisorsLevel2($supervisorsLevel2)
-                    ->setRoles(['ROLE_USER'])
+                    ->setDn($this->cleanData($data['DN']))
                     ->setEnabled(true)
-                    ->setUsername('temporary_' . uniqid())
-                    ->setPlainPassword('temporary')
+                    ->setUsername($this->cleanData($data['Username']))
+//                    ->setUsername('temporary_' . uniqid())
+                    ->setPlainPassword('temporary_' . uniqid())
                 ;
                 $entityManager->persist($user);
             }
@@ -109,7 +110,7 @@ class UserImportListener
     public function getSupervisors($entityManager, $data) {
         $supervisorsArrayCollection = null;
         if (!empty($data)) {
-            $supervisorsIds = explode(', ', $data);
+            $supervisorsIds = explode(',', $data);
             $supervisorsArrayCollection = new ArrayCollection();
             foreach ($supervisorsIds as $supervisorId) {
                 $supervisorObj = $entityManager->getRepository('ApplicationSonataUserBundle:User')
