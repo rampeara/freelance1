@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Sonata\UserBundle\Repository;
+namespace LeavesOvertimeBundle\Repository;
 
 /**
  * UserRepository
@@ -19,10 +19,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         $queryBuilder->orderBy('u.lastname', 'ASC')
             ->orderBy('u.firstname', 'ASC');
         if ($user) {
-            $queryBuilder->where('u.lastname != :lastname')
-                ->andWhere('u.firstname != :firstname')
-                ->setParameter('lastname', $user->getLastname())
-                ->setParameter('firstname', $user->getFirstname());
+            $queryBuilder->where('u.email != :email')
+                ->setParameter('email', $user->getEmail());
         }
         return $queryBuilder;
     }

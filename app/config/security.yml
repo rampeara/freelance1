@@ -1,9 +1,10 @@
 # To get started with security, check out the documentation:
 # https://symfony.com/doc/current/security.html
 security:
+    erase_credentials: false
     # Sonata User Bundle
     encoders:
-        FOS\UserBundle\Model\UserInterface: sha512
+        FOS\UserBundle\Model\UserInterface: bcrypt
     acl:
         connection: default
 
@@ -15,6 +16,11 @@ security:
             - ROLE_SONATA_PAGE_ADMIN_PAGE_EDIT  # if you are using acl then this line must be commented
 
     providers:
+        chain_provider:
+            chain:
+                providers: [fos_userbundle, fr3d_ldapbundle]
+        fr3d_ldapbundle:
+            id: fr3d_ldap.security.user.provider
         fos_userbundle:
             id: fos_user.user_provider.username
 
@@ -27,6 +33,7 @@ security:
         # -> custom firewall for the admin area of the URL
         admin:
             pattern:            /admin(.*)
+            fr3d_ldap:  ~
             context:            user
             form_login:
                 provider:       fos_userbundle
@@ -57,6 +64,20 @@ security:
                 failure_path:   null
             logout:             true
             anonymous:          true
+#            pattern: ^/
+#            fr3d_ldap:  ~
+#            form_login:
+#                always_use_default_target_path: true
+#                provider:       fos_userbundle
+#                login_path:     /admin/login
+#                use_forward:    false
+#                check_path:     /admin/login_check
+#                failure_path:   null
+#                default_target_path: /admin/dashboard
+#            logout:
+#                path:           /admin/logout
+#                target:         /admin/login
+#            anonymous:    true
 
     access_control:
         # URL of FOSUserBundle which need to be available to anonymous users

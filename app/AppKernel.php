@@ -31,6 +31,7 @@ class AppKernel extends Kernel
             // Others
             new LeavesOvertimeBundle\LeavesOvertimeBundle(),
             new Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
+            new FR3D\LdapBundle\FR3DLdapBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {
