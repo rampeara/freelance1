@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  *
  * @ORM\Table(name="axa_user_import")
  * @ORM\Entity(repositoryClass="LeavesOvertimeBundle\Repository\UserImportRepository")
- * @ORM\EntityListeners({"LeavesOvertimeBundle\EventListener\UserImportListener"})
  */
 class UserImport
 {
@@ -38,6 +37,13 @@ class UserImport
      * @ORM\Column(name="fileName", type="string", length=255, nullable=true)
      */
     private $fileName;
+
+    /**
+     * @var bool|null
+     *
+     * @ORM\Column(name="is_success", type="boolean", nullable=true)
+     */
+    private $isSuccess;
     
     /**
      * @var \DateTime
@@ -158,5 +164,22 @@ class UserImport
     public function getFileName()
     {
         return $this->fileName;
+    }
+    
+    /**
+     * @param bool|null $isSuccess
+     *
+     * @return UserImport
+     */
+    public function setIsSuccess(?bool $isSuccess): UserImport {
+        $this->isSuccess = $isSuccess;
+        return $this;
+}
+    
+    /**
+     * @return bool|null
+     */
+    public function getisSuccess(): ?bool {
+        return $this->isSuccess;
     }
 }

@@ -14,6 +14,7 @@ class UserImportAdmin extends CommonAdmin
     {
         return [
             'File name' => 'fileName',
+            'Succuessfully imported' => 'isSuccess',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
         ];
@@ -36,6 +37,7 @@ class UserImportAdmin extends CommonAdmin
     {
         $datagridMapper
             ->add('fileName')
+            ->add('isSuccess')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
         ;
@@ -45,6 +47,7 @@ class UserImportAdmin extends CommonAdmin
     {
         $listMapper
             ->add('fileName')
+            ->add('isSuccess')
             ->add('createdAt')
             ->add('createdBy')
             ->add('_action', null, [
@@ -61,7 +64,8 @@ class UserImportAdmin extends CommonAdmin
     {
         $formMapper
             ->add('file', 'file', [
-                'required' => false
+                'required' => false,
+                'help' => 'Please make sure to use unique Email and Username. Also use "dd-mm-yy" date format'
             ])
         ;
     }
@@ -70,6 +74,7 @@ class UserImportAdmin extends CommonAdmin
     {
         $showMapper
             ->add('fileName')
+            ->add('isSuccess')
             ->add('createdAt')
             ->add('createdBy')
         ;

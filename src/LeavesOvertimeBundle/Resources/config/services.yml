@@ -16,66 +16,65 @@ services:
 #        - [setContainer,  ["@service_container"]]
       tags:
         - { name: doctrine.event_listener, event: onFlush, lazy: true }
-#
-#    leaves_overtime.admin.user:
-#        class: LeavesOvertimeBundle\Admin\UserAdmin
-#        arguments: [~, Application\Sonata\UserBundle\Entity\User, LeavesOvertimeBundle:UserAdmin, '@doctrine.orm.entity_manager']
-#        tags:
-#            - { name: sonata.admin, manager_type: orm, group: admin, label: User }
-#        public: true
+
+    doctrine.listener.user_import_listener:
+      class: LeavesOvertimeBundle\EventListener\UserImportListener
+      arguments: ["@service_container"]
+      tags:
+        - { name: doctrine.event_listener, event: prePersist, lazy: true }
 
     leaves_overtime.admin.business_unit:
         class: LeavesOvertimeBundle\Admin\BusinessUnitAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\BusinessUnit, LeavesOvertimeBundle:BusinessUnitAdmin]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Business Unit }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Business Unit }
         public: true
 
     leaves_overtime.admin.department:
         class: LeavesOvertimeBundle\Admin\DepartmentAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\Department, LeavesOvertimeBundle:DepartmentAdmin]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Department }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Department }
         public: true
 
     leaves_overtime.admin.job_title:
         class: LeavesOvertimeBundle\Admin\JobTitleAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\JobTitle, LeavesOvertimeBundle:JobTitleAdmin]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Job Title }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Job Title }
         public: true
 
     leaves_overtime.admin.project:
         class: LeavesOvertimeBundle\Admin\ProjectAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\Project, LeavesOvertimeBundle:ProjectAdmin]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Project }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Project }
         public: true
 
     leaves_overtime.admin.email_template:
         class: LeavesOvertimeBundle\Admin\EmailTemplateAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\EmailTemplate, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Email Template }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Email Template }
         public: true
 
     leaves_overtime.admin.public_holiday:
         class: LeavesOvertimeBundle\Admin\PublicHolidayAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\PublicHoliday, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Public Holiday }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Public Holiday }
         public: true
 
     leaves_overtime.admin.leaves:
         class: LeavesOvertimeBundle\Admin\LeavesAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\Leaves, LeavesOvertimeBundle:LeavesAdmin, '@doctrine.orm.entity_manager']
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: Leaves }
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Leaves }
         public: true
 
     leaves_overtime.admin.user_import:
         class: LeavesOvertimeBundle\Admin\UserImportAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\UserImport, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: admin, label: User Import }
+            - { name: sonata.admin, manager_type: orm, group: '%sonata.user.admin.groupname%', label: User Import, label_catalogue: "%sonata.user.admin.label_catalogue%", label_translator_strategy: "sonata.admin.label.strategy.native" }
         public: true

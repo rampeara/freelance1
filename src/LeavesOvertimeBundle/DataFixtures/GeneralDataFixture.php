@@ -23,7 +23,7 @@ class GeneralDataFixture extends Fixture
         $this->loadJobTitle($manager);
         $this->loadBusinessUnit($manager);
         $this->loadProject($manager);
-        $this->loadUser($manager);
+//        $this->loadUser($manager);
         $this->loadPublicHoliday($manager);
         
         $manager->flush();
