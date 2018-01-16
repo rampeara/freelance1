@@ -3,17 +3,24 @@
 namespace LeavesOvertimeBundle\Admin;
 
 use LeavesOvertimeBundle\Common\DatepickerOptions;
+use LeavesOvertimeBundle\Entity\Leaves;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Doctrine\ORM\EntityRepository;
 use Application\Sonata\UserBundle\Entity\User;
 
 class LeavesAdmin extends CommonAdmin
 {
+    private $leaves;
+    
+    public function __construct(string $code, string $class, string $baseControllerName) {
+        parent::__construct($code, $class, $baseControllerName);
+        $this->leaves = new Leaves();
+    }
+    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
@@ -106,11 +113,11 @@ class LeavesAdmin extends CommonAdmin
      */
     public function getStatusChoices() {
         return [
-            'Pending' => 'Pending',
-            'Withdrawn' => 'Withdrawn',
-            'Approved' => 'Approved',
-            'Rejected' => 'Rejected',
-            'Cancelled' => 'Cancelled',
+            'Requested' => $this->leaves::STATUS_REQUESTED,
+            'Withdrawn' => $this->leaves::STATUS_WITHDRAWN,
+            'Approved' => $this->leaves::STATUS_APPROVED,
+            'Rejected' => $this->leaves::STATUS_REJECTED,
+            'Cancelled' => $this->leaves::STATUS_CANCELLED,
         ];
     }
     

@@ -3,6 +3,10 @@ services:
         class: LeavesOvertimeBundle\DataFixtures\GeneralDataFixture
         tags: [doctrine.fixture.orm]
 
+    leaves_overtime.common.utility:
+        class: LeavesOvertimeBundle\Common\Utility
+        arguments: ["@service_container"]
+
     doctrine.listener.audit_subsriber:
         class:     LeavesOvertimeBundle\EventListener\AuditSubscriber
         arguments: ["@security.token_storage"]

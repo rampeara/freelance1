@@ -8,14 +8,13 @@ use LeavesOvertimeBundle\Common\Utility;
 use LeavesOvertimeBundle\Entity\Leaves;
 use Doctrine\ORM\Event;
 
-class LeavesListener
+class LeavesListener extends Utility
 {
-    private $container;
     private $context;
     
-    public function __construct($securityContext, $container){
+    public function __construct($securityContext, $container) {
+        parent::__construct($container);
         $this->context= $securityContext;
-        $this->container = $container;
     }
     
     /**
@@ -52,68 +51,101 @@ class LeavesListener
         }
     }
     
+    /**
+     * Gets new status value saved in leave and sends emails accordingly
+     * @param Leaves $entity
+     * @param \Doctrine\ORM\UnitOfWork $unitOfWork
+     * @param \Doctrine\ORM\EntityManager $entityManager
+     */
     private function processStatusChange($entity, UnitOfWork $unitOfWork, EntityManager $entityManager) {
-        if ($entity instanceof Leaves) {
-            $changeset = $unitOfWork->getEntityChangeSet($entity);
+        $newValueForField = $this->getNewLeaveStatusValue($entity, $unitOfWork);
+        if ($newValueForField == null) {
+            return;
+        }
         
-            if (!is_array($changeset)) {
-                return null;
-            }
+        $templateName = $newValueForField;
+        $emailTo = [];
+        $allSupervisors = [];
+        // send mail to supervisors level 1
+        if ($templateName == $entity::STATUS_REQUESTED || $templateName == $entity::STATUS_WITHDRAWN) {
+            $emailTo = $this->getSupervisorsEmails();
+        }
+        // send mail to leave applicant, cc all supervisors
+        else {
+            $emailTo[] = $entity->getUser()->getEmail();
+            $allSupervisors = $this->getSupervisorsEmails(true);
+        }
         
-            if (array_key_exists('status', $changeset)) {
-                $changes = $changeset['status'];
-            
-                $previousValueForField = array_key_exists(0, $changes) ? $changes[0] : null;
-                $newValueForField = array_key_exists(1, $changes) ? $changes[1] : null;
-            
-                if ($previousValueForField != $newValueForField) {
-                    if ($newValueForField != 'Pending') {
-                        $templateName = $newValueForField;
-                    }
-                    else {
-                        $templateName = 'Requested';
-                    }
-                    
-                    $emailTo = [];
-                    // send mail to supervisors level 1
-                    if ($templateName == 'Requested' || $templateName == 'Withdrawn') {
-                        $emailTo = $this->getSupervisorsEmails($emailTo);
-                    }
-                    // send mail to leave applicant
-                    else {
-                        $emailTo[] = $entity->getUser()->getEmail();
-                    }
-                    
-                    if ($emailTo) {
-                        $template = $entityManager->getRepository('LeavesOvertimeBundle:EmailTemplate')->findOneBy(['name' => $templateName]);
-                        if ($template) {
-                            $emailOptions = [
-                                'subject' => sprintf('Leave %s', $templateName),
-                                'from' => $this->container->getParameter('from_email'),
-                                'to' => $emailTo,
-                                'body' => $template->getContent(),
-                            ];
-                            $utility = new Utility();
-                            $utility->sendSwiftMail($this->container->get('swiftmailer.mailer'), $emailOptions);
-                        }
-                    }
+        if ($emailTo) {
+            $template = $entityManager->getRepository('LeavesOvertimeBundle:EmailTemplate')->findOneBy(['name' => $templateName]);
+            if ($template) {
+                $emailOptions = [
+                    'subject' => sprintf('Leave %s', $templateName),
+                    'from' => $this->container->getParameter('from_email'),
+                    'to' => $emailTo,
+                    'body' => $template->getContent(),
+                ];
+                if ($allSupervisors) {
+                    $emailOptions['cc'] = $allSupervisors;
                 }
+//                $utility = new Utility();
+                $this->sendSwiftMail($emailOptions);
             }
         }
     }
     
     /**
-     * @param $emailTo
+     * @param $entity
+     * @param \Doctrine\ORM\UnitOfWork $unitOfWork
+     *
+     * @return null|string
+     */
+    private function getNewLeaveStatusValue($entity, UnitOfWork $unitOfWork) {
+        if (!($entity instanceof Leaves)) {
+            return null;
+        }
+        
+        $changeset = $unitOfWork->getEntityChangeSet($entity);
+        if (!is_array($changeset)) {
+            return null;
+        }
+        
+        if (!(array_key_exists('status', $changeset))) {
+            return null;
+        }
+        
+        $changes = $changeset['status'];
+        $previousValueForField = array_key_exists(0, $changes) ? $changes[0] : null;
+        $newValueForField = array_key_exists(1, $changes) ? $changes[1] : null;
+        
+        if ($previousValueForField == $newValueForField) {
+            return null;
+        }
+        
+        return $newValueForField;
+    }
+    
+    /**
+     * @param boolean $allSupervisors
      *
      * @return array
      */
-    private function getSupervisorsEmails($emailTo): array {
+    private function getSupervisorsEmails($allSupervisors = false): array {
+        $emailTo = [];
         $user = $this->getUser();
         if ($user) {
             $supervisors = $user->getSupervisorsLevel1();
             if ($supervisors) {
                 foreach ($supervisors as $supervisor) {
                     $emailTo[] = $supervisor->getEmail();
+                }
+            }
+            if ($allSupervisors) {
+                $supervisors = $user->getSupervisorsLevel2();
+                if ($supervisors) {
+                    foreach ($supervisors as $supervisor) {
+                        $emailTo[] = $supervisor->getEmail();
+                    }
                 }
             }
         }

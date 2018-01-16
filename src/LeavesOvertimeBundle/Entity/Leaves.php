@@ -12,6 +12,12 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Leaves extends EntityBase
 {
+    const STATUS_REQUESTED = 'Requested';
+    const STATUS_WITHDRAWN = 'Withdrawn';
+    const STATUS_APPROVED = 'Approved';
+    const STATUS_REJECTED = 'Rejected';
+    const STATUS_CANCELLED = 'Cancelled';
+    
     /**
      * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="leaves")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
