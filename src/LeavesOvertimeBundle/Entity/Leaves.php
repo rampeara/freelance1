@@ -20,7 +20,7 @@ class Leaves extends EntityBase
     
     /**
      * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="leaves")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="SET NULL")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
     
@@ -43,16 +43,23 @@ class Leaves extends EntityBase
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="startDate", type="datetime", nullable=true)
+     * @ORM\Column(name="start_date", type="date", nullable=true)
      */
     private $startDate;
 
     /**
      * @var \DateTime|null
      *
-     * @ORM\Column(name="endDate", type="datetime", nullable=true)
+     * @ORM\Column(name="end_date", type="date", nullable=true)
      */
     private $endDate;
+    
+    /**
+     * @var float|null
+     *
+     * @ORM\Column(name="duration", type="float", nullable=true)
+     */
+    private $duration;
     
     /**
      * @var string|null
@@ -183,5 +190,22 @@ class Leaves extends EntityBase
         $this->status = $status;
         
         return $this;
+    }
+    
+    /**
+     * @param float|null $duration
+     *
+     * @return Leaves
+     */
+    public function setDuration(?float $duration): Leaves {
+        $this->duration = $duration;
+        return $this;
+}
+    
+    /**
+     * @return float|null
+     */
+    public function getDuration(): ?float {
+        return $this->duration;
     }
 }

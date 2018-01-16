@@ -11,6 +11,7 @@ use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Application\Sonata\UserBundle\Entity\User;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class LeavesAdmin extends CommonAdmin
 {
@@ -30,8 +31,9 @@ class LeavesAdmin extends CommonAdmin
             ->add('status', 'doctrine_orm_string', [], 'choice', [
                 'choices' => $this->getStatusChoices()
             ])
-            ->add('startDate', 'doctrine_orm_datetime')
-            ->add('endDate', 'doctrine_orm_datetime')
+            ->add('startDate', 'doctrine_orm_date')
+            ->add('endDate', 'doctrine_orm_date')
+            ->add('duration')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
             ->add('updatedAt', 'doctrine_orm_datetime')
@@ -46,6 +48,7 @@ class LeavesAdmin extends CommonAdmin
             ->add('type')
             ->add('startDate')
             ->add('endDate')
+            ->add('duration')
             ->add('status', 'choice', [
                 'choices'=> $this->getStatusChoices(),
                 'editable'=>true,
@@ -72,8 +75,17 @@ class LeavesAdmin extends CommonAdmin
             ->add('type', ChoiceType::class, [
                 'choices'  => $this->getTypeChoices()
             ])
-            ->add('startDate', 'sonata_type_datetime_picker', $datetimeOptions)
-            ->add('endDate', 'sonata_type_datetime_picker', $datetimeOptions)
+            ->add('startDate', 'sonata_type_date_picker', $datetimeOptions)
+            ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
+            ->add('duration', NumberType::class, [
+                'required' => true,
+                'attr' => [
+                    'min' => 0.5,
+                    'max' => 90,
+                    'step' => 0.5,
+                    'numberType' => true, // overridden template to change field type from text to number
+                ],
+            ])
             ->add('status', ChoiceType::class, [
                 'choices'  => $this->getStatusChoices()
             ])
@@ -86,6 +98,7 @@ class LeavesAdmin extends CommonAdmin
             ->add('type')
             ->add('startDate')
             ->add('endDate')
+            ->add('duration')
             ->add('status')
             ->add('createdAt')
             ->add('createdBy')
@@ -100,6 +113,7 @@ class LeavesAdmin extends CommonAdmin
             'Type of Leave' => 'type',
             'Start date' => 'startDate',
             'End date' => 'endDate',
+            'Duration' => 'duration',
             'Status' => 'status',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
@@ -171,7 +185,6 @@ class LeavesAdmin extends CommonAdmin
         $datetimeOptions = [
             'dp_disabled_dates' => $disabledDatesFormatted,
             'dp_use_current' => TRUE,
-            'dp_side_by_side' => TRUE,
             //                'required' => false
         ];
         return $datetimeOptions;
