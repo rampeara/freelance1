@@ -2,10 +2,6 @@
 
 namespace LeavesOvertimeBundle\Repository;
 
-/**
- * UserRepository
- *
- */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
     /**
@@ -14,7 +10,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
-    public function getUsersQueryBuilder($user = null) {
+    public function getUsersQueryBuilder($user = null)
+    {
         $queryBuilder = $this->createQueryBuilder('u');
         $queryBuilder->orderBy('u.lastname', 'ASC')
             ->orderBy('u.firstname', 'ASC');
@@ -23,5 +20,35 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 ->setParameter('email', $user->getEmail());
         }
         return $queryBuilder;
+    }
+    
+    /**
+     * Returns unique ids of given user and their subordinates as a supervisor lvl 1 AND 2
+     * @param $userId
+     *
+     * @return array
+     */
+    public function getMySubordinatesIds($userId)
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->select('u.id')
+            ->innerJoin('u.supervisorsLevel1', 'sp1')
+            ->where('sp1.id = :id')
+            ->setParameter('id', $userId)
+        ;
+        $mySubordinatesAsLevel1 = $queryBuilder->getQuery()->getScalarResult();
+    
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->select('u.id')
+            ->innerJoin('u.supervisorsLevel2', 'sp2')
+            ->where('sp2.id = :id')
+            ->setParameter('id', $userId)
+        ;
+        $mySubordinatesAsLevel2 = $queryBuilder->getQuery()->getScalarResult();
+        
+        $ids1 = array_column($mySubordinatesAsLevel1, "id");
+        $ids2 = array_column($mySubordinatesAsLevel2, "id");
+
+        return array_unique(array_merge([(string)$userId], $ids1, $ids2));
     }
 }

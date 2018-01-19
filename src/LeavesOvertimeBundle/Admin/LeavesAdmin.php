@@ -40,6 +40,7 @@ class LeavesAdmin extends CommonAdmin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
+            ->add('user')
             ->add('type','doctrine_orm_string', [], 'choice', [
                 'choices' => $this->getTypeChoices()
             ])
@@ -54,6 +55,27 @@ class LeavesAdmin extends CommonAdmin
             ->add('updatedAt', 'doctrine_orm_datetime')
             ->add('updatedBy')
         ;
+    }
+    
+    public function createQuery($context = 'list')
+    {
+        $query = parent::createQuery($context);
+        // ids of my subordinates and logged in user
+        $userId = $this->getUser()->getId();
+        $subordinateIds = $this->getContainer()->get('doctrine')
+            ->getRepository('ApplicationSonataUserBundle:User')
+            ->getMySubordinatesIds($userId);
+        
+        // filter my ids supplied
+        $rootAlias = $query->getRootAliases()[0];
+        $query->innerJoin($rootAlias . '.user','u')
+            ->andWhere("u.id IN(:subordinatesIds)")
+            ->orderBy('u.id', 'ASC')
+            ->addOrderBy('u.lastname', 'ASC')
+            ->addOrderBy($rootAlias . '.createdAt', 'DESC')
+            ->setParameter('subordinatesIds', $subordinateIds);
+        
+        return $query;
     }
 
     protected function configureListFields(ListMapper $listMapper)
@@ -75,8 +97,6 @@ class LeavesAdmin extends CommonAdmin
             ->add('_action', null, [
                 'actions' => [
                     'show' => [],
-                    'edit' => [],
-                    'delete' => [],
                 ],
             ])
         ;
