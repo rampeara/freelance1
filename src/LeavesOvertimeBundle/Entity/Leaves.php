@@ -18,6 +18,21 @@ class Leaves extends EntityBase
     const STATUS_REJECTED = 'Rejected';
     const STATUS_CANCELLED = 'Cancelled';
     
+    const TYPE_LOCAL_LEAVE = 'Local leave';
+    const TYPE_SICK_LEAVE = 'Sick leave';
+    const TYPE_ABSENCE_FROM_WORK = 'Absence from work';
+    const TYPE_LEAVE_WITHOUT_PAY = 'Leave without pay';
+    const TYPE_SPECIAL_PAID_LEAVE = 'Special paid leave';
+    const TYPE_MATERNITY_LEAVE = 'Maternity leave';
+    const TYPE_MATERNITY_LEAVE_WITHOUT_PAY = 'Maternity leave without pay';
+    const TYPE_PATERNITY_LEAVE = 'Paternity leave';
+    const TYPE_PATERNITY_LEAVES_WITHOUT_PAY = 'Paternity leaves without pay';
+    const TYPE_COMPASSIONATE_LEAVE = 'Compassionate leave';
+    const TYPE_WEDDING_LEAVE = 'Wedding leave';
+    const TYPE_WEDDING_LEAVE_WITHOUT_PAY = 'Wedding leave without pay';
+    const TYPE_INJURY_LEAVE = 'Injury leave';
+    const TYPE_INJURY_LEAVE_WITHOUT_PAY = 'Injury leave without pay';
+    
     /**
      * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="leaves")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")

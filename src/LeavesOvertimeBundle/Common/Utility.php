@@ -6,7 +6,7 @@ class Utility {
     /** @var $container \Symfony\Component\DependencyInjection\ContainerInterface */
     public $container;
     
-    public function __construct($container){
+    public function __construct($container = null){
         $this->container = $container;
     }
     

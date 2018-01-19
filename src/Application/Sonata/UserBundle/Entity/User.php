@@ -78,9 +78,9 @@ class User extends BaseUser implements LdapUserInterface
     protected $departureReason;
     
     /**
-     * @var int $leaveBalance
+     * @var int $localBalance
      */
-    protected $leaveBalance;
+    protected $localBalance;
     
     /**
      * @var int $sickBalance
@@ -107,6 +107,12 @@ class User extends BaseUser implements LdapUserInterface
         parent::__construct();
         if (empty($this->roles)) {
             $this->roles[] = 'ROLE_USER';
+        }
+        if (empty($this->localBalance)) {
+            $this->localBalance = 0;
+        }
+        if (empty($this->sickBalance)) {
+            $this->sickBalance = 0;
         }
         $this->supervisorsLevel1 = new ArrayCollection();
         $this->supervisorsLevel2 = new ArrayCollection();
@@ -590,17 +596,17 @@ class User extends BaseUser implements LdapUserInterface
     /**
      * @return int
      */
-    public function getLeaveBalance(): int {
-        return $this->leaveBalance;
+    public function getLocalBalance(): int {
+        return !empty($this->localBalance) ? $this->localBalance : 0;
     }
     
     /**
-     * @param int $leaveBalance
+     * @param int $localBalance
      *
      * @return User
      */
-    public function setLeaveBalance(int $leaveBalance): User {
-        $this->leaveBalance = $leaveBalance;
+    public function setLocalBalance(int $localBalance): User {
+        $this->localBalance = $localBalance;
         return $this;
     }
     
@@ -618,7 +624,7 @@ class User extends BaseUser implements LdapUserInterface
      * @return int
      */
     public function getSickBalance(): int {
-        return $this->sickBalance;
+        return !empty($this->sickBalance) ? $this->sickBalance : 0;
     }
     
     /**

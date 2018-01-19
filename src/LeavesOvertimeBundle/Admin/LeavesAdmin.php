@@ -7,6 +7,7 @@ use LeavesOvertimeBundle\Entity\Leaves;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
+use Sonata\AdminBundle\Route\RouteCollection;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -20,6 +21,20 @@ class LeavesAdmin extends CommonAdmin
     public function __construct(string $code, string $class, string $baseControllerName) {
         parent::__construct($code, $class, $baseControllerName);
         $this->leaves = new Leaves();
+    }
+    
+    public function configureBatchActions($actions)
+    {
+        // remove delete to avoid deleting entries with foreign keys without
+        // giving a warning like customised in its Controller
+        unset($actions['delete']);
+        return $actions;
+    }
+    
+    protected function configureRoutes(RouteCollection $collection)
+    {
+        $collection->remove('edit');
+        $collection->remove('delete');
     }
     
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
@@ -125,7 +140,7 @@ class LeavesAdmin extends CommonAdmin
     /**
      * @return array
      */
-    public function getStatusChoices() {
+    protected function getStatusChoices() {
         return [
             'Requested' => $this->leaves::STATUS_REQUESTED,
             'Withdrawn' => $this->leaves::STATUS_WITHDRAWN,
@@ -138,22 +153,22 @@ class LeavesAdmin extends CommonAdmin
     /**
      * @return array
      */
-    public function getTypeChoices() {
+    protected function getTypeChoices() {
         return [
-            'Local leave' => 'Local leave',
-            'Sick leave' => 'Sick leave',
-            'Absence from work' => 'Absence from work',
-            'Leave without pay' => 'Leave without pay',
-            'Special paid leave' => 'Special paid leave',
-            'Maternity leave' => 'Maternity leave',
-            'Maternity leave without pay' => 'Maternity leave without pay',
-            'Paternity leave' => 'Paternity leave',
-            'Paternity leaves without pay' => 'Paternity leaves without pay',
-            'Compassionate leave' => 'Compassionate leave',
-            'Wedding leave' => 'Wedding leave',
-            'Wedding leave without pay' => 'Wedding leave without pay',
-            'Injury leave' => 'Injury leave',
-            'Injury leave without pay' => 'Injury leave without pay',
+            'Local leave' => $this->leaves::TYPE_LOCAL_LEAVE,
+            'Sick leave' => $this->leaves::TYPE_SICK_LEAVE,
+            'Absence from work' => $this->leaves::TYPE_ABSENCE_FROM_WORK,
+            'Leave without pay' => $this->leaves::TYPE_LEAVE_WITHOUT_PAY,
+            'Special paid leave' => $this->leaves::TYPE_SPECIAL_PAID_LEAVE,
+            'Maternity leave' => $this->leaves::TYPE_MATERNITY_LEAVE,
+            'Maternity leave without pay' => $this->leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
+            'Paternity leave' => $this->leaves::TYPE_PATERNITY_LEAVE,
+            'Paternity leaves without pay' => $this->leaves::TYPE_PATERNITY_LEAVES_WITHOUT_PAY,
+            'Compassionate leave' => $this->leaves::TYPE_COMPASSIONATE_LEAVE,
+            'Wedding leave' => $this->leaves::TYPE_WEDDING_LEAVE,
+            'Wedding leave without pay' => $this->leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
+            'Injury leave' => $this->leaves::TYPE_INJURY_LEAVE,
+            'Injury leave without pay' => $this->leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
         ];
     }
     
