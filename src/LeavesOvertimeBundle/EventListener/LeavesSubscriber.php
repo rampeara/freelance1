@@ -3,6 +3,7 @@
 namespace LeavesOvertimeBundle\EventListener;
 
 use LeavesOvertimeBundle\Common\Utility;
+use LeavesOvertimeBundle\Entity\BalanceLog;
 use LeavesOvertimeBundle\Entity\Leaves;
 use Doctrine\Common\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Common\EventSubscriber;
@@ -80,24 +81,10 @@ class LeavesSubscriber implements EventSubscriber
     {
         if ($leaves->getStatus() == $leaves::STATUS_APPROVED || $leaves->getStatus() == $leaves::STATUS_CANCELLED) {
             $user = $leaves->getUser();
-            if ($leaves->getStatus() == $leaves::STATUS_APPROVED) {
-                if ($leaves->getType() == $leaves::TYPE_SICK_LEAVE) {
-                    $user->setSickBalance($user->getSickBalance() - $leaves->getDuration());
-                }
-                else {
-                    $user->setLocalBalance($user->getLocalBalance() - $leaves->getDuration());
-                }
-            }
-            else {
-                if ($leaves->getStatus() == $leaves::STATUS_CANCELLED) {
-                    if ($leaves->getType() == $leaves::TYPE_SICK_LEAVE) {
-                        $user->setSickBalance($user->getSickBalance() + $leaves->getDuration());
-                    }
-                    else {
-                        $user->setLocalBalance($user->getLocalBalance() + $leaves->getDuration());
-                    }
-                }
-            }
+            $currentUser = $this->getUser()->getUsername();
+            list($leaveType, $previousBalance, $newBalance) = $this->updateUserBalance($leaves, $user);
+
+            $entityManager->persist(new BalanceLog($user, $leaveType, $previousBalance, $newBalance, $currentUser, $leaves->getStatus()));
             $entityManager->persist($user);
             $entityManager->flush();
         }
@@ -167,5 +154,26 @@ class LeavesSubscriber implements EventSubscriber
                 $this->utility->sendSwiftMail($emailOptions);
             }
         }
+    }
+    
+    /**
+     * @param $leaves
+     * @param $user
+     *
+     * @return array
+     */
+    private function updateUserBalance($leaves, &$user): array
+    {
+        $isSickLeave = $leaves->getType() == $leaves::TYPE_SICK_LEAVE;
+        $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
+        $previousBalance = $isSickLeave ? $user->getSickBalance() : $user->getLocalBalance();
+        $newBalance = $isApprovedStatus ? $previousBalance - $leaves->getDuration() : $previousBalance + $leaves->getDuration();
+        if ($isSickLeave) {
+            $user->setSickBalance($newBalance);
+        }
+        else {
+            $user->setLocalBalance($newBalance);
+        }
+        return [$isSickLeave ? $leaves::TYPE_SICK_LEAVE : $leaves::TYPE_LOCAL_LEAVE, $previousBalance, $newBalance];
     }
 }

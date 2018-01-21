@@ -71,8 +71,9 @@
         <field name="employmentStatus" column="employment_status" type="string" length="255" nullable="true" />
         <field name="departureDate" column="departure_date" type="date" nullable="true" />
         <field name="departureReason" column="departure_reason" type="string" length="255" nullable="true" />
-        <field name="localBalance" column="local_balance" type="integer" nullable="true" />
-        <field name="sickBalance" column="sick_balance" type="integer" nullable="true" />
+        <field name="localBalance" column="local_balance" type="float" nullable="true" />
+        <field name="sickBalance" column="sick_balance" type="float" nullable="true" />
+        <field name="frozenLocalBalance" column="frozen_local_balance" type="float" nullable="true" />
         <field name="dn" column="dn" type="string" length="255" nullable="true" />
         <field name="createdBy" column="created_by" type="string" length="255" nullable="true" />
         <field name="updatedBy" column="updated_by" type="string" length="255" nullable="true" />

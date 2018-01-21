@@ -82,6 +82,10 @@ class Leaves extends EntityBase
      * @ORM\Column(name="status", type="string", length=255, nullable=true)
      */
     private $status;
+    
+    public function getHours() {
+        return $this->duration * 8;
+    }
 
     /**
      * Get id.
@@ -222,5 +226,40 @@ class Leaves extends EntityBase
      */
     public function getDuration(): ?float {
         return $this->duration;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getTypeChoices() {
+        return [
+            'Local leave' => $this::TYPE_LOCAL_LEAVE,
+            'Sick leave' => $this::TYPE_SICK_LEAVE,
+            'Absence from work' => $this::TYPE_ABSENCE_FROM_WORK,
+            'Leave without pay' => $this::TYPE_LEAVE_WITHOUT_PAY,
+            'Special paid leave' => $this::TYPE_SPECIAL_PAID_LEAVE,
+            'Maternity leave' => $this::TYPE_MATERNITY_LEAVE,
+            'Maternity leave without pay' => $this::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
+            'Paternity leave' => $this::TYPE_PATERNITY_LEAVE,
+            'Paternity leaves without pay' => $this::TYPE_PATERNITY_LEAVES_WITHOUT_PAY,
+            'Compassionate leave' => $this::TYPE_COMPASSIONATE_LEAVE,
+            'Wedding leave' => $this::TYPE_WEDDING_LEAVE,
+            'Wedding leave without pay' => $this::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
+            'Injury leave' => $this::TYPE_INJURY_LEAVE,
+            'Injury leave without pay' => $this::TYPE_INJURY_LEAVE_WITHOUT_PAY,
+        ];
+    }
+    
+    /**
+     * @return array
+     */
+    public function getStatusChoices() {
+        return [
+            'Requested' => $this::STATUS_REQUESTED,
+            'Withdrawn' => $this::STATUS_WITHDRAWN,
+            'Approved' => $this::STATUS_APPROVED,
+            'Rejected' => $this::STATUS_REJECTED,
+            'Cancelled' => $this::STATUS_CANCELLED,
+        ];
     }
 }

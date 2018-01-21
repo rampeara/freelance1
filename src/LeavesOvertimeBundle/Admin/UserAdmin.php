@@ -12,6 +12,7 @@ use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
 use Sonata\AdminBundle\Show\ShowMapper;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use Doctrine\ORM\EntityRepository;
@@ -106,6 +107,13 @@ class UserAdmin extends BaseUserAdmin
         $simpleEntityOptions = $this->getSimpleEntityOptions();
         $datepickerOptions = new DatepickerOptions($this->getContainer()->get('doctrine'));
         $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
+        $balanceOptions = [
+            'required' => false,
+            'attr' => [
+                'step' => 0.5,
+                'numberType' => true, // overridden template to change field type from text to number
+            ]
+        ];
         
         $formMapper->removeGroup('Profile', 'User');
         $formMapper->removeGroup('Social', 'User');
@@ -128,6 +136,9 @@ class UserAdmin extends BaseUserAdmin
             ->tab('User')
                 ->with('Status')
                     ->add('enabled', null, ['required' => false])
+                    ->add('localBalance', NumberType::class, $balanceOptions)
+                    ->add('sickBalance', NumberType::class, $balanceOptions)
+                    ->add('frozenLocalBalance', NumberType::class, $balanceOptions)
                 ->end()
                 ->with('Profile')
                     ->add('abNumber')
@@ -201,6 +212,9 @@ class UserAdmin extends BaseUserAdmin
             ->add('departureDate')
             ->add('departureReason')
             ->add('yearsOfService', null, ['associated_property' => 'yearsOfService'])
+            ->add('localBalance')
+            ->add('sickBalance')
+            ->add('frozenLocalBalance')
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')

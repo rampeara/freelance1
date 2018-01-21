@@ -80,3 +80,10 @@ services:
         tags:
             - { name: sonata.admin, manager_type: orm, group: '%sonata.user.admin.groupname%', label: User Import, label_catalogue: "%sonata.user.admin.label_catalogue%", label_translator_strategy: "sonata.admin.label.strategy.native" }
         public: true
+
+    leaves_overtime.admin.balance_log:
+        class: LeavesOvertimeBundle\Admin\BalanceLogAdmin
+        arguments: [~, LeavesOvertimeBundle\Entity\BalanceLog, SonataAdminBundle:CRUD]
+        tags:
+            - { name: sonata.admin, manager_type: orm, group: Organisation, label: BalanceLog }
+        public: true

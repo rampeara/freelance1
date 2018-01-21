@@ -42,10 +42,10 @@ class LeavesAdmin extends CommonAdmin
         $datagridMapper
             ->add('user')
             ->add('type','doctrine_orm_string', [], 'choice', [
-                'choices' => $this->getTypeChoices()
+                'choices' => $this->leaves->getTypeChoices()
             ])
             ->add('status', 'doctrine_orm_string', [], 'choice', [
-                'choices' => $this->getStatusChoices()
+                'choices' => $this->leaves->getStatusChoices()
             ])
             ->add('startDate', 'doctrine_orm_date')
             ->add('endDate', 'doctrine_orm_date')
@@ -87,7 +87,7 @@ class LeavesAdmin extends CommonAdmin
             ->add('endDate')
             ->add('duration')
             ->add('status', 'choice', [
-                'choices'=> $this->getStatusChoices(),
+                'choices'=> $this->leaves->getStatusChoices(),
                 'editable'=>true,
             ])
             ->add('createdAt')
@@ -108,7 +108,7 @@ class LeavesAdmin extends CommonAdmin
         $formMapper
             ->add('user', EntityType::class, $this->getUserFormOptions())
             ->add('type', ChoiceType::class, [
-                'choices'  => $this->getTypeChoices()
+                'choices'  => $this->leaves->getTypeChoices()
             ])
             ->add('startDate', 'sonata_type_date_picker', $datetimeOptions)
             ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
@@ -122,7 +122,7 @@ class LeavesAdmin extends CommonAdmin
                 ],
             ])
             ->add('status', ChoiceType::class, [
-                'choices'  => $this->getStatusChoices()
+                'choices'  => $this->leaves->getStatusChoices()
             ])
         ;
     }
@@ -145,50 +145,25 @@ class LeavesAdmin extends CommonAdmin
     public function getExportFields()
     {
         return [
+            'AB Number' => 'user.abNumber',
+            'First name' => 'user.firstname',
+            'Last name' => 'user.lastname',
+            'Job title' => 'user.jobTitle',
+            'Business unit' => 'user.businessUnit',
+            'Department' => 'user.department',
+            'Project' => 'user.project',
             'Type of Leave' => 'type',
             'Start date' => 'startDate',
             'End date' => 'endDate',
-            'Duration' => 'duration',
+            'No. of days' => 'duration',
+            'Hours' => 'hours',
             'Status' => 'status',
+            'Local leave balance' => 'user.localBalance',
+            'Sick leave balance' => 'user.sickBalance',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
-        ];
-    }
-    
-    /**
-     * @return array
-     */
-    protected function getStatusChoices() {
-        return [
-            'Requested' => $this->leaves::STATUS_REQUESTED,
-            'Withdrawn' => $this->leaves::STATUS_WITHDRAWN,
-            'Approved' => $this->leaves::STATUS_APPROVED,
-            'Rejected' => $this->leaves::STATUS_REJECTED,
-            'Cancelled' => $this->leaves::STATUS_CANCELLED,
-        ];
-    }
-    
-    /**
-     * @return array
-     */
-    protected function getTypeChoices() {
-        return [
-            'Local leave' => $this->leaves::TYPE_LOCAL_LEAVE,
-            'Sick leave' => $this->leaves::TYPE_SICK_LEAVE,
-            'Absence from work' => $this->leaves::TYPE_ABSENCE_FROM_WORK,
-            'Leave without pay' => $this->leaves::TYPE_LEAVE_WITHOUT_PAY,
-            'Special paid leave' => $this->leaves::TYPE_SPECIAL_PAID_LEAVE,
-            'Maternity leave' => $this->leaves::TYPE_MATERNITY_LEAVE,
-            'Maternity leave without pay' => $this->leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
-            'Paternity leave' => $this->leaves::TYPE_PATERNITY_LEAVE,
-            'Paternity leaves without pay' => $this->leaves::TYPE_PATERNITY_LEAVES_WITHOUT_PAY,
-            'Compassionate leave' => $this->leaves::TYPE_COMPASSIONATE_LEAVE,
-            'Wedding leave' => $this->leaves::TYPE_WEDDING_LEAVE,
-            'Wedding leave without pay' => $this->leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
-            'Injury leave' => $this->leaves::TYPE_INJURY_LEAVE,
-            'Injury leave without pay' => $this->leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
         ];
     }
     

@@ -78,14 +78,19 @@ class User extends BaseUser implements LdapUserInterface
     protected $departureReason;
     
     /**
-     * @var int $localBalance
+     * @var float $localBalance
      */
     protected $localBalance;
     
     /**
-     * @var int $sickBalance
+     * @var float $sickBalance
      */
     protected $sickBalance;
+    
+    /**
+     * @var float $frozenLocalBalance
+     */
+    protected $frozenLocalBalance;
     
     /**
      * @var string|null
@@ -113,6 +118,9 @@ class User extends BaseUser implements LdapUserInterface
         }
         if (empty($this->sickBalance)) {
             $this->sickBalance = 0;
+        }
+        if (empty($this->frozenLocalBalance)) {
+            $this->frozenLocalBalance = 0;
         }
         $this->supervisorsLevel1 = new ArrayCollection();
         $this->supervisorsLevel2 = new ArrayCollection();
@@ -594,40 +602,6 @@ class User extends BaseUser implements LdapUserInterface
     }
     
     /**
-     * @return int
-     */
-    public function getLocalBalance(): int {
-        return !empty($this->localBalance) ? $this->localBalance : 0;
-    }
-    
-    /**
-     * @param int $localBalance
-     *
-     * @return User
-     */
-    public function setLocalBalance(int $localBalance): User {
-        $this->localBalance = $localBalance;
-        return $this;
-    }
-    
-    /**
-     * @param int $sickBalance
-     *
-     * @return User
-     */
-    public function setSickBalance(int $sickBalance): User {
-        $this->sickBalance = $sickBalance;
-        return $this;
-}
-    
-    /**
-     * @return int
-     */
-    public function getSickBalance(): int {
-        return !empty($this->sickBalance) ? $this->sickBalance : 0;
-    }
-    
-    /**
      * @param mixed $dn
      *
      * @return User
@@ -642,5 +616,62 @@ class User extends BaseUser implements LdapUserInterface
      */
     public function getDn() {
         return $this->dn;
+    }
+    
+    /**
+     * @param float $localBalance
+     *
+     * @return User
+     */
+    public function setLocalBalance(float $localBalance): User
+    {
+        $this->localBalance = $localBalance;
+        return $this;
+}
+    
+    /**
+     * @return float
+     */
+    public function getLocalBalance(): float
+    {
+        return !empty($this->localBalance) ? $this->localBalance : 0;
+    }
+    
+    /**
+     * @param float $sickBalance
+     *
+     * @return User
+     */
+    public function setSickBalance(float $sickBalance): User
+    {
+        $this->sickBalance = $sickBalance;
+        return $this;
+    }
+    
+    /**
+     * @return float
+     */
+    public function getSickBalance(): float
+    {
+        return !empty($this->sickBalance) ? $this->sickBalance : 0;
+    }
+    
+    /**
+     * @param float $frozenLocalBalance
+     *
+     * @return User
+     */
+    public function setFrozenLocalBalance(float $frozenLocalBalance): User
+    {
+        $this->frozenLocalBalance = $frozenLocalBalance;
+        return $this;
+    }
+    
+    /**
+     * @return float
+     */
+    public function getFrozenLocalBalance(): float
+    {
+        return !empty($this->frozenLocalBalance) ? $this->frozenLocalBalance : 0;
     }
 }
