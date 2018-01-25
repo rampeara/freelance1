@@ -19,6 +19,16 @@ sonata_admin:
     templates:
         # Override default template
         layout: LeavesOvertimeBundle:SonataAdmin:standard_layout.html.twig
+    security:
+        handler: sonata.admin.security.handler.role
+
+#        role_admin: ROLE_ADMIN
+#        role_super_admin: ROLE_SUPER_ADMIN
+
+#        information:
+#            EMPLOYEE:    [VIEW, LIST, EXPORT]
+#            SUPERVISOR:    [OPERATOR]
+#            ADMIN:    [MASTER]
 
 # Sonata User Bundle
 sonata_user:

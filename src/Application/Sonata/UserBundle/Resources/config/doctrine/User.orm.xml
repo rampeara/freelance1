@@ -35,6 +35,11 @@
                 target-entity="LeavesOvertimeBundle\Entity\Leaves"
                 mapped-by="user" />
 
+        <one-to-many
+                field="balanceLogs"
+                target-entity="LeavesOvertimeBundle\Entity\BalanceLog"
+                mapped-by="user" />
+
         <many-to-many field="supervisorsLevel1" target-entity="Application\Sonata\UserBundle\Entity\User">
             <cascade>
                 <cascade-persist/>

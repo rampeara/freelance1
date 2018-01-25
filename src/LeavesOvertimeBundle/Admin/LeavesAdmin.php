@@ -80,6 +80,11 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureListFields(ListMapper $listMapper)
     {
+        $status = $this->leaves->getStatusChoices();//[$this->leaves::STATUS_APPROVED, $this->leaves::STATUS_REJECTED];
+        if (array_key_exists($this->leaves::STATUS_REQUESTED, $status)) {
+            unset($status[$this->leaves::STATUS_REQUESTED]);
+        }
+        
         $listMapper
             ->add('user')
             ->add('type')
@@ -87,7 +92,7 @@ class LeavesAdmin extends CommonAdmin
             ->add('endDate')
             ->add('duration')
             ->add('status', 'choice', [
-                'choices'=> $this->leaves->getStatusChoices(),
+                'choices'=> $status,
                 'editable'=>true,
             ])
             ->add('createdAt')
@@ -105,11 +110,17 @@ class LeavesAdmin extends CommonAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $datetimeOptions = $this->getDateTimeFormOptions();
+    
+        if ($this->isGranted('ROLE_SUPERVISOR')) {
+            $formMapper
+                ->add('user', EntityType::class, $this->getUserFormOptions())
+                ->add('type', ChoiceType::class, [
+                    'choices'  => $this->leaves->getTypeChoices()
+                ])
+            ;
+        }
+        
         $formMapper
-            ->add('user', EntityType::class, $this->getUserFormOptions())
-            ->add('type', ChoiceType::class, [
-                'choices'  => $this->leaves->getTypeChoices()
-            ])
             ->add('startDate', 'sonata_type_date_picker', $datetimeOptions)
             ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
             ->add('duration', NumberType::class, [
@@ -120,9 +131,6 @@ class LeavesAdmin extends CommonAdmin
                     'step' => 0.5,
                     'numberType' => true, // overridden template to change field type from text to number
                 ],
-            ])
-            ->add('status', ChoiceType::class, [
-                'choices'  => $this->leaves->getStatusChoices()
             ])
         ;
     }
@@ -168,13 +176,20 @@ class LeavesAdmin extends CommonAdmin
     }
     
     /**
-     * @param User $user
      * @return array
      */
-    protected function getUserFormOptions($user = null) {
-        $queryBuilder = $this->getContainer()->get('doctrine')
-            ->getRepository('ApplicationSonataUserBundle:User')
-            ->getUsersQueryBuilder($user);
+    protected function getUserFormOptions() {
+        if ($this->isGranted('ROLE_HR')) {
+            $queryBuilder = $this->getContainer()->get('doctrine')
+                ->getRepository('ApplicationSonataUserBundle:User')
+                ->getUsersQueryBuilder();
+        }
+        else {
+            $userId = $this->getUser()->getId();
+            $queryBuilder = $this->getContainer()->get('doctrine')
+                ->getRepository('ApplicationSonataUserBundle:User')
+                ->getFilteredUsersQueryBuilder($userId);
+        }
         
         $userOptions = [
             'class' => User::class,

@@ -2,6 +2,7 @@
 
 namespace LeavesOvertimeBundle\EventListener;
 
+use Doctrine\ORM\Event\PreUpdateEventArgs;
 use LeavesOvertimeBundle\Common\Utility;
 use LeavesOvertimeBundle\Entity\BalanceLog;
 use LeavesOvertimeBundle\Entity\Leaves;
@@ -37,7 +38,40 @@ class LeavesSubscriber implements EventSubscriber
         return array(
             'postPersist',
             'postUpdate',
+            'prePersist',
+            'preUpdate',
         );
+    }
+    
+    public function prePersist(LifecycleEventArgs $args)
+    {
+        $entity = $args->getObject();
+        if ($entity instanceof Leaves) {
+            if (empty($entity->getType())) {
+                $entity->setType($entity::TYPE_LOCAL_LEAVE);
+            }
+            if (empty($entity->getUser())) {
+                $entity->setUser($this->getUser());
+            }
+            if (empty($entity->getStatus())) {
+                $entity->setStatus($entity::STATUS_REQUESTED);
+            }
+        }
+    }
+    
+    public function preUpdate(PreUpdateEventArgs $eventArgs)
+    {
+        if ($eventArgs->getObject() instanceof Leaves) {
+            /** @var Leaves $entity */
+            $entity = $eventArgs->getObject();
+            if (
+                $eventArgs->hasChangedField('status')
+                && $eventArgs->getNewValue('status') == $entity::STATUS_CANCELLED
+                && $eventArgs->getOldValue('status') != $entity::STATUS_APPROVED
+            ) {
+                throw new \Exception(sprintf('Only leaves with status "%s" can be cancelled.', $entity::STATUS_APPROVED));
+            }
+        }
     }
     
     public function postUpdate(LifecycleEventArgs $args)
@@ -128,8 +162,8 @@ class LeavesSubscriber implements EventSubscriber
         $emailTo = [];
         $allSupervisors = [];
         // mail to supervisors level 1
-        if ($templateName == $leaves::STATUS_REQUESTED || $templateName == $leaves::STATUS_WITHDRAWN) {
-            $emailTo = $this->getSupervisorsEmails();
+        if ($templateName == $leaves::STATUS_REQUESTED) { //|| $templateName == $leaves::STATUS_WITHDRAWN
+            $emailTo = $this->getSupervisorsEmails(TRUE);
         }
         // mail to leave applicant, cc all supervisors
         else {

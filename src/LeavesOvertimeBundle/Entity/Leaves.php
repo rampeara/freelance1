@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Leaves extends EntityBase
 {
     const STATUS_REQUESTED = 'Requested';
-    const STATUS_WITHDRAWN = 'Withdrawn';
+//    const STATUS_WITHDRAWN = 'Withdrawn';
     const STATUS_APPROVED = 'Approved';
     const STATUS_REJECTED = 'Rejected';
     const STATUS_CANCELLED = 'Cancelled';
@@ -256,7 +256,7 @@ class Leaves extends EntityBase
     public function getStatusChoices() {
         return [
             'Requested' => $this::STATUS_REQUESTED,
-            'Withdrawn' => $this::STATUS_WITHDRAWN,
+//            'Withdrawn' => $this::STATUS_WITHDRAWN,
             'Approved' => $this::STATUS_APPROVED,
             'Rejected' => $this::STATUS_REJECTED,
             'Cancelled' => $this::STATUS_CANCELLED,

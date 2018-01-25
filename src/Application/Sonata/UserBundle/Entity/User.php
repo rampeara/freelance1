@@ -42,6 +42,8 @@ class User extends BaseUser implements LdapUserInterface
     
     protected $supervisorsLevel2;
     
+    protected $balanceLogs;
+    
     /**
      * @var int $id
      */

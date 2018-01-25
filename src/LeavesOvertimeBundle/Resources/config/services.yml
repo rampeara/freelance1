@@ -71,19 +71,19 @@ services:
         class: LeavesOvertimeBundle\Admin\LeavesAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\Leaves, LeavesOvertimeBundle:LeavesAdmin, '@doctrine.orm.entity_manager']
         tags:
-            - { name: sonata.admin, manager_type: orm, group: Organisation, label: Leaves }
-        public: true
-
-    leaves_overtime.admin.user_import:
-        class: LeavesOvertimeBundle\Admin\UserImportAdmin
-        arguments: [~, LeavesOvertimeBundle\Entity\UserImport, SonataAdminBundle:CRUD]
-        tags:
-            - { name: sonata.admin, manager_type: orm, group: '%sonata.user.admin.groupname%', label: User Import, label_catalogue: "%sonata.user.admin.label_catalogue%", label_translator_strategy: "sonata.admin.label.strategy.native" }
+            - { name: sonata.admin, manager_type: orm, group: Leaves, label: Leaves }
         public: true
 
     leaves_overtime.admin.balance_log:
         class: LeavesOvertimeBundle\Admin\BalanceLogAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\BalanceLog, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: Organisation, label: BalanceLog }
+            - { name: sonata.admin, manager_type: orm, group: Leaves, label: Balance Log }
         public: true
+
+    leaves_overtime.admin.user_import:
+            class: LeavesOvertimeBundle\Admin\UserImportAdmin
+            arguments: [~, LeavesOvertimeBundle\Entity\UserImport, SonataAdminBundle:CRUD]
+            tags:
+                - { name: sonata.admin, manager_type: orm, group: '%sonata.user.admin.groupname%', label: User Import, label_catalogue: "%sonata.user.admin.label_catalogue%", label_translator_strategy: "sonata.admin.label.strategy.native" }
+            public: true

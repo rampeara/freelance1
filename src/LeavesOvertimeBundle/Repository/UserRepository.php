@@ -51,4 +51,15 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
 
         return array_unique(array_merge([(string)$userId], $ids1, $ids2));
     }
+    
+    public function getFilteredUsersQueryBuilder($userId)
+    {
+        $queryBuilder = $this->createQueryBuilder('u');
+        $queryBuilder->orderBy('u.lastname', 'ASC')
+            ->orderBy('u.firstname', 'ASC')
+            ->where('u.id IN (:ids)')
+            ->setParameter('ids', $this->getMySubordinatesIds($userId))
+        ;
+        return $queryBuilder;
+    }
 }
