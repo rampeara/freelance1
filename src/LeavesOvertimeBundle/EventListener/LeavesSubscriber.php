@@ -2,7 +2,6 @@
 
 namespace LeavesOvertimeBundle\EventListener;
 
-use Doctrine\ORM\Event\PreUpdateEventArgs;
 use LeavesOvertimeBundle\Common\Utility;
 use LeavesOvertimeBundle\Entity\BalanceLog;
 use LeavesOvertimeBundle\Entity\Leaves;
@@ -39,13 +38,12 @@ class LeavesSubscriber implements EventSubscriber
             'postPersist',
             'postUpdate',
             'prePersist',
-            'preUpdate',
         );
     }
     
-    public function prePersist(LifecycleEventArgs $args)
+    public function prePersist(LifecycleEventArgs $eventArgs)
     {
-        $entity = $args->getObject();
+        $entity = $eventArgs->getObject();
         if ($entity instanceof Leaves) {
             if (empty($entity->getType())) {
                 $entity->setType($entity::TYPE_LOCAL_LEAVE);
@@ -59,52 +57,27 @@ class LeavesSubscriber implements EventSubscriber
         }
     }
     
-    public function preUpdate(PreUpdateEventArgs $eventArgs)
+    public function postUpdate(LifecycleEventArgs $eventArgs)
     {
-        if ($eventArgs->getObject() instanceof Leaves) {
-            /** @var Leaves $entity */
-            $entity = $eventArgs->getObject();
-            if (
-                $eventArgs->hasChangedField('status')
-                && $eventArgs->getNewValue('status') == $entity::STATUS_CANCELLED
-                && $eventArgs->getOldValue('status') != $entity::STATUS_APPROVED
-            ) {
-                throw new \Exception(sprintf('Only leaves with status "%s" can be cancelled.', $entity::STATUS_APPROVED));
-            }
-        }
+        $this->processLeaves($eventArgs);
     }
     
-    public function postUpdate(LifecycleEventArgs $args)
+    public function postPersist(LifecycleEventArgs $eventArgs)
     {
-        $this->processLeaves($args);
-    }
-    
-    public function postPersist(LifecycleEventArgs $args)
-    {
-        $this->processLeaves($args);
+        $this->processLeaves($eventArgs);
     }
     
     /**
-     * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $args
+     * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $eventArgs
      */
-    public function processLeaves(LifecycleEventArgs $args): void
+    public function processLeaves(LifecycleEventArgs $eventArgs): void
     {
-        $entity = $args->getObject();
+        $entity = $eventArgs->getObject();
         if ($entity instanceof Leaves) {
-            $entityManager = $args->getObjectManager();
-            $this->processStatusChange($entity, $entityManager);
+            $entityManager = $eventArgs->getObjectManager();
+            $this->updateLeaveBalance($entity, $entityManager);
+            $this->sendEmail($entity, $entityManager);
         }
-    }
-    
-    /**
-     * Gets new status value saved in leave and sends emails accordingly
-     * @param Leaves $leaves
-     * @param \Doctrine\Common\Persistence\ObjectManager $entityManager
-     */
-    private function processStatusChange($leaves, $entityManager)
-    {
-        $this->updateLeaveBalance($leaves, $entityManager);
-        $this->sendEmail($leaves, $entityManager);
     }
     
     /**

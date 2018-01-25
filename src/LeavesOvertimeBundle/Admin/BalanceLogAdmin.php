@@ -3,11 +3,10 @@
 namespace LeavesOvertimeBundle\Admin;
 
 use LeavesOvertimeBundle\Entity\Leaves;
-use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 
-class BalanceLogAdmin extends AbstractAdmin
+class BalanceLogAdmin extends CommonAdmin
 {
     private $leaves;
     
@@ -22,21 +21,6 @@ class BalanceLogAdmin extends AbstractAdmin
         // giving a warning like customised in its Controller
         unset($actions['delete']);
         return $actions;
-    }
-    
-    /**
-     * @return null|\Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    public function getContainer() {
-        return $this->getConfigurationPool()->getContainer();
-    }
-    
-    public function getDataSourceIterator()
-    {
-        $iterator = parent::getDataSourceIterator();
-        $exportDateFormat = $this->getContainer()->getParameter('datetime_format_export');
-        $iterator->setDateTimeFormat($exportDateFormat);
-        return $iterator;
     }
     
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)

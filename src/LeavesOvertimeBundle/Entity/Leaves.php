@@ -3,12 +3,14 @@
 namespace LeavesOvertimeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use LeavesOvertimeBundle\Validator\Constraints as CustomAssert;
 
 /**
  * Leaves
  *
  * @ORM\Table(name="axa_leaves")
  * @ORM\Entity(repositoryClass="LeavesOvertimeBundle\Repository\LeavesRepository")
+ * @CustomAssert\ValidOldValue
  */
 class Leaves extends EntityBase
 {
