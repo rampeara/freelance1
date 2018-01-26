@@ -42,6 +42,11 @@ class Leaves extends EntityBase
     private $user;
     
     /**
+     * @ORM\OneToMany(targetEntity="LeavesOvertimeBundle\Entity\BalanceLog", mappedBy="leaves")
+     */
+    private $balanceLogs;
+    
+    /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
@@ -85,10 +90,23 @@ class Leaves extends EntityBase
      */
     private $status;
     
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->balanceLogs = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+    
     public function getHours() {
         return $this->duration * 8;
     }
-
+    
+    public function __toString()
+    {
+        return (string)sprintf('%s - %s: %s', $this->getType(), $this->getStatus(), $this->getDuration());
+    }
+    
     /**
      * Get id.
      *
@@ -255,13 +273,50 @@ class Leaves extends EntityBase
     /**
      * @return array
      */
-    public function getStatusChoices() {
+    public function getStatusChoices()
+    {
         return [
             'Requested' => $this::STATUS_REQUESTED,
-//            'Withdrawn' => $this::STATUS_WITHDRAWN,
+            //            'Withdrawn' => $this::STATUS_WITHDRAWN,
             'Approved' => $this::STATUS_APPROVED,
             'Rejected' => $this::STATUS_REJECTED,
             'Cancelled' => $this::STATUS_CANCELLED,
         ];
+    }
+
+    /**
+     * Add balanceLog.
+     *
+     * @param \LeavesOvertimeBundle\Entity\BalanceLog $balanceLog
+     *
+     * @return Leaves
+     */
+    public function addBalanceLog(\LeavesOvertimeBundle\Entity\BalanceLog $balanceLog)
+    {
+        $this->balanceLogs[] = $balanceLog;
+
+        return $this;
+    }
+
+    /**
+     * Remove balanceLog.
+     *
+     * @param \LeavesOvertimeBundle\Entity\BalanceLog $balanceLog
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeBalanceLog(\LeavesOvertimeBundle\Entity\BalanceLog $balanceLog)
+    {
+        return $this->balanceLogs->removeElement($balanceLog);
+    }
+
+    /**
+     * Get balanceLogs.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getBalanceLogs()
+    {
+        return $this->balanceLogs;
     }
 }

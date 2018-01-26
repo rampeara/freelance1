@@ -8,13 +8,6 @@ use Sonata\AdminBundle\Datagrid\ListMapper;
 
 class BalanceLogAdmin extends CommonAdmin
 {
-    private $leaves;
-    
-    public function __construct(string $code, string $class, string $baseControllerName) {
-        parent::__construct($code, $class, $baseControllerName);
-        $this->leaves = new Leaves();
-    }
-    
     public function configureBatchActions($actions)
     {
         // remove delete to avoid deleting entries with foreign keys without
@@ -26,13 +19,9 @@ class BalanceLogAdmin extends CommonAdmin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-            ->add('user')
-            ->add('type','doctrine_orm_string', [], 'choice', [
-                'choices' => $this->leaves->getTypeChoices()
-            ])
+//            ->add('leaves')
             ->add('previousBalance')
             ->add('newBalance')
-            ->add('action')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
         ;
@@ -42,11 +31,9 @@ class BalanceLogAdmin extends CommonAdmin
     {
         $listMapper
             ->add('id')
-            ->add('user')
-            ->add('type')
+            ->add('leaves', null, ['route' => ['name' => 'show']])
             ->add('previousBalance')
             ->add('newBalance')
-            ->add('action')
             ->add('createdAt')
             ->add('createdBy')
         ;
@@ -56,11 +43,9 @@ class BalanceLogAdmin extends CommonAdmin
     {
         return [
             'ID' => 'id',
-            'User' => 'user.fullname',
-            'Type' => 'Type',
+            'Leave details' => 'leaves',
             'Previous balance' => 'previousBalance',
             'New balance' => 'newBalance',
-            'Action' => 'action',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
         ];

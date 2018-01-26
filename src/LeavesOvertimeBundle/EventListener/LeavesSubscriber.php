@@ -89,9 +89,9 @@ class LeavesSubscriber implements EventSubscriber
         if ($leaves->getStatus() == $leaves::STATUS_APPROVED || $leaves->getStatus() == $leaves::STATUS_CANCELLED) {
             $user = $leaves->getUser();
             $currentUser = $this->getUser()->getUsername();
-            list($leaveType, $previousBalance, $newBalance) = $this->updateUserBalance($leaves, $user);
+            list($previousBalance, $newBalance) = $this->updateUserBalance($leaves, $user);
 
-            $entityManager->persist(new BalanceLog($user, $leaveType, $previousBalance, $newBalance, $currentUser, $leaves->getStatus()));
+            $entityManager->persist(new BalanceLog($leaves, $previousBalance, $newBalance, $currentUser));
             $entityManager->persist($user);
             $entityManager->flush();
         }
@@ -181,6 +181,6 @@ class LeavesSubscriber implements EventSubscriber
         else {
             $user->setLocalBalance($newBalance);
         }
-        return [$isSickLeave ? $leaves::TYPE_SICK_LEAVE : $leaves::TYPE_LOCAL_LEAVE, $previousBalance, $newBalance];
+        return [$previousBalance, $newBalance];
     }
 }

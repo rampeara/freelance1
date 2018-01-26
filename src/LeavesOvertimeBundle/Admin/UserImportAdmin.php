@@ -50,13 +50,6 @@ class UserImportAdmin extends CommonAdmin
             ->add('isSuccess')
             ->add('createdAt')
             ->add('createdBy')
-            ->add('_action', null, [
-                'actions' => [
-                    'show' => [],
-//                    'edit' => [],
-//                    'delete' => [],
-                ],
-            ])
         ;
     }
 

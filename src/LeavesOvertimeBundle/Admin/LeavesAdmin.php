@@ -80,7 +80,7 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureListFields(ListMapper $listMapper)
     {
-        $status = $this->leaves->getStatusChoices();//[$this->leaves::STATUS_APPROVED, $this->leaves::STATUS_REJECTED];
+        $status = $this->leaves->getStatusChoices();
         if (array_key_exists($this->leaves::STATUS_REQUESTED, $status)) {
             unset($status[$this->leaves::STATUS_REQUESTED]);
         }
@@ -99,11 +99,11 @@ class LeavesAdmin extends CommonAdmin
             ->add('createdBy')
             ->add('updatedAt')
             ->add('updatedBy')
-            ->add('_action', null, [
-                'actions' => [
-                    'show' => [],
-                ],
-            ])
+//            ->add('_action', null, [
+//                'actions' => [
+//                    'show' => [],
+//                ],
+//            ])
         ;
     }
 
@@ -111,7 +111,7 @@ class LeavesAdmin extends CommonAdmin
     {
         $datetimeOptions = $this->getDateTimeFormOptions();
     
-        if ($this->isGranted('ROLE_SUPERVISOR')) {
+        if ($this->getRole() != 'ROLE_EMPLOYEE') {
             $formMapper
                 ->add('user', EntityType::class, $this->getUserFormOptions())
                 ->add('type', ChoiceType::class, [
@@ -166,12 +166,12 @@ class LeavesAdmin extends CommonAdmin
             'No. of days' => 'duration',
             'Hours' => 'hours',
             'Status' => 'status',
-            'Local leave balance' => 'user.localBalance',
-            'Sick leave balance' => 'user.sickBalance',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
+            'Current local leave balance' => 'user.localBalance',
+            'Current sick leave balance' => 'user.sickBalance',
         ];
     }
     
@@ -179,7 +179,7 @@ class LeavesAdmin extends CommonAdmin
      * @return array
      */
     protected function getUserFormOptions() {
-        if ($this->isGranted('ROLE_HR')) {
+        if (in_array($this->getRole(), ['ROLE_HR', 'ROLE_ADMIN']) || $this->isGranted('ROLE_HR')) {
             $queryBuilder = $this->getContainer()->get('doctrine')
                 ->getRepository('ApplicationSonataUserBundle:User')
                 ->getUsersQueryBuilder();

@@ -22,40 +22,26 @@ class BalanceLog
     private $id;
     
     /**
-     * @var \Application\Sonata\UserBundle\Entity\User|null
+     * @var \LeavesOvertimeBundle\Entity\Leaves|null
      *
-     * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="balanceLogs")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="LeavesOvertimeBundle\Entity\Leaves", inversedBy="balanceLogs")
+     * @ORM\JoinColumn(name="leaves_id", referencedColumnName="id")
      */
-    private $user;
-    
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="type", type="string", length=255, nullable=true)
-     */
-    private $type;
+    private $leaves;
 
     /**
      * @var float|null
      *
-     * @ORM\Column(name="previousBalance", type="float", nullable=true)
+     * @ORM\Column(name="previous_balance", type="float", nullable=true)
      */
     private $previousBalance;
 
     /**
      * @var float|null
      *
-     * @ORM\Column(name="newBalance", type="float", nullable=true)
+     * @ORM\Column(name="new_balance", type="float", nullable=true)
      */
     private $newBalance;
-    
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="action", type="string", length=255, nullable=true)
-     */
-    private $action;
 
     /**
      * @var \DateTime|null
@@ -71,15 +57,13 @@ class BalanceLog
      */
     private $createdBy;
     
-    public function __construct($user = null, $type = null, $previousBalance = null, $newBalance = null, $createdBy = null, $action = null)
+    public function __construct($leave = null, $previousBalance = null, $newBalance = null, $createdBy = null)
     {
-        $this->user = $user;
-        $this->type = $type;
+        $this->leaves = $leave;
         $this->previousBalance = $previousBalance;
         $this->newBalance = $newBalance;
         $this->createdAt = new \DateTime();
         $this->createdBy = $createdBy;
-        $this->action = $action;
     }
     
     /**
@@ -90,30 +74,6 @@ class BalanceLog
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set type.
-     *
-     * @param string|null $type
-     *
-     * @return BalanceLog
-     */
-    public function setType($type = null)
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    /**
-     * Get type.
-     *
-     * @return string|null
-     */
-    public function getType()
-    {
-        return $this->type;
     }
 
     /**
@@ -211,42 +171,28 @@ class BalanceLog
     {
         return $this->createdBy;
     }
-    
+
     /**
-     * @param \Application\Sonata\UserBundle\Entity\User|null $user
+     * Set leaves.
+     *
+     * @param \LeavesOvertimeBundle\Entity\Leaves|null $leaves
      *
      * @return BalanceLog
      */
-    public function setUser(?\Application\Sonata\UserBundle\Entity\User $user): BalanceLog
+    public function setLeaves(\LeavesOvertimeBundle\Entity\Leaves $leaves = null)
     {
-        $this->user = $user;
+        $this->leaves = $leaves;
+
         return $this;
     }
-    
+
     /**
-     * @return \Application\Sonata\UserBundle\Entity\User|null
-     */
-    public function getUser(): ?\Application\Sonata\UserBundle\Entity\User
-    {
-        return $this->user;
-    }
-    
-    /**
-     * @param null|string $action
+     * Get leaves.
      *
-     * @return BalanceLog
+     * @return \LeavesOvertimeBundle\Entity\Leaves|null
      */
-    public function setAction(?string $action): BalanceLog
+    public function getLeaves()
     {
-        $this->action = $action;
-        return $this;
-}
-    
-    /**
-     * @return null|string
-     */
-    public function getAction(): ?string
-    {
-        return $this->action;
+        return $this->leaves;
     }
 }

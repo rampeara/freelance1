@@ -71,14 +71,14 @@ services:
         class: LeavesOvertimeBundle\Admin\LeavesAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\Leaves, LeavesOvertimeBundle:LeavesAdmin, '@doctrine.orm.entity_manager']
         tags:
-            - { name: sonata.admin, manager_type: orm, group: Leaves, label: Leaves }
+            - { name: sonata.admin, manager_type: orm, group: Application, label: Leaves }
         public: true
 
     leaves_overtime.admin.balance_log:
         class: LeavesOvertimeBundle\Admin\BalanceLogAdmin
         arguments: [~, LeavesOvertimeBundle\Entity\BalanceLog, SonataAdminBundle:CRUD]
         tags:
-            - { name: sonata.admin, manager_type: orm, group: Leaves, label: Balance Log }
+            - { name: sonata.admin, manager_type: orm, group: Application, label: Balance Log }
         public: true
 
     leaves_overtime.admin.user_import:
@@ -90,6 +90,6 @@ services:
 
     validator.valid_old_value:
         class: LeavesOvertimeBundle\Validator\Constraints\ValidOldValueValidator
-        arguments: ["@doctrine.orm.entity_manager"]
+        arguments: ["@doctrine.orm.entity_manager", "@security.token_storage"]
         tags:
             - { name: validator.constraint_validator }

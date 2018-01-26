@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraint;
  */
 class ValidOldValue extends Constraint
 {
-    public $message = 'Only leaves with status %status% can be cancelled.';
+    public $message = '%message%';
     
     public function getTargets()
     {

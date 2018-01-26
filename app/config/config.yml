@@ -19,6 +19,7 @@ sonata_admin:
     templates:
         # Override default template
         layout: LeavesOvertimeBundle:SonataAdmin:standard_layout.html.twig
+    show_mosaic_button:   false
     security:
         handler: sonata.admin.security.handler.role
 
@@ -32,7 +33,7 @@ sonata_admin:
 
 # Sonata User Bundle
 sonata_user:
-    security_acl: true
+    security_acl: false
     manager_type: orm # can be orm or mongodb
     class:
         user: Application\Sonata\UserBundle\Entity\User

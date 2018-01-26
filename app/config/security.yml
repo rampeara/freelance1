@@ -5,8 +5,8 @@ security:
     # Sonata User Bundle
     encoders:
         FOS\UserBundle\Model\UserInterface: bcrypt
-    acl:
-        connection: default
+#    acl:
+#        connection: default
 
     role_hierarchy:
         ROLE_USER:

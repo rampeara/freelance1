@@ -23,11 +23,17 @@ use Sonata\UserBundle\Form\Type\UserGenderListType;
 
 class UserAdmin extends BaseUserAdmin
 {
+    public $loggedUser;
+    
     /**
      * @return null|\FOS\UserBundle\Model\UserInterface
      */
     public function getUser() {
-        return $this->getContainer()->get('security.token_storage')->getToken()->getUser();
+        if ($this->loggedUser) {
+            return $this->loggedUser;
+        }
+        
+        return $this->loggedUser = $this->getContainer()->get('security.token_storage')->getToken()->getUser();
     }
     
     /**
@@ -50,6 +56,21 @@ class UserAdmin extends BaseUserAdmin
         return $iterator;
     }
     
+    public function createQuery($context = 'list')
+    {
+        $query = parent::createQuery($context);
+        // is granted not working here, so workaround used
+        if ($this->getUser() && is_array($this->getUser()->getRoles())
+            && $this->getUser()->getRoles()[0] == 'ROLE_EMPLOYEE' || $this->getUser()->getRoles()[0] == 'ROLE_SUPERVISOR') {
+            // filter by user id
+            $rootAlias = $query->getRootAliases()[0];
+            $query->andWhere($rootAlias . ".id = :id")
+                ->setParameter('id', $this->getUser()->getId());
+        }
+        
+        return $query;
+    }
+    
     protected function configureDatagridFilters(DatagridMapper $datagridMapper): void
     {
         parent::configureDatagridFilters($datagridMapper);
@@ -62,7 +83,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-//            ->add('hireDate')
+            ->add('hireDate', 'doctrine_orm_date')
             ->add('employmentStatus')
 //            ->add('departureDate')
 //            ->add('departureReason')
@@ -78,13 +99,17 @@ class UserAdmin extends BaseUserAdmin
             ->add('gender')
             ->add('firstname')
             ->add('lastname')
-            ->add('jobTitle')
+            ->add('username')
             ->add('email')
+            ->add('jobTitle')
             ->add('businessUnit')
             ->add('department')
             ->add('project')
-            ->add('employmentStatus')
-            ->add('enabled', null, ['editable' => true])
+            ->add('localBalance')
+            ->add('sickBalance')
+            ->add('frozenLocalBalance')
+//            ->add('employmentStatus')
+//            ->add('enabled', null, ['editable' => true])
 //            ->add('createdAt')
 //            ->add('createdBy')
 //            ->add('updatedAt')
@@ -117,18 +142,28 @@ class UserAdmin extends BaseUserAdmin
         
         $formMapper->removeGroup('Profile', 'User');
         $formMapper->removeGroup('Social', 'User');
-        $formMapper->removeGroup('Keys', 'Security');
-        $formMapper->removeGroup('Status', 'Security');
+        $formMapper->removeGroup('Keys', 'Security', true);
+        $formMapper->removeGroup('Status', 'Security', true);
+        // if not admin level, remove security tab completely
+        if ($this->getUser() && is_array($this->getUser()->getRoles())
+            && !($this->getUser()->getRoles()[0] == 'ROLE_ADMIN' || $this->getUser()->getRoles()[0] == 'ROLE_SUPER_ADMIN')) {
+            $formMapper->removeGroup('Groups', 'Security', true);
+            $formMapper->removeGroup('Roles', 'Security', true);
+        }
+        else {
+            $formMapper
+                ->tab('Security')
+                    ->with('Groups', ['class' => 'col-md-12'])->end()
+                    ->with('Roles', ['class' => 'col-md-12'])->end()
+                ->end()
+            ;
+        }
     
         $formMapper
             ->tab('User')
                 ->with('General', ['class' => 'col-md-6'])->end()
                 ->with('Status', ['class' => 'col-md-6'])->end()
                 ->with('Profile', ['class' => 'col-md-12'])->end()
-            ->end()
-            ->tab('Security')
-                ->with('Groups', ['class' => 'col-md-12'])->end()
-                ->with('Roles', ['class' => 'col-md-12'])->end()
             ->end()
         ;
         
