@@ -82,17 +82,27 @@ class User extends BaseUser implements LdapUserInterface
     /**
      * @var float $localBalance
      */
-    protected $localBalance;
+    protected $localBalance = 0;
     
     /**
      * @var float $sickBalance
      */
-    protected $sickBalance;
+    protected $sickBalance = 0;
     
     /**
      * @var float $frozenLocalBalance
      */
-    protected $frozenLocalBalance;
+    protected $frozenLocalBalance = 0;
+    
+    /**
+     * @var float $carryForwardLocalBalance
+     */
+    protected $carryForwardLocalBalance = 0;
+    
+    /**
+     * @var boolean|null
+     */
+    protected $isNoProbationLeaves = false;
     
     /**
      * @var string|null
@@ -113,16 +123,7 @@ class User extends BaseUser implements LdapUserInterface
     {
         parent::__construct();
         if (empty($this->roles)) {
-            $this->roles[] = 'ROLE_USER';
-        }
-        if (empty($this->localBalance)) {
-            $this->localBalance = 0;
-        }
-        if (empty($this->sickBalance)) {
-            $this->sickBalance = 0;
-        }
-        if (empty($this->frozenLocalBalance)) {
-            $this->frozenLocalBalance = 0;
+            $this->roles[] = 'ROLE_EMPLOYEE';
         }
         $this->supervisorsLevel1 = new ArrayCollection();
         $this->supervisorsLevel2 = new ArrayCollection();
@@ -173,6 +174,22 @@ class User extends BaseUser implements LdapUserInterface
         }
         
         return join(', ', $supervisors);
+    }
+    
+    /**
+     * Increment local leave balance by given amount
+     * @param int $amount
+     */
+    public function incrementLocalLeave($amount = 1) {
+        $this->localBalance = $this->localBalance + $amount;
+    }
+   
+    /**
+     * Increment sick leave balance by given amount
+     * @param int $amount
+     */
+    public function incrementSickLeave($amount = 1) {
+        $this->sickBalance = $this->sickBalance + $amount;
     }
     
     /**
@@ -552,7 +569,7 @@ class User extends BaseUser implements LdapUserInterface
      *
      * @return User
      */
-    public function addSupervisorsLevel2(\Application\Sonata\UserBundle\Entity\User $supervisorLevel2)
+    public function addSupervisorLevel2(\Application\Sonata\UserBundle\Entity\User $supervisorLevel2)
     {
         $this->supervisorsLevel2[] = $supervisorLevel2;
 
@@ -566,7 +583,7 @@ class User extends BaseUser implements LdapUserInterface
      *
      * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
      */
-    public function removeSupervisorsLevel2(\Application\Sonata\UserBundle\Entity\User $supervisorLevel2)
+    public function removeSupervisorLevel2(\Application\Sonata\UserBundle\Entity\User $supervisorLevel2)
     {
         return $this->supervisorsLevel2->removeElement($supervisorLevel2);
     }
@@ -675,5 +692,89 @@ class User extends BaseUser implements LdapUserInterface
     public function getFrozenLocalBalance(): float
     {
         return !empty($this->frozenLocalBalance) ? $this->frozenLocalBalance : 0;
+    }
+
+    /**
+     * Set carryForwardLocalBalance.
+     *
+     * @param float|null $carryForwardLocalBalance
+     *
+     * @return User
+     */
+    public function setCarryForwardLocalBalance($carryForwardLocalBalance = null)
+    {
+        $this->carryForwardLocalBalance = $carryForwardLocalBalance;
+
+        return $this;
+    }
+
+    /**
+     * Get carryForwardLocalBalance.
+     *
+     * @return float|null
+     */
+    public function getCarryForwardLocalBalance()
+    {
+        return !empty($this->carryForwardLocalBalance) ? $this->carryForwardLocalBalance : 0;
+    }
+
+    /**
+     * Set isNoProbationLeaves.
+     *
+     * @param bool|null $isNoProbationLeaves
+     *
+     * @return User
+     */
+    public function setIsNoProbationLeaves($isNoProbationLeaves = null)
+    {
+        $this->isNoProbationLeaves = $isNoProbationLeaves;
+
+        return $this;
+    }
+
+    /**
+     * Get isNoProbationLeaves.
+     *
+     * @return bool|null
+     */
+    public function getIsNoProbationLeaves()
+    {
+        return $this->isNoProbationLeaves;
+    }
+
+    /**
+     * Add balanceLog.
+     *
+     * @param \LeavesOvertimeBundle\Entity\BalanceLog $balanceLog
+     *
+     * @return User
+     */
+    public function addBalanceLog(\LeavesOvertimeBundle\Entity\BalanceLog $balanceLog)
+    {
+        $this->balanceLogs[] = $balanceLog;
+
+        return $this;
+    }
+
+    /**
+     * Remove balanceLog.
+     *
+     * @param \LeavesOvertimeBundle\Entity\BalanceLog $balanceLog
+     *
+     * @return boolean TRUE if this collection contained the specified element, FALSE otherwise.
+     */
+    public function removeBalanceLog(\LeavesOvertimeBundle\Entity\BalanceLog $balanceLog)
+    {
+        return $this->balanceLogs->removeElement($balanceLog);
+    }
+
+    /**
+     * Get balanceLogs.
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getBalanceLogs()
+    {
+        return $this->balanceLogs;
     }
 }

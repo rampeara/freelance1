@@ -42,7 +42,7 @@ class Leaves extends EntityBase
     private $user;
     
     /**
-     * @ORM\OneToMany(targetEntity="LeavesOvertimeBundle\Entity\BalanceLog", mappedBy="leaves")
+     * @ORM\OneToMany(targetEntity="LeavesOvertimeBundle\Entity\BalanceLog", mappedBy="leave")
      */
     private $balanceLogs;
     

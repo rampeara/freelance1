@@ -91,7 +91,7 @@ class LeavesSubscriber implements EventSubscriber
             $currentUser = $this->getUser()->getUsername();
             list($previousBalance, $newBalance) = $this->updateUserBalance($leaves, $user);
 
-            $entityManager->persist(new BalanceLog($leaves, $previousBalance, $newBalance, $currentUser));
+            $entityManager->persist(new BalanceLog($previousBalance, $newBalance, $user, $currentUser, null, $leaves));
             $entityManager->persist($user);
             $entityManager->flush();
         }

@@ -60,20 +60,23 @@ class LeavesAdmin extends CommonAdmin
     public function createQuery($context = 'list')
     {
         $query = parent::createQuery($context);
-        // ids of my subordinates and logged in user
-        $userId = $this->getUser()->getId();
-        $subordinateIds = $this->getContainer()->get('doctrine')
-            ->getRepository('ApplicationSonataUserBundle:User')
-            ->getMySubordinatesIds($userId);
-        
-        // filter my ids supplied
-        $rootAlias = $query->getRootAliases()[0];
-        $query->innerJoin($rootAlias . '.user','u')
-            ->andWhere("u.id IN(:subordinatesIds)")
-            ->orderBy('u.id', 'ASC')
-            ->addOrderBy('u.lastname', 'ASC')
-            ->addOrderBy($rootAlias . '.createdAt', 'DESC')
-            ->setParameter('subordinatesIds', $subordinateIds);
+    
+        if (in_array($this->getRole(), ['ROLE_EMPLOYEE', 'ROLE_SUPERVISOR'])) {
+            // ids of my subordinates and logged in user
+            $userId = $this->getUser()->getId();
+            $subordinateIds = $this->getContainer()->get('doctrine')
+                ->getRepository('ApplicationSonataUserBundle:User')
+                ->getMySubordinatesIds($userId);
+    
+            // filter my ids supplied
+            $rootAlias = $query->getRootAliases()[0];
+            $query->innerJoin($rootAlias . '.user', 'u')
+                ->andWhere("u.id IN(:subordinatesIds)")
+                ->orderBy('u.id', 'ASC')
+                ->addOrderBy('u.lastname', 'ASC')
+                ->addOrderBy($rootAlias . '.createdAt', 'DESC')
+                ->setParameter('subordinatesIds', $subordinateIds);
+        }
         
         return $query;
     }
@@ -87,13 +90,15 @@ class LeavesAdmin extends CommonAdmin
         
         $listMapper
             ->add('user')
+//            ->add('user.localBalance')
+//            ->add('user.sickBalance')
             ->add('type')
             ->add('startDate')
             ->add('endDate')
             ->add('duration')
             ->add('status', 'choice', [
                 'choices'=> $status,
-                'editable'=>true,
+                'editable'=> true,
             ])
             ->add('createdAt')
             ->add('createdBy')
@@ -127,7 +132,6 @@ class LeavesAdmin extends CommonAdmin
                 'required' => true,
                 'attr' => [
                     'min' => 0.5,
-                    'max' => 90,
                     'step' => 0.5,
                     'numberType' => true, // overridden template to change field type from text to number
                 ],
