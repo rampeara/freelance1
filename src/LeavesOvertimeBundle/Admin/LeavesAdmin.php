@@ -59,6 +59,12 @@ class LeavesAdmin extends CommonAdmin
     
     public function createQuery($context = 'list')
     {
+        // to del !!
+    
+        $this->getContainer()->get('doctrine')
+            ->getRepository('ApplicationSonataUserBundle:User')
+            ->carryForwardLocalBalance();
+        
         $query = parent::createQuery($context);
     
         if (in_array($this->getRole(), ['ROLE_EMPLOYEE', 'ROLE_SUPERVISOR'])) {

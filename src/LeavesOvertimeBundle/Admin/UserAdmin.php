@@ -107,7 +107,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('project')
             ->add('localBalance')
             ->add('sickBalance')
-            ->add('frozenLocalBalance')
+            ->add('carryForwardLocalBalance')
 //            ->add('employmentStatus')
 //            ->add('enabled', null, ['editable' => true])
 //            ->add('createdAt')
@@ -173,6 +173,8 @@ class UserAdmin extends BaseUserAdmin
                     ->add('enabled', null, ['required' => false])
                     ->add('localBalance', NumberType::class, $balanceOptions)
                     ->add('sickBalance', NumberType::class, $balanceOptions)
+                    ->add('carryForwardLocalBalance', NumberType::class, $balanceOptions)
+                    ->add('frozenCarryForwardLocalBalance', NumberType::class, $balanceOptions)
                     ->add('frozenLocalBalance', NumberType::class, $balanceOptions)
                 ->end()
                 ->with('Profile')
@@ -204,7 +206,7 @@ class UserAdmin extends BaseUserAdmin
                     ->add('supervisorsLevel1', EntityType::class, $supervisorOptions)
                     ->add('supervisorsLevel2', EntityType::class, $supervisorOptions)
                     ->add('hireDate', 'sonata_type_date_picker', [
-                        'dp_disabled_dates' => $disabledDatesFormatted,
+//                        'dp_disabled_dates' => $disabledDatesFormatted,
                         'dp_use_current' => false,
                     ])
                     ->add('employmentStatus', ChoiceType::class, [
@@ -215,7 +217,7 @@ class UserAdmin extends BaseUserAdmin
                             "PART TIME" => "PART TIME",
                     ]])
                     ->add('departureDate', 'sonata_type_date_picker', [
-                        'dp_disabled_dates' => $disabledDatesFormatted,
+//                        'dp_disabled_dates' => $disabledDatesFormatted,
                         'dp_use_current' => false,
                         'required' => false
                     ])
@@ -249,7 +251,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('yearsOfService', null, ['associated_property' => 'yearsOfService'])
             ->add('localBalance')
             ->add('sickBalance')
-            ->add('frozenLocalBalance')
+            ->add('carryForwardLocalBalance')
             ->add('createdAt')
             ->add('createdBy')
             ->add('updatedAt')
@@ -279,6 +281,9 @@ class UserAdmin extends BaseUserAdmin
             'Departure date' => 'departureDate',
             'Departure reason' => 'departureReason',
             'Years of service' => 'yearsOfService',
+            'Local Balance' => 'localBalance',
+            'Sick Balance' => 'sickBalance',
+            'Carry Forward Local Balance' => 'carryForwardLocalBalance',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',

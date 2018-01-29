@@ -6,7 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class IncrementProbationLeavesCommand extends ContainerAwareCommand
+class FreezeCarryForwardLocalBalanceCommand extends ContainerAwareCommand
 {
     
     /**
@@ -15,8 +15,8 @@ class IncrementProbationLeavesCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('leaves:increment-probation-leaves')
-            ->setDescription('Increments the leaves of every employees under probation using specific criteria.');
+            ->setName('leaves:freeze-carry-forward-local-balance')
+            ->setDescription('Transfers carry forward local balance to frozen carry forward balance at 31 Mar.');
     }
     
     /**
@@ -26,7 +26,7 @@ class IncrementProbationLeavesCommand extends ContainerAwareCommand
     {
         $entityManager = $this->getContainer()->get('doctrine')->getManager();
         try {
-            $entityManager->getRepository('ApplicationSonataUserBundle:User')->incrementBalancesForProbationAccounts();
+            $entityManager->getRepository('ApplicationSonataUserBundle:User')->freezeCarryForwardLocalBalance();
             $output->writeln('Script completed successfully!');
         }
         catch (\Exception $e) {

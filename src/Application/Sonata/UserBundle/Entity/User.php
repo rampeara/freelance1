@@ -98,6 +98,11 @@ class User extends BaseUser implements LdapUserInterface
      * @var float $carryForwardLocalBalance
      */
     protected $carryForwardLocalBalance = 0;
+ 
+    /**
+     * @var float $frozenCarryForwardLocalBalance
+     */
+    protected $frozenCarryForwardLocalBalance = 0;
     
     /**
      * @var boolean|null
@@ -653,7 +658,7 @@ class User extends BaseUser implements LdapUserInterface
      */
     public function getLocalBalance(): float
     {
-        return !empty($this->localBalance) ? $this->localBalance : 0;
+        return !empty($this->localBalance) ? $this->localBalance + $this->carryForwardLocalBalance : 0;
     }
     
     /**
@@ -776,5 +781,29 @@ class User extends BaseUser implements LdapUserInterface
     public function getBalanceLogs()
     {
         return $this->balanceLogs;
+    }
+
+    /**
+     * Set frozenCarryForwardLocalBalance.
+     *
+     * @param float|null $frozenCarryForwardLocalBalance
+     *
+     * @return User
+     */
+    public function setFrozenCarryForwardLocalBalance($frozenCarryForwardLocalBalance = null)
+    {
+        $this->frozenCarryForwardLocalBalance = $frozenCarryForwardLocalBalance;
+
+        return $this;
+    }
+
+    /**
+     * Get frozenCarryForwardLocalBalance.
+     *
+     * @return float|null
+     */
+    public function getFrozenCarryForwardLocalBalance()
+    {
+        return $this->frozenCarryForwardLocalBalance;
     }
 }

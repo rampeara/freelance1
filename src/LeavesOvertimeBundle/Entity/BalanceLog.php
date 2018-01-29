@@ -17,6 +17,9 @@ class BalanceLog
     const TYPE_ANNUAL_LOCAL_LEAVE = 'Annual local leave';
     const TYPE_ANNUAL_SICK_LEAVE = 'Annual sick leave';
     const TYPE_APPLIED_LEAVE = 'Applied leave';
+    const TYPE_CARRY_FORWARD_LOCAL_BALANCE = 'Carry forward local balance';
+    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE = 'Freeze carry forward local balance';
+    const TYPE_FREEZE_LOCAL_BALANCE = 'Freeze local balance';
     
     /**
      * @var int
