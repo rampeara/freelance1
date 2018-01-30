@@ -93,4 +93,8 @@ class PublicHoliday extends EntityBase
     {
         return $this->date;
     }
+    
+    public function __toString() {
+        return !empty($this->name) ? $this->name : '';
+    }
 }

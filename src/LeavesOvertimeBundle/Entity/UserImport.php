@@ -182,4 +182,8 @@ class UserImport
     public function getisSuccess(): ?bool {
         return $this->isSuccess;
     }
+    
+    public function __toString() {
+        return !empty($this->fileName) ? $this->fileName : '';
+    }
 }

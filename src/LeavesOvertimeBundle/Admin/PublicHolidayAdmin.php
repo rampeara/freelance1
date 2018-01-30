@@ -52,7 +52,7 @@ class PublicHolidayAdmin extends AbstractAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('name')
+            ->add('name', null, ['required' => true])
             ->add('date')
         ;
     }

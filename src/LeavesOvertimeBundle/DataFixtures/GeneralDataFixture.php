@@ -48,17 +48,59 @@ class GeneralDataFixture extends Fixture
      * @param \Doctrine\Common\Persistence\ObjectManager $manager
      */
     public function loadEmailTemplate(ObjectManager &$manager) {
-        $templateNames = [
-            'Requested',
-            'Approved',
-            'Rejected',
-            'Cancelled',
+        $templates = [
+            'Requested' => 'Hello,
+
+Please note that [applicant_full_name] has requested a [leave_type] from:
+
+Start Date: [leave_start_date]
+End Date: [leave_end_date]
+Length of time: [leave_duration]
+
+This request was made on [leave_created_at].
+
+Regards,
+[signature_name]',
+            'Approved' => 'Hello [applicant_full_name],
+
+Please note that your Local Leave request has been approved. Details as follows:
+
+Start Date: [leave_start_date]
+End Date: [leave_end_date]
+Length of time: [leave_duration]
+
+Your employee file shall be updated automatically based on the approved request.
+
+Regards,
+[signature_name]',
+            'Rejected' => 'Hello [applicant_full_name],
+
+We regret to inform you that your leave has been rejected. Details as follows:
+
+Start Date: [leave_start_date]
+End Date: [leave_end_date]
+Length of time: [leave_duration]
+
+We suggest that an alternative and new request is made.
+
+Regards,
+[signature_name]',
+            'Cancelled' => 'Hello [applicant_full_name],
+
+Please note that the following leave has been cancelled. Details as follows:
+
+Start Date: [leave_start_date]
+End Date: [leave_end_date]
+Length of time: [leave_duration]
+
+Regards,
+[signature_name]'
         ];
         
-        foreach ($templateNames as $templateName) {
+        foreach ($templates as $templateName => $templateContent) {
             $emailTemplate = new EmailTemplate();
             $emailTemplate->setName($templateName)
-                ->setContent('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis porta nisl, eget convallis sapien accumsan eu. Vivamus vitae tempor magna. Duis laoreet ut lectus nec finibus. Etiam ac condimentum ante, posuere sagittis tellus. Donec cursus leo a aliquet facilisis. Interdum et malesuada fames ac ante ipsum primis in faucibus. Quisque luctus ex dignissim est viverra, vel interdum est pellentesque. Aenean scelerisque mattis nisi id congue. In hac habitasse platea dictumst. Curabitur vel cursus nisl. In hac habitasse platea dictumst.')
+                ->setContent($templateContent)
             ;
             
             $manager->persist($emailTemplate);

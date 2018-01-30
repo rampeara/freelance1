@@ -12,6 +12,21 @@ parameters:
     date_format_export: 'd M Y'
     from_email: 'noreply@leaves-system.com'
     base_dn: 'dc=example,dc=com'
+    dn_username_attribute: 'uid'
+    leaves_email_signature_name: 'ACSMR'
+
+# LDAP config here
+fr3d_ldap:
+    driver:
+        host: ldap.forumsys.com
+    user:
+        baseDn: '%base_dn%'
+        attributes:
+            - { ldap_attr: '%dn_username_attribute%',  user_method: setUsername }
+            - { ldap_attr: mail,  user_method: setEmail }
+            - { ldap_attr: cn,  user_method: setFirstname }
+            - { ldap_attr: sn,  user_method: setLastname }
+        filter: (&(ObjectClass=person))
 
 sonata_admin:
     title: Leaves & Overtime
@@ -59,41 +74,6 @@ fos_user:
     from_email:
         address:        '%from_email%'
         sender_name:    AXA Leaves & Overtime System
-
-fr3d_ldap:
-#    domains:
-#        server1:
-#            driver:
-#                host: 'bad.forumsys.com'
-#            user:
-#                baseDn: '%base_dn%'
-#                attributes:
-#                    - { ldap_attr: uid,  user_method: setUsername }
-#                    - { ldap_attr: mail,  user_method: setEmail }
-#                    - { ldap_attr: cn,  user_method: setFirstname }
-#                    - { ldap_attr: sn,  user_method: setLastname }
-#                filter: (&(ObjectClass=person))
-#        server2:
-#            driver:
-#                host: 'ldap.forumsys.com'
-#            user:
-#                baseDn: '%base_dn%'
-#                attributes:
-#                    - { ldap_attr: uid,  user_method: setUsername }
-#                    - { ldap_attr: mail,  user_method: setEmail }
-#                    - { ldap_attr: cn,  user_method: setFirstname }
-#                    - { ldap_attr: sn,  user_method: setLastname }
-#                filter: (&(ObjectClass=person))
-    driver:
-        host: ldap.forumsys.com
-    user:
-        baseDn: '%base_dn%'
-        attributes:
-            - { ldap_attr: uid,  user_method: setUsername }
-            - { ldap_attr: mail,  user_method: setEmail }
-            - { ldap_attr: cn,  user_method: setFirstname }
-            - { ldap_attr: sn,  user_method: setLastname }
-        filter: (&(ObjectClass=person))
 
 # Sonata Admin Bundle
 sonata_block:

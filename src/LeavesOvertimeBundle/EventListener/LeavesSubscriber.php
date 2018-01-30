@@ -70,7 +70,7 @@ class LeavesSubscriber implements EventSubscriber
     /**
      * @param \Doctrine\Common\Persistence\Event\LifecycleEventArgs $eventArgs
      */
-    public function processLeaves(LifecycleEventArgs $eventArgs): void
+    public function processLeaves(LifecycleEventArgs $eventArgs)
     {
         $entity = $eventArgs->getObject();
         if ($entity instanceof Leaves) {
@@ -98,23 +98,23 @@ class LeavesSubscriber implements EventSubscriber
     }
     
     /**
+     * @param \Application\Sonata\UserBundle\Entity\User $leaveApplicant
      * @param boolean $allSupervisors
      *
      * @return array
      */
-    private function getSupervisorsEmails($allSupervisors = false): array
+    private function getSupervisorsEmails($leaveApplicant, $allSupervisors = false): array
     {
         $emailTo = [];
-        $user = $this->getUser();
-        if ($user) {
-            $supervisors = $user->getSupervisorsLevel1();
+        if ($leaveApplicant) {
+            $supervisors = $leaveApplicant->getSupervisorsLevel1();
             if ($supervisors) {
                 foreach ($supervisors as $supervisor) {
                     $emailTo[] = $supervisor->getEmail();
                 }
             }
             if ($allSupervisors) {
-                $supervisors = $user->getSupervisorsLevel2();
+                $supervisors = $leaveApplicant->getSupervisorsLevel2();
                 if ($supervisors) {
                     foreach ($supervisors as $supervisor) {
                         $emailTo[] = $supervisor->getEmail();
@@ -126,36 +126,40 @@ class LeavesSubscriber implements EventSubscriber
     }
     
     /**
-     * @param $leaves
+     * @param Leaves $leaves
      * @param $entityManager
      */
-    private function sendEmail($leaves, $entityManager): void
+    private function sendEmail($leaves, $entityManager)
     {
         $templateName = $leaves->getStatus();
         $emailTo = [];
-        $allSupervisors = [];
-        // mail to supervisors level 1
+        $cc = [];
+        $leaveApplicant = $leaves->getUser();
+        // mail to supervisors
         if ($templateName == $leaves::STATUS_REQUESTED) { //|| $templateName == $leaves::STATUS_WITHDRAWN
-            $emailTo = $this->getSupervisorsEmails(TRUE);
+            $emailTo = $this->getSupervisorsEmails($leaveApplicant, TRUE);
         }
         // mail to leave applicant, cc all supervisors
         else {
-            $emailTo[] = $leaves->getUser()->getEmail();
-            $allSupervisors = $this->getSupervisorsEmails(TRUE);
+            $emailTo[] = $leaveApplicant->getEmail();
+            $cc = $this->getSupervisorsEmails($leaveApplicant, TRUE);
         }
         
         if ($emailTo) {
             $template = $entityManager->getRepository('LeavesOvertimeBundle:EmailTemplate')
                 ->findOneBy(['name' => $templateName]);
             if ($template) {
+                $templateContent = $template->getContent();
+                $templateContent = $this->replaceTemplateVariables($leaves, $templateContent);
+                
                 $emailOptions = [
-                    'subject' => sprintf('Leave %s', $templateName),
+                    'subject' => sprintf('%s %s: %s', $leaves->getType(), $templateName, $leaves->getUser()->getFullname()),
                     'from' => $this->container->getParameter('from_email'),
                     'to' => $emailTo,
-                    'body' => $template->getContent(),
+                    'body' => $templateContent,
                 ];
-                if ($allSupervisors) {
-                    $emailOptions['cc'] = $allSupervisors;
+                if ($cc) {
+                    $emailOptions['cc'] = $cc;
                 }
                 
                 $this->utility->sendSwiftMail($emailOptions);
@@ -182,5 +186,35 @@ class LeavesSubscriber implements EventSubscriber
             $user->setLocalBalance($newBalance);
         }
         return [$previousBalance, $newBalance];
+    }
+    
+    /**
+     * @param Leaves $leaves
+     * @param $template
+     *
+     * @return string
+     */
+    private function replaceTemplateVariables($leaves, $template)
+    {
+        $dateFormat = 'd/m/Y';
+        $searchFor = [
+            '[applicant_full_name]',
+            '[leave_type]',
+            '[leave_start_date]',
+            '[leave_end_date]',
+            '[leave_duration]',
+            '[leave_created_at]',
+            '[signature_name]',
+        ];
+        $replaceWith = [
+            $leaves->getUser()->getFullname(),
+            $leaves->getType(),
+            $leaves->getStartDate()->format($dateFormat),
+            $leaves->getEndDate()->format($dateFormat),
+            $leaves->getType() == $leaves::TYPE_SICK_LEAVE ? $leaves->getHours() . ' hour(s)' : $leaves->getDuration() . ' day(s)',
+            $leaves->getCreatedAt()->format($dateFormat . ' H:i:s'),
+            $this->container->getParameter('leaves_email_signature_name')
+        ];
+        return str_replace($searchFor, $replaceWith, $template);
     }
 }

@@ -30,7 +30,7 @@ class FreezeLocalBalanceCommand extends ContainerAwareCommand
             $output->writeln('Script completed successfully!');
         }
         catch (\Exception $e) {
-            $output->writeln(sprintf('An exception has occured: %s', $e->getMessage()));
+            $output->writeln(sprintf('An exception has occurred: %s', $e->getMessage()));
         }
     }
 }

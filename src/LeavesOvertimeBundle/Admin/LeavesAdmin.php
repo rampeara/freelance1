@@ -59,12 +59,6 @@ class LeavesAdmin extends CommonAdmin
     
     public function createQuery($context = 'list')
     {
-        // to del !!
-    
-        $this->getContainer()->get('doctrine')
-            ->getRepository('ApplicationSonataUserBundle:User')
-            ->carryForwardLocalBalance();
-        
         $query = parent::createQuery($context);
     
         if (in_array($this->getRole(), ['ROLE_EMPLOYEE', 'ROLE_SUPERVISOR'])) {
@@ -189,23 +183,24 @@ class LeavesAdmin extends CommonAdmin
      * @return array
      */
     protected function getUserFormOptions() {
-        if (in_array($this->getRole(), ['ROLE_HR', 'ROLE_ADMIN']) || $this->isGranted('ROLE_HR')) {
+        $user = $this->getUser();
+        if (in_array($this->getRole(), ['ROLE_HR', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'])) {
             $queryBuilder = $this->getContainer()->get('doctrine')
                 ->getRepository('ApplicationSonataUserBundle:User')
-                ->getUsersQueryBuilder();
+                ->getUsersQueryBuilder($user);
         }
         else {
-            $userId = $this->getUser()->getId();
             $queryBuilder = $this->getContainer()->get('doctrine')
                 ->getRepository('ApplicationSonataUserBundle:User')
-                ->getFilteredUsersQueryBuilder($userId);
+                ->getFilteredUsersQueryBuilder($user->getId());
         }
         
         $userOptions = [
             'class' => User::class,
             'query_builder' => $queryBuilder,
             'choice_label' => 'fullname',
-            'required' => FALSE
+            'required' => FALSE,
+            'help' => 'Leave blank for own application'
         ];
         return $userOptions;
     }

@@ -2,7 +2,6 @@
 
 namespace LeavesOvertimeBundle\Admin;
 
-use Sonata\AdminBundle\Admin\AbstractAdmin;
 use Sonata\AdminBundle\Datagrid\DatagridMapper;
 use Sonata\AdminBundle\Datagrid\ListMapper;
 use Sonata\AdminBundle\Form\FormMapper;
@@ -44,7 +43,10 @@ class EmailTemplateAdmin extends CommonAdmin
     protected function configureFormFields(FormMapper $formMapper)
     {
         $formMapper
-            ->add('content')
+            ->add('content', null, [
+                'help' => 'Allowed variables: [applicant_full_name], [leave_type], [leave_start_date], [leave_end_date], [leave_duration], [leave_created_at], [signature_name]',
+                'attr' => ['style' => 'height: 300px']
+            ])
         ;
     }
 

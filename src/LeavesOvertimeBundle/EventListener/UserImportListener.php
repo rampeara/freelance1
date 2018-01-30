@@ -104,7 +104,11 @@ class UserImportListener
                     ->setEnabled(true)
                     ->setUsername($this->cleanData($data['Username']))
                     ->setPlainPassword('temporary_' . uniqid())
-                    ->setDn(sprintf('uid=%s,%s', $user->getUsername(), $this->container->getParameter('base_dn')))
+                    ->setDn(sprintf('%s=%s,%s', $this->container->getParameter('dn_username_attribute'), $user->getUsername(), $this->container->getParameter('base_dn')))
+                    ->setLocalBalance($data['Local balance'])
+                    ->setSickBalance($data['Sick balance'])
+                    ->setCarryForwardLocalBalance($data['Carry forward local balance'])
+                    ->setFrozenCarryForwardLocalBalance($data['Frozen carry forward local balance'])
                 ;
                 $entityManager->persist($user);
             }
