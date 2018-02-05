@@ -16,7 +16,7 @@ class FreezeLocalBalanceCommand extends ContainerAwareCommand
     {
         $this
             ->setName('leaves:freeze-local-balance')
-            ->setDescription('Transfers local balance to frozen local balance at 31 Dec.');
+            ->setDescription('Transfers remaining local balance of employees on probation to frozen local balance at 31 Dec.');
     }
     
     /**

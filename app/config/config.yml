@@ -13,7 +13,7 @@ parameters:
     from_email: 'noreply@leaves-system.com'
     base_dn: 'dc=example,dc=com'
     dn_username_attribute: 'uid'
-    leaves_email_signature_name: 'ACSMR'
+    leaves_email_signature_name: 'ACSHRM'
 
 # LDAP config here
 fr3d_ldap:
@@ -27,6 +27,25 @@ fr3d_ldap:
             - { ldap_attr: cn,  user_method: setFirstname }
             - { ldap_attr: sn,  user_method: setLastname }
         filter: (&(ObjectClass=person))
+
+#    driver:
+#        host: ros.mu
+##        accountDomainName: ros
+#        accountDomainNameShort: ros
+##        accountFilterFormat: (&('sAMAccountName'=%s))
+#        username: leaves
+#        password: P@55w0rd
+#    user:
+#        baseDn: '%base_dn%'
+#        attributes:
+#            - { ldap_attr: samaccountname,  user_method: setUsername }
+##            - { ldap_attr: mail,  user_method: setEmail }
+##            - { ldap_attr: cn,  user_method: setFirstname }
+##            - { ldap_attr: sn,  user_method: setLastname }
+##        filter: (&(ObjectClass=person))
+#        usernameAttribute: 'sAMAccountName'
+#    service:
+#        user_hydrator: leaves_overtime.ldap.user_hydrator
 
 sonata_admin:
     title: Leaves & Overtime

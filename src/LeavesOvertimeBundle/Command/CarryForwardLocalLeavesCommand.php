@@ -16,7 +16,7 @@ class CarryForwardLocalLeavesCommand extends ContainerAwareCommand
     {
         $this
             ->setName('leaves:carry-forward-local-balance')
-            ->setDescription('Transfers local balance to carry forward balance at 31 Dec.');
+            ->setDescription('Transfers local balance to carry forward local balance at 31 Dec.');
     }
     
     /**

@@ -17,7 +17,7 @@ class GeneralDataFixture extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-        $this->loadAdmin($manager);
+//        $this->loadAdmin($manager);
         $this->loadEmailTemplate($manager);
         $this->loadDepartment($manager);
         $this->loadJobTitle($manager);
@@ -287,7 +287,7 @@ Regards,
                 ->setHireDate(new \DateTime())
                 ->setUsername('user' . $x)
                 ->setPlainPassword($user->getUsername())
-                ->setRoles(['ROLE_USER'])
+                ->setRoles(['ROLE_EMPLOYEE'])
                 ->setEnabled(true)
             ;
             

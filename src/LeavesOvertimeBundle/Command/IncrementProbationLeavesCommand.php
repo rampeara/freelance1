@@ -16,7 +16,7 @@ class IncrementProbationLeavesCommand extends ContainerAwareCommand
     {
         $this
             ->setName('leaves:increment-probation-leaves')
-            ->setDescription('Increments the leaves of every employees under probation using specific criteria.');
+            ->setDescription('Increments the leaves of every employees under probation using specific criteria at the same date and month of date of hire.');
     }
     
     /**

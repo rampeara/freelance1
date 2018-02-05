@@ -16,7 +16,7 @@ class FreezeCarryForwardLocalBalanceCommand extends ContainerAwareCommand
     {
         $this
             ->setName('leaves:freeze-carry-forward-local-balance')
-            ->setDescription('Transfers carry forward local balance to frozen carry forward balance at 31 Mar.');
+            ->setDescription('Transfers remaining carry forward local balance to frozen carry forward balance at 31 March.');
     }
     
     /**

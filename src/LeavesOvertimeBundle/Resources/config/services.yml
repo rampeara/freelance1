@@ -1,4 +1,7 @@
 services:
+    leaves_overtime.ldap.user_hydrator:
+        class: LeavesOvertimeBundle\Ldap\UserHydrator
+
     leaves_overtime.data_fixtures.email_template_fixture:
         class: LeavesOvertimeBundle\DataFixtures\GeneralDataFixture
         tags: [doctrine.fixture.orm]

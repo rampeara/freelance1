@@ -16,7 +16,7 @@ class IncrementAnnualLeavesCommand extends ContainerAwareCommand
     {
         $this
             ->setName('leaves:increment-annual-leaves')
-            ->setDescription('Increments the leaves of every employees annually for > 1 year of service.');
+            ->setDescription('Increments the leaves of every employees annually for > 1 year of service at the same date and month of date of hire.');
     }
     
     /**
