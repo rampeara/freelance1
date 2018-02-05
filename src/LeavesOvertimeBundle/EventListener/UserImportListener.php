@@ -64,7 +64,7 @@ class UserImportListener
      * @param $entityManager \Doctrine\Common\Persistence\ObjectManager
      */
     public function processUserData(&$userImport, &$entityManager) {
-//        $filePath = sprintf('%s/uploads/user/%s', $_SERVER['DOCUMENT_ROOT'], $entity->getFileName());
+        // $filePath = sprintf('%s/uploads/user/%s', $_SERVER['DOCUMENT_ROOT'], $entity->getFileName());
         $filePath = sprintf('%s\%s', $userImport->uploadAbsolutePath, $userImport->getFileName());
         if (file_exists($filePath)) {
             $csv = $this->getCsvArray($filePath);
