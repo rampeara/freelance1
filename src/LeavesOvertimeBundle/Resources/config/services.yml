@@ -1,6 +1,7 @@
 services:
     leaves_overtime.ldap.user_hydrator:
         class: LeavesOvertimeBundle\Ldap\UserHydrator
+        arguments: ['@doctrine.orm.entity_manager']
 
     leaves_overtime.data_fixtures.email_template_fixture:
         class: LeavesOvertimeBundle\DataFixtures\GeneralDataFixture

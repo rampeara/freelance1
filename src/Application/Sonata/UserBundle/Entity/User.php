@@ -658,7 +658,7 @@ class User extends BaseUser implements LdapUserInterface
      */
     public function getLocalBalance(): float
     {
-        return !empty($this->localBalance) ? $this->localBalance + $this->carryForwardLocalBalance : 0;
+        return !empty($this->localBalance) ? $this->localBalance : 0;
     }
     
     /**
