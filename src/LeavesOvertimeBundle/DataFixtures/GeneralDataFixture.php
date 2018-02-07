@@ -8,7 +8,6 @@ use LeavesOvertimeBundle\Entity\Department;
 use LeavesOvertimeBundle\Entity\EmailTemplate;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use LeavesOvertimeBundle\Entity\Employee;
 use LeavesOvertimeBundle\Entity\JobTitle;
 use LeavesOvertimeBundle\Entity\Project;
 use LeavesOvertimeBundle\Entity\PublicHoliday;
@@ -17,7 +16,7 @@ class GeneralDataFixture extends Fixture
 {
     public function load(ObjectManager $manager)
     {
-//        $this->loadAdmin($manager);
+        $this->loadAdmin($manager);
         $this->loadEmailTemplate($manager);
         $this->loadDepartment($manager);
         $this->loadJobTitle($manager);
@@ -35,8 +34,10 @@ class GeneralDataFixture extends Fixture
     public function loadAdmin(ObjectManager &$manager) {
         $admin = new User();
         $admin->setUsername('admin')
+            ->setFirstname('Admin firstname')
+            ->setLastname('Admin lastname')
+            ->setEmail('rampeara@hotmail.com')
             ->setPlainPassword('admin')
-            ->setEmail('admin@admin.com')
             ->setRoles(['ROLE_SUPER_ADMIN'])
             ->setEnabled(true)
         ;
@@ -113,12 +114,12 @@ Regards,
     public function loadDepartment(ObjectManager &$manager) {
         $items = [
             "Administration and General Services",
-            "ATI - Management",
+            "ATI -  Management",
             "ATI - Client",
             "ATI - Complaints",
             "ATI Direct Sales",
-            "AXA Banque - Management",
             "AXA Banque",
+            "AXA Banque - Management",
             "AXA PJ",
             "AXA Schengen",
             "Commerciale et Marketing",
@@ -129,8 +130,8 @@ Regards,
             "Internal Control & Compliance",
             "Internal Control & Compliance",
             "IT",
-            "Juridica - Management",
             "Juridica",
+            "Juridica - Management",
             "Planning & Stats",
             "Project Management Office",
             "Rogers Capital ",
@@ -261,10 +262,10 @@ Regards,
             "ATI - CIPT",
             "ATI - SAAT & VPO",
             "ATI Direct Sales",
-            "ATI - Assistance & Claims",
-            "ATI - Claims FR",
-            "ATI - Claims UK",
-            "ATI - Recovery",
+            "ATI- Assistance & Claims",
+            "ATI- Claims FR",
+            "ATI- Claims UK",
+            "ATI-Recovery",
             "Medical & Assistance",
         ];
         

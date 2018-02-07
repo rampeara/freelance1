@@ -11,9 +11,11 @@ class UserImportListener
 {
     private $container;
     private $flashBag;
+    private $router;
     
     public function __construct($container){
         $this->container = $container;
+        $this->router = $this->container->get('router');
         $this->flashBag = $this->container->get('session')->getFlashBag();
     }
     
@@ -44,7 +46,7 @@ class UserImportListener
             return;
         }
        
-        $newFileName = sprintf('user-import-%s.%s', time(), $entity->getFile()->getClientOriginalExtension());
+        $newFileName = sprintf('user_import_%s.%s', date('d-m-Y'), $entity->getFile()->getClientOriginalExtension());
         // move takes the target directory and target filename as params
         $entity->getFile()->move(
             $entity->uploadAbsolutePath,
@@ -67,22 +69,25 @@ class UserImportListener
         // $filePath = sprintf('%s/uploads/user/%s', $_SERVER['DOCUMENT_ROOT'], $entity->getFileName());
         $filePath = sprintf('%s\%s', $userImport->uploadAbsolutePath, $userImport->getFileName());
         if (file_exists($filePath)) {
-            $csv = $this->getCsvArray($filePath);
-            foreach ($csv as $data) {
+            $csv = $this->getVerifiedCSV($filePath, $userImport);
+            if ($csv == null) {
+                return;
+            }
+            
+            foreach ($csv as $key => $data) {
+                $retryMessage = 'The import has been stopped at this error. Please verify where it stopped in User List page and in the CSV, remove successfully imported rows from the CSV and try again.'; //$this->router->generate('admin_sonata_user_user_list', [], 0)
                 $inputDate = $this->cleanData($data['Hire date']);
                 list($date, $format) = $this->getDate($inputDate);
-                // Validations
-                if (!$this->isValidData($date, $format, $data, $entityManager, $userImport)) {
-                    // rollback
+                if (!$this->isValidData($date, $format, $data, $entityManager, $userImport, $retryMessage)) {
                     $entityManager->clear();
                     return;
                 }
                 
                 // find corresponding objects
-                $jobTitle = !empty($data['Job title']) ? $entityManager->getRepository('LeavesOvertimeBundle:JobTitle')->findOneBy(['name' => $data['Job title']]) : null;
-                $businessUnit = !empty($data['Business unit']) ? $entityManager->getRepository('LeavesOvertimeBundle:BusinessUnit')->findOneBy(['name' => $data['Business unit']]) : null;
-                $department = !empty($data['Department']) ? $entityManager->getRepository('LeavesOvertimeBundle:Department')->findOneBy(['name' => $data['Department']]) : null;
-                $project = !empty($data['Project']) ? $entityManager->getRepository('LeavesOvertimeBundle:Project')->findOneBy(['name' => $data['Project']]) : null;
+                $jobTitle = $this->findNameFromRepository('JobTitle', $data['Job title'], $entityManager);
+                $businessUnit = $this->findNameFromRepository('BusinessUnit', $data['Business unit'], $entityManager);
+                $department = $this->findNameFromRepository('Department', $data['Department'], $entityManager);
+                $project = $this->findNameFromRepository('Project', $data['Project'], $entityManager);
                 $supervisorsLevel1 = $this->getSupervisors($entityManager, $data['Supervisors level 1']);
                 $supervisorsLevel2 = $this->getSupervisors($entityManager, $data['Supervisors level 2']);
     
@@ -105,7 +110,7 @@ class UserImportListener
                     ->setUsername($this->cleanData($data['Username']))
                     ->setPassword('')
 //                    ->setDn(sprintf('%s=%s,%s', $this->container->getParameter('dn_username_attribute'), $user->getUsername(), $this->container->getParameter('base_dn')))
-                    ->setDn($data['DN'])
+//                    ->setDn($data['DN'])
                     ->setLocalBalance($data['Local balance'])
                     ->setSickBalance($data['Sick balance'])
                     ->setCarryForwardLocalBalance($data['Carry forward local balance'])
@@ -113,8 +118,8 @@ class UserImportListener
                     ->setRoles(['ROLE_' . strtoupper($data['Role'])])
                 ;
                 $entityManager->persist($user);
+                $entityManager->flush();
             }
-            $entityManager->flush();
             $userImport->setIsSuccess(true);
         }
         else {
@@ -123,18 +128,91 @@ class UserImportListener
     }
     
     /**
+     * @param $dataKeys
+     * @param $userImport
+     *
+     * @return bool
+     */
+    private function hasMissingHeaders($dataKeys, &$userImport) {
+        $requiredHeaders = [
+            "AB number",
+            "Email",
+            "Title",
+            "Gender",
+            "First name",
+            "Last name",
+            "Job title",
+            "Business unit",
+            "Department",
+            "Project",
+            "Supervisors level 1",
+            "Supervisors level 2",
+            "Hire date",
+            "Employment status",
+            "Local balance",
+            "Sick balance",
+            "Carry forward local balance",
+            "Frozen carry forward local balance",
+            "Role",
+            "Username"
+        ];
+        $missingHeaders = [];
+        
+        foreach ($requiredHeaders as $requiredHeader) {
+            if (array_search($requiredHeader, $dataKeys) === false) {
+                $missingHeaders[] = $requiredHeader;
+            }
+        }
+        
+        if ($missingHeaders != []) {
+            $this->setError($userImport, sprintf('The following header names are missing, please verify that the names are exactly as shown: %s. The import has been cancelled, please correct the headers and try again.', implode(', ', $missingHeaders)));
+            return true;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * @param $filePath
+     * @param $userImport
+     *
+     * @return array|null
+     */
+    private function getVerifiedCSV($filePath, &$userImport) {
+        try {
+            $csv = $this->getCsvArray($filePath);
+        }
+        catch (\Exception $e) {
+            $this->setError($userImport, sprintf('The CSV is invalid! Please verify that the number of headers match the number of data under them.'));
+            return null;
+        }
+    
+        if (empty($csv)) {
+            $this->setError($userImport, sprintf('The CSV is empty!'));
+            return null;
+        }
+    
+        $dataKeys = array_keys($csv[0]);
+        if ($this->hasMissingHeaders($dataKeys, $userImport)) {
+            return null;
+        }
+        
+        return $csv;
+    }
+    
+    /**
      * @param $date
      * @param $format
      * @param $data
      * @param $entityManager
      * @param $userImport
+     * @param $retryMessage
      *
      * @return bool
      */
-    private function isValidData($date, $format, $data, &$entityManager, &$userImport) {
-        $retryMessage = 'The import has been cancelled, please correct the data and try again.';
+    private function isValidData($date, $format, $data, &$entityManager, &$userImport, $retryMessage) {
         if (!($date && $date->format($format) == $data['Hire date'])) {
-            $this->setError($userImport, sprintf('A date format is invalid. Please verify that all date formats use "dd-mm-yy". %s', $retryMessage));
+            $this->setError($userImport, sprintf('The date %s is an invalid date format. Please verify that all hire dates use "dd-mm-yy" format. %s', $data['Hire date'], $retryMessage));
             return false;
         }
         $emailExists = $entityManager->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['email' => $data['Email']]);
@@ -156,20 +234,33 @@ class UserImportListener
      * @param \Doctrine\Common\Persistence\ObjectManager $entityManager
      * @param string $data
      *
-     * @return ArrayCollection|null
+     * @return ArrayCollection
      */
     private function getSupervisors($entityManager, $data) {
-        $supervisorsArrayCollection = null;
+        $supervisorsArrayCollection = new ArrayCollection();
         if (!empty($data)) {
             $supervisorsIds = explode(',', $data);
-            $supervisorsArrayCollection = new ArrayCollection();
             foreach ($supervisorsIds as $supervisorId) {
                 $supervisorObj = $entityManager->getRepository('ApplicationSonataUserBundle:User')
                     ->find($supervisorId);
-                $supervisorsArrayCollection->add($supervisorObj);
+                if ($supervisorObj) {
+                    $supervisorsArrayCollection->add($supervisorObj);
+                }
             }
         }
         return $supervisorsArrayCollection;
+    }
+    
+    /**
+     * @param $repositoryName
+     * @param $nameToFind
+     * @param $entityManager
+     *
+     * @return null|object
+     */
+    private function findNameFromRepository($repositoryName, $nameToFind, &$entityManager) {
+        $nameToFind = $this->cleanData($nameToFind);
+        return  $nameToFind != null ? $entityManager->getRepository('LeavesOvertimeBundle:' . $repositoryName)->findOneBy(['name' => $nameToFind]) : null;
     }
     
     /**
