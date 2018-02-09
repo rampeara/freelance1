@@ -139,7 +139,8 @@ class UserAdmin extends BaseUserAdmin
                 'numberType' => true, // overridden template to change field type from text to number
             ]
         ];
-        
+    
+        $formMapper->remove('plainPassword');
         $formMapper->removeGroup('Profile', 'User');
         $formMapper->removeGroup('Social', 'User');
         $formMapper->removeGroup('Keys', 'Security', true);
@@ -170,7 +171,7 @@ class UserAdmin extends BaseUserAdmin
         $formMapper
             ->tab('User')
                 ->with('Status')
-                    ->add('enabled', null, ['required' => false])
+//                    ->add('enabled', null, ['required' => false])
                     ->add('localBalance', NumberType::class, $balanceOptions)
                     ->add('sickBalance', NumberType::class, $balanceOptions)
                     ->add('carryForwardLocalBalance', NumberType::class, $balanceOptions)

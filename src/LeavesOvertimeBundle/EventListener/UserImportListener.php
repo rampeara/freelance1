@@ -90,10 +90,11 @@ class UserImportListener
                 $project = $this->findNameFromRepository('Project', $data['Project'], $entityManager);
                 $supervisorsLevel1 = $this->getSupervisors($entityManager, $data['Supervisors level 1']);
                 $supervisorsLevel2 = $this->getSupervisors($entityManager, $data['Supervisors level 2']);
+                $email = $this->cleanData($data['Email']);
     
                 $user = new User();
                 $user->setAbNumber($this->cleanData($data['AB number']))
-                    ->setEmail($this->cleanData($data['Email']))
+                    ->setEmail($email)
                     ->setTitle($this->cleanData($data['Title']))
                     ->setGender($this->cleanData($data['Gender']))
                     ->setFirstname($this->cleanData($data['First name']))
@@ -107,14 +108,14 @@ class UserImportListener
                     ->setSupervisorsLevel1($supervisorsLevel1)
                     ->setSupervisorsLevel2($supervisorsLevel2)
                     ->setEnabled(true)
-                    ->setUsername($this->cleanData($data['Username']))
+                    ->setUsername($this->generateUsername($email)) //$this->cleanData($data['Username'])
                     ->setPassword('')
 //                    ->setDn(sprintf('%s=%s,%s', $this->container->getParameter('dn_username_attribute'), $user->getUsername(), $this->container->getParameter('base_dn')))
 //                    ->setDn($data['DN'])
-                    ->setLocalBalance($data['Local balance'])
-                    ->setSickBalance($data['Sick balance'])
-                    ->setCarryForwardLocalBalance($data['Carry forward local balance'])
-                    ->setFrozenCarryForwardLocalBalance($data['Frozen carry forward local balance'])
+                    ->setLocalBalance($this->cleanNumber($data['Local balance']))
+                    ->setSickBalance($this->cleanNumber($data['Sick balance']))
+                    ->setCarryForwardLocalBalance($this->cleanNumber($data['Carry forward local balance']))
+                    ->setFrozenCarryForwardLocalBalance($this->cleanNumber($data['Frozen carry forward local balance']))
                     ->setRoles(['ROLE_' . strtoupper($data['Role'])])
                 ;
                 $entityManager->persist($user);
@@ -125,6 +126,33 @@ class UserImportListener
         else {
             $this->setError($userImport, sprintf('The import file could not be found on path %s', $filePath));
         }
+    }
+    
+    /**
+     * Returns a valid numeric representation
+     * @param $value
+     *
+     * @return float|int|string
+     */
+    private function cleanNumber($value) {
+        return is_numeric($value) ? $value : 0;
+    }
+    
+    /**
+     * Generates username from email string before @
+     * @param $email
+     *
+     * @return string
+     */
+    private function generateUsername($email) {
+        if (empty($email)) {
+            return 'invalid.username';
+        }
+        
+        $email = strtolower($email);
+        list($username) = explode('@', $email);
+        list($firstName, $lastName) = explode('.', $username);
+        return sprintf('%s.%s', $firstName[0], $lastName);
     }
     
     /**
@@ -153,13 +181,12 @@ class UserImportListener
             "Sick balance",
             "Carry forward local balance",
             "Frozen carry forward local balance",
-            "Role",
-            "Username"
+            "Role"
         ];
         $missingHeaders = [];
         
         foreach ($requiredHeaders as $requiredHeader) {
-            if (array_search($requiredHeader, $dataKeys) === false) {
+            if (!in_array($requiredHeader, $dataKeys)) {
                 $missingHeaders[] = $requiredHeader;
             }
         }
@@ -221,11 +248,11 @@ class UserImportListener
             return false;
         }
     
-        $usernameExists = $entityManager->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['username' => $data['Username']]);
-        if ($usernameExists) {
-            $this->setError($userImport, sprintf('The username %s already exists in the system. %s', $data['Username'], $retryMessage));
-            return false;
-        }
+//        $usernameExists = $entityManager->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['username' => $data['Username']]);
+//        if ($usernameExists) {
+//            $this->setError($userImport, sprintf('The username %s already exists in the system. %s', $data['Username'], $retryMessage));
+//            return false;
+//        }
         
         return true;
     }

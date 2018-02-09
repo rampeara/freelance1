@@ -33,11 +33,11 @@ class GeneralDataFixture extends Fixture
      */
     public function loadAdmin(ObjectManager &$manager) {
         $admin = new User();
-        $admin->setUsername('admin')
-            ->setFirstname('Admin firstname')
-            ->setLastname('Admin lastname')
+        $admin->setUsername('developer')
+            ->setFirstname('Developer')
+            ->setLastname('Account')
             ->setEmail('rampeara@hotmail.com')
-            ->setPlainPassword('admin')
+            ->setPlainPassword('KeDbAReTiVeR')
             ->setRoles(['ROLE_SUPER_ADMIN'])
             ->setEnabled(true)
         ;
@@ -261,11 +261,11 @@ Regards,
         $items = [
             "ATI - CIPT",
             "ATI - SAAT & VPO",
-            "ATI Direct Sales",
-            "ATI- Assistance & Claims",
-            "ATI- Claims FR",
-            "ATI- Claims UK",
-            "ATI-Recovery",
+            "ATI - Direct Sales",
+            "ATI - Assistance & Claims",
+            "ATI - Claims FR",
+            "ATI - Claims UK",
+            "ATI - Recovery",
             "Medical & Assistance",
         ];
         

@@ -146,7 +146,11 @@ doctrine:
         dbname: '%database_name%'
         user: '%database_user%'
         password: '%database_password%'
-        charset: UTF8
+#        charset: UTF8
+        charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml
         #     e.g. database_path: '%kernel.project_dir%/var/data/data.sqlite'
@@ -168,6 +172,6 @@ swiftmailer:
     host: '%mailer_host%'
     username: '%mailer_user%'
     password: '%mailer_password%'
-    spool:
-        type: '%mailer_spool_type%'
-        path: '%mailer_spool_path%'
+#    spool:
+#        type: '%mailer_spool_type%'
+#        path: '%mailer_spool_path%'
