@@ -140,7 +140,6 @@ class UserAdmin extends BaseUserAdmin
             ]
         ];
     
-        $formMapper->remove('plainPassword');
         $formMapper->removeGroup('Profile', 'User');
         $formMapper->removeGroup('Social', 'User');
         $formMapper->removeGroup('Keys', 'Security', true);
@@ -150,6 +149,7 @@ class UserAdmin extends BaseUserAdmin
             && !($this->getUser()->getRoles()[0] == 'ROLE_ADMIN' || $this->getUser()->getRoles()[0] == 'ROLE_SUPER_ADMIN')) {
             $formMapper->removeGroup('Groups', 'Security', true);
             $formMapper->removeGroup('Roles', 'Security', true);
+            $formMapper->remove('plainPassword');
         }
         else {
             $formMapper
