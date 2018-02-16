@@ -89,6 +89,7 @@ class LeavesAdmin extends CommonAdmin
         }
         
         $listMapper
+            ->add('id')
             ->add('user')
 //            ->add('user.localBalance')
 //            ->add('user.sickBalance')
@@ -114,7 +115,7 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $datetimeOptions = $this->getDateTimeFormOptions();
+        $datetimeOptions = []; //$this->getDateTimeFormOptions();
     
         if ($this->getRole() != 'ROLE_EMPLOYEE') {
             $formMapper
@@ -142,6 +143,7 @@ class LeavesAdmin extends CommonAdmin
     protected function configureShowFields(ShowMapper $showMapper)
     {
         $showMapper
+            ->add('id')
             ->add('type')
             ->add('startDate')
             ->add('endDate')

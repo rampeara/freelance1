@@ -44,21 +44,36 @@ class ValidOldValueValidator extends ConstraintValidator
         
         if ($leaves->getUser() == $this->securityContext->getToken()->getUser()) {
             $this->context->buildViolation($constraint->message)
-                ->setParameter("%message%", 'You cannot change the status of your own leave application.')
+                ->setParameter("%message%", 'You cannot change the status of your own leave application. Please contact your supervisor.')
                 ->addViolation();
+            return;
         }
-        else {
-            $oldValue = $oldData['status'];
-            if (($newValue == $leaves::STATUS_APPROVED || $newValue == $leaves::STATUS_REJECTED) && $oldValue != $leaves::STATUS_REQUESTED) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter("%message%", sprintf('Only leaves with status %s can be approved or rejected.', $leaves::STATUS_REQUESTED))
-                    ->addViolation();
-            }
-            else if ($newValue == $leaves::STATUS_CANCELLED && $oldValue != $leaves::STATUS_APPROVED) {
-                $this->context->buildViolation($constraint->message)
-                    ->setParameter("%message%", sprintf('Only leaves with status %s can be cancelled.', $leaves::STATUS_APPROVED))
-                    ->addViolation();
-            }
+        
+        $oldValue = $oldData['status'];
+        if (($newValue == $leaves::STATUS_APPROVED || $newValue == $leaves::STATUS_REJECTED) && $oldValue != $leaves::STATUS_REQUESTED) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter("%message%", sprintf('Only leaves with status %s can be approved or rejected.', $leaves::STATUS_REQUESTED))
+                ->addViolation();
+            return;
+        }
+        
+        if ($newValue == $leaves::STATUS_CANCELLED && $oldValue != $leaves::STATUS_APPROVED) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter("%message%", sprintf('Only leaves with status %s can be cancelled.', $leaves::STATUS_APPROVED))
+                ->addViolation();
+            return;
+        }
+
+        $isSickLeave = $leaves->getType() == $leaves::TYPE_SICK_LEAVE;
+        $user = $leaves->getUser();
+        $currentBalance = $isSickLeave ? $user->getSickBalance() : $user->getTotalLocalBalance();
+        $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
+        $duration = $leaves->getDuration();
+        $newBalance = $isApprovedStatus ? $currentBalance - $duration : $currentBalance + $duration;
+        if ($newBalance < 0) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter("%message%", 'This operation would result in a negative balance, thus invalid.')
+                ->addViolation();
         }
     }
 }

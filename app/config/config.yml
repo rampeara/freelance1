@@ -13,7 +13,7 @@ parameters:
     from_email: 'noreply@leaves-system.com'
     base_dn: 'dc=example,dc=com'
     dn_username_attribute: 'uid'
-    leaves_email_signature_name: 'ACSHRM'
+    leaves_email_signature_name: 'HRM'
 
 # LDAP config here
 fr3d_ldap:
@@ -172,6 +172,7 @@ swiftmailer:
     host: '%mailer_host%'
     username: '%mailer_user%'
     password: '%mailer_password%'
+#    disable_delivery: true
 #    spool:
 #        type: '%mailer_spool_type%'
 #        path: '%mailer_spool_path%'

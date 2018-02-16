@@ -12,14 +12,23 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class BalanceLog
 {
-    const TYPE_PROBATION_LOCAL_LEAVE = 'Probation local leave';
-    const TYPE_PROBATION_SICK_LEAVE = 'Probation sick leave';
-    const TYPE_ANNUAL_LOCAL_LEAVE = 'Annual local leave';
-    const TYPE_ANNUAL_SICK_LEAVE = 'Annual sick leave';
-    const TYPE_APPLIED_LEAVE = 'Applied leave';
-    const TYPE_CARRY_FORWARD_LOCAL_BALANCE = 'Carry forward local balance';
-    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE = 'Freeze carry forward local balance';
-    const TYPE_FREEZE_LOCAL_BALANCE = 'Freeze local balance';
+    const TYPE_PROBATION_LOCAL_LEAVE = 1;
+    const TYPE_PROBATION_SICK_LEAVE = 2;
+    const TYPE_ANNUAL_LOCAL_LEAVE = 3;
+    const TYPE_ANNUAL_SICK_LEAVE = 4;
+    const TYPE_APPLIED_LEAVE = 5;
+    const TYPE_CARRY_FORWARD_LOCAL_BALANCE = 6;
+    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE = 7;
+    const TYPE_FREEZE_LOCAL_BALANCE = 8;
+    
+    const TYPE_PROBATION_LOCAL_LEAVE_DESC = 'User < 1 year - Local balance was %s, now %s';
+    const TYPE_PROBATION_SICK_LEAVE_DESC = 'User < 1 year - Sick balance was %s, now %s';
+    const TYPE_ANNUAL_LOCAL_LEAVE_DESC = 'User > 1 year - Local balance was %s, now %s';
+    const TYPE_ANNUAL_SICK_LEAVE_DESC = 'User > 1 year - Sick balance was %s, now %s';
+    const TYPE_APPLIED_LEAVE_DESC = 'Applied leave %s - User %s balance was %s, now %s%s';
+    const TYPE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 Dec User > 1 year: Local balance was %s, now %s - Carry forward balance was %s, now %s';
+    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 March User: Carry forward balance was %s, now %s - Frozen carry forward balance was %s, now %s';
+    const TYPE_FREEZE_LOCAL_BALANCE_DESC = '31 Dec User < 1 year: Local balance was %s, now %s - Frozen local balance was %s, now %s';
     
     /**
      * @var int
@@ -45,27 +54,27 @@ class BalanceLog
      * @ORM\JoinColumn(name="leaves_id", referencedColumnName="id")
      */
     protected $leave;
-
+    
     /**
      * @var float|null
      *
-     * @ORM\Column(name="previous_balance", type="float", nullable=true)
+     * @ORM\Column(name="carry_forward_amount", type="float", nullable=true)
      */
-    private $previousBalance;
-
+    private $carryForwardAmount;
+    
     /**
-     * @var float|null
+     * @var integer
      *
-     * @ORM\Column(name="new_balance", type="float", nullable=true)
+     * @ORM\Column(name="type", type="smallint", nullable=true)
      */
-    private $newBalance;
+    private $type;
     
     /**
      * @var string
      *
-     * @ORM\Column(name="type", type="string", nullable=true)
+     * @ORM\Column(name="description", type="string", nullable=true)
      */
-    private $type;
+    private $description;
 
     /**
      * @var \DateTime|null
@@ -81,15 +90,15 @@ class BalanceLog
      */
     private $createdBy;
     
-    public function __construct($previousBalance = null, $newBalance = null, $user = null, $createdBy = 'system', $type = self::TYPE_APPLIED_LEAVE, $leave = null)
+    public function __construct($description = null, $user = null, $createdBy = 'system', $type = self::TYPE_APPLIED_LEAVE, $carryForwardAmount = null, $leave = null)
     {
         $this->leave = $leave;
         $this->user = $user;
-        $this->previousBalance = $previousBalance;
-        $this->newBalance = $newBalance;
+        $this->description = $description;
         $this->createdAt = new \DateTime();
         $this->createdBy = $createdBy;
         $this->type = $type == null ? self::TYPE_APPLIED_LEAVE : $type;
+        $this->carryForwardAmount = $carryForwardAmount;
     }
     
     /**
@@ -100,54 +109,6 @@ class BalanceLog
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set previousBalance.
-     *
-     * @param float|null $previousBalance
-     *
-     * @return BalanceLog
-     */
-    public function setPreviousBalance($previousBalance = null)
-    {
-        $this->previousBalance = $previousBalance;
-
-        return $this;
-    }
-
-    /**
-     * Get previousBalance.
-     *
-     * @return float|null
-     */
-    public function getPreviousBalance()
-    {
-        return $this->previousBalance;
-    }
-
-    /**
-     * Set newBalance.
-     *
-     * @param float|null $newBalance
-     *
-     * @return BalanceLog
-     */
-    public function setNewBalance($newBalance = null)
-    {
-        $this->newBalance = $newBalance;
-
-        return $this;
-    }
-
-    /**
-     * Get newBalance.
-     *
-     * @return float|null
-     */
-    public function getNewBalance()
-    {
-        return $this->newBalance;
     }
 
     /**
@@ -225,7 +186,7 @@ class BalanceLog
     /**
      * Set type.
      *
-     * @param string $type
+     * @param integer $type
      *
      * @return BalanceLog
      */
@@ -239,7 +200,7 @@ class BalanceLog
     /**
      * Get type.
      *
-     * @return string
+     * @return integer
      */
     public function getType()
     {
@@ -269,4 +230,43 @@ class BalanceLog
     {
         return $this->user;
     }
+    
+    /**
+     * @param string $description
+     *
+     * @return BalanceLog
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+    
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+    
+    /**
+     * @return float|null
+     */
+    public function getCarryForwardAmount()
+    {
+        return $this->carryForwardAmount;
+    }
+    
+    /**
+     * @param float|null $carryForwardAmount
+     *
+     * @return BalanceLog
+     */
+    public function setCarryForwardAmount($carryForwardAmount)
+    {
+        $this->carryForwardAmount = $carryForwardAmount;
+        return $this;
+    }
+
 }

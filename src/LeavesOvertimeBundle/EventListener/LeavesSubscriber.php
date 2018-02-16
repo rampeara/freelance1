@@ -74,27 +74,45 @@ class LeavesSubscriber implements EventSubscriber
     {
         $entity = $eventArgs->getObject();
         if ($entity instanceof Leaves) {
-            $entityManager = $eventArgs->getObjectManager();
-            $this->updateLeaveBalance($entity, $entityManager);
-            $this->sendEmail($entity, $entityManager);
+            $objectManager = $eventArgs->getObjectManager();
+            if ($entity->getType() == $entity::TYPE_SICK_LEAVE || $entity->getType() == $entity::TYPE_LOCAL_LEAVE) {
+                $this->updateLeaveBalance($entity, $objectManager);
+            }
+            $this->sendEmail($entity, $objectManager);
         }
     }
     
     /**
      * @param Leaves $leaves
-     * @param $entityManager
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      */
-    private function updateLeaveBalance($leaves, $entityManager)
+    private function updateLeaveBalance($leaves, $objectManager)
     {
-        if ($leaves->getStatus() == $leaves::STATUS_APPROVED || $leaves->getStatus() == $leaves::STATUS_CANCELLED) {
-            $user = $leaves->getUser();
-            $currentUser = $this->getUser()->getUsername();
-            list($previousBalance, $newBalance) = $this->updateUserBalance($leaves, $user);
-
-            $entityManager->persist(new BalanceLog($previousBalance, $newBalance, $user, $currentUser, null, $leaves));
-            $entityManager->persist($user);
-            $entityManager->flush();
+        $leaveStatus = $leaves->getStatus();
+        if (!($leaveStatus == $leaves::STATUS_APPROVED || $leaveStatus == $leaves::STATUS_CANCELLED)) {
+            return;
         }
+    
+        $user = $leaves->getUser();
+        $currentUser = $this->getUser()->getUsername();
+        $isSickLeave = $leaves->getType() == $leaves::TYPE_SICK_LEAVE;
+        list($previousBalance, $newBalance, $carryForwardAmount) = $this->updateUserBalance($leaves, $user, $isSickLeave, $leaveStatus, $objectManager);
+    
+        $notCarryForward = $carryForwardAmount == null;
+        $leaveTypeText = $isSickLeave ? 'Sick' : ($notCarryForward ? 'Local' : 'Local + Carry Forward');
+        $carryForwardAmountText = $notCarryForward ? '' : sprintf(', carry forward amount %s', $carryForwardAmount);
+        $balanceLog = new BalanceLog();
+        $balanceLog
+            ->setDescription(sprintf($balanceLog::TYPE_APPLIED_LEAVE_DESC, $leaveStatus, $leaveTypeText, $previousBalance, $newBalance, $carryForwardAmountText))
+            ->setUser($user)
+            ->setCreatedBy($currentUser)
+            ->setLeave($leaves)
+            ->setCarryForwardAmount($carryForwardAmount)
+        ;
+        
+        $objectManager->persist($balanceLog);
+        $objectManager->persist($user);
+        $objectManager->flush();
     }
     
     /**
@@ -103,7 +121,7 @@ class LeavesSubscriber implements EventSubscriber
      *
      * @return array
      */
-    private function getSupervisorsEmails($leaveApplicant, $allSupervisors = false): array
+    private function getSupervisorsEmails($leaveApplicant, $allSupervisors = false)
     {
         $emailTo = [];
         if ($leaveApplicant) {
@@ -127,9 +145,9 @@ class LeavesSubscriber implements EventSubscriber
     
     /**
      * @param Leaves $leaves
-     * @param $entityManager
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      */
-    private function sendEmail($leaves, $entityManager)
+    private function sendEmail($leaves, $objectManager)
     {
         $templateName = $leaves->getStatus();
         $emailTo = [];
@@ -146,7 +164,7 @@ class LeavesSubscriber implements EventSubscriber
         }
         
         if ($emailTo) {
-            $template = $entityManager->getRepository('LeavesOvertimeBundle:EmailTemplate')
+            $template = $objectManager->getRepository('LeavesOvertimeBundle:EmailTemplate')
                 ->findOneBy(['name' => $templateName]);
             if ($template) {
                 $templateContent = $template->getContent();
@@ -168,24 +186,68 @@ class LeavesSubscriber implements EventSubscriber
     }
     
     /**
-     * @param $leaves
-     * @param $user
+     * @param Leaves $leaves
+     * @param \Application\Sonata\UserBundle\Entity\User $user
+     * @param bool $isSickLeave
+     * @param string $leaveStatus
+     *
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      *
      * @return array
      */
-    private function updateUserBalance($leaves, &$user): array
+    private function updateUserBalance($leaves, &$user, $isSickLeave, $leaveStatus, $objectManager)
     {
-        $isSickLeave = $leaves->getType() == $leaves::TYPE_SICK_LEAVE;
-        $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
-        $previousBalance = $isSickLeave ? $user->getSickBalance() : $user->getLocalBalance();
-        $newBalance = $isApprovedStatus ? $previousBalance - $leaves->getDuration() : $previousBalance + $leaves->getDuration();
+        $isApprovedStatus = $leaveStatus == $leaves::STATUS_APPROVED;
+        $leaveDuration = $leaves->getDuration();
+        
         if ($isSickLeave) {
+            $previousBalance = $user->getSickBalance();
+            $newBalance = $isApprovedStatus ? $previousBalance - $leaveDuration : $previousBalance + $leaveDuration;
             $user->setSickBalance($newBalance);
+            return [$previousBalance, $newBalance, null];
+        }
+
+        if ($isApprovedStatus) {
+            // if no carry forward to work with, operate with local balance directly
+            $carryForwardLocalBalance = $user->getCarryForwardLocalBalance();
+            if ($carryForwardLocalBalance == 0) {
+                $previousBalance = $user->getLocalBalance();
+                $newBalance = $previousBalance - $leaveDuration;
+                $user->setLocalBalance($newBalance);
+                return [$previousBalance, $newBalance, null];
+            }
+            
+            // reduce from carry forward local balance first then local balance
+            $netCarryForwardLocalBalance = $carryForwardLocalBalance - $leaveDuration;
+            $previousBalance = $user->getTotalLocalBalance();
+            // after deduction cf balance is positive, remove directly
+            if ($netCarryForwardLocalBalance >= 0) {
+                $user->setCarryForwardLocalBalance($netCarryForwardLocalBalance);
+                return [$previousBalance, $user->getTotalLocalBalance(), $leaveDuration];
+            }
+            // else remove negative difference from local, set cf to 0
+            else {
+                $reduceFromLocalBalanceAmount = abs($netCarryForwardLocalBalance);
+                $user->setCarryForwardLocalBalance(0);
+                $user->setLocalBalance($user->getLocalBalance() - $reduceFromLocalBalanceAmount);
+                return [$previousBalance, $user->getTotalLocalBalance(), $carryForwardLocalBalance];
+            }
         }
         else {
-            $user->setLocalBalance($newBalance);
+            // find associated approved request
+            $previousBalance = $user->getTotalLocalBalance();
+            $approvedLeaveBalanceLog = $objectManager->getRepository('LeavesOvertimeBundle:BalanceLog')->findOneBy(['leave' => $leaves->getId()], ['createdBy' => 'ASC']);
+            $carryForwardAmount = $approvedLeaveBalanceLog->getCarryForwardAmount();
+            if ($carryForwardAmount) {
+                $user->setLocalBalance($user->getLocalBalance() + ($leaves->getDuration() - $carryForwardAmount));
+                $user->setCarryForwardLocalBalance($user->getCarryForwardLocalBalance() + $carryForwardAmount);
+                return [$previousBalance, $user->getTotalLocalBalance(), $carryForwardAmount];
+            }
+            else {
+                $user->setLocalBalance($user->getLocalBalance() + $leaves->getDuration());
+                return [$previousBalance, $user->getTotalLocalBalance(), null];
+            }
         }
-        return [$previousBalance, $newBalance];
     }
     
     /**

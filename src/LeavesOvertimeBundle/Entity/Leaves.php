@@ -236,7 +236,7 @@ class Leaves extends EntityBase
      *
      * @return Leaves
      */
-    public function setDuration(?float $duration): Leaves {
+    public function setDuration($duration) {
         $this->duration = $duration;
         return $this;
 }
@@ -244,7 +244,7 @@ class Leaves extends EntityBase
     /**
      * @return float|null
      */
-    public function getDuration(): ?float {
+    public function getDuration() {
         return $this->duration;
     }
     

@@ -17,10 +17,9 @@ class BalanceLogAdmin extends CommonAdmin
     protected function configureDatagridFilters(DatagridMapper $datagridMapper)
     {
         $datagridMapper
-//            ->add('leaves')
-            ->add('previousBalance')
-            ->add('newBalance')
-            ->add('type')
+            ->add('user')
+            ->add('description')
+//            ->add('type')
             ->add('createdAt', 'doctrine_orm_datetime')
             ->add('createdBy')
         ;
@@ -32,9 +31,8 @@ class BalanceLogAdmin extends CommonAdmin
             ->add('id')
             ->add('user')
             ->add('leave', null, ['route' => ['name' => 'show']])
-            ->add('previousBalance')
-            ->add('newBalance')
-            ->add('type')
+            ->add('description')
+//            ->add('type')
             ->add('createdAt')
             ->add('createdBy')
 //            ->add('_action', null, [
@@ -51,9 +49,8 @@ class BalanceLogAdmin extends CommonAdmin
             'ID' => 'id',
             'User' => 'user',
             'Leave details' => 'leave',
-            'Previous balance' => 'previousBalance',
-            'New balance' => 'newBalance',
-            'Log Type' => 'type',
+            'Description' => 'description',
+//            'Log Type' => 'type',
             'Created at' => 'createdAt',
             'Created by' => 'createdBy',
         ];

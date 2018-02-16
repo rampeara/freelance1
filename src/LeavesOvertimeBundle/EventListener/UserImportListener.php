@@ -248,6 +248,7 @@ class UserImportListener
             return false;
         }
     
+        // disabled since it is now generated from email
 //        $usernameExists = $entityManager->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['username' => $data['Username']]);
 //        if ($usernameExists) {
 //            $this->setError($userImport, sprintf('The username %s already exists in the system. %s', $data['Username'], $retryMessage));
@@ -305,7 +306,7 @@ class UserImportListener
      *
      * @return array
      */
-    private function getDate($inputDate): array {
+    private function getDate($inputDate) {
         $date = new \DateTime();
         //                $date = $date->createFromFormat('d/m/Y', $this->cleanData($data['Hire date']));
         $format = 'd-m-y';
@@ -317,7 +318,7 @@ class UserImportListener
      * @param UserImport $userImport
      * @param $message
      */
-    private function setError(&$userImport, $message): void {
+    private function setError(&$userImport, $message) {
         $userImport->setIsSuccess(false);
         $this->flashBag->add("error", $message);
     }
@@ -327,7 +328,7 @@ class UserImportListener
      *
      * @return array
      */
-    private function getCsvArray($filePath): array {
+    private function getCsvArray($filePath) {
         $csv = array_map('str_getcsv', file($filePath));
         // create associative array
         array_walk($csv, function (&$a) use ($csv) {

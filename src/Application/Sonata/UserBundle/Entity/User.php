@@ -647,7 +647,7 @@ class User extends BaseUser implements LdapUserInterface
      *
      * @return User
      */
-    public function setLocalBalance(float $localBalance): User
+    public function setLocalBalance($localBalance)
     {
         $this->localBalance = $localBalance;
         return $this;
@@ -656,9 +656,17 @@ class User extends BaseUser implements LdapUserInterface
     /**
      * @return float
      */
-    public function getLocalBalance(): float
+    public function getLocalBalance()
     {
         return !empty($this->localBalance) ? $this->localBalance : 0;
+    }
+    
+    /**
+     * @return float
+     */
+    public function getTotalLocalBalance()
+    {
+        return !empty($this->localBalance) ? $this->localBalance + $this->carryForwardLocalBalance : 0;
     }
     
     /**
@@ -666,7 +674,7 @@ class User extends BaseUser implements LdapUserInterface
      *
      * @return User
      */
-    public function setSickBalance(float $sickBalance): User
+    public function setSickBalance($sickBalance)
     {
         $this->sickBalance = $sickBalance;
         return $this;
@@ -675,7 +683,7 @@ class User extends BaseUser implements LdapUserInterface
     /**
      * @return float
      */
-    public function getSickBalance(): float
+    public function getSickBalance()
     {
         return !empty($this->sickBalance) ? $this->sickBalance : 0;
     }
@@ -685,7 +693,7 @@ class User extends BaseUser implements LdapUserInterface
      *
      * @return User
      */
-    public function setFrozenLocalBalance(float $frozenLocalBalance): User
+    public function setFrozenLocalBalance($frozenLocalBalance)
     {
         $this->frozenLocalBalance = $frozenLocalBalance;
         return $this;
@@ -694,7 +702,7 @@ class User extends BaseUser implements LdapUserInterface
     /**
      * @return float
      */
-    public function getFrozenLocalBalance(): float
+    public function getFrozenLocalBalance()
     {
         return !empty($this->frozenLocalBalance) ? $this->frozenLocalBalance : 0;
     }

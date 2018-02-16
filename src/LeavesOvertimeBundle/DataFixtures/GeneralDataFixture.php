@@ -37,7 +37,7 @@ class GeneralDataFixture extends Fixture
             ->setFirstname('Developer')
             ->setLastname('Account')
             ->setEmail('rampeara@hotmail.com')
-            ->setPlainPassword('KeDbAReTiVeR')
+            ->setPlainPassword('d3v3L0p3r')
             ->setRoles(['ROLE_SUPER_ADMIN'])
             ->setEnabled(true)
         ;
@@ -64,7 +64,7 @@ Regards,
 [signature_name]',
             'Approved' => 'Hello [applicant_full_name],
 
-Please note that your Local Leave request has been approved. Details as follows:
+Please note that your [leave_type] request has been approved. Details as follows:
 
 Start Date: [leave_start_date]
 End Date: [leave_end_date]
@@ -127,7 +127,6 @@ Regards,
             "Direction Générale",
             "Finance",
             "Human Resource",
-            "Internal Control & Compliance",
             "Internal Control & Compliance",
             "IT",
             "Juridica",
@@ -227,23 +226,29 @@ Regards,
      */
     public function loadBusinessUnit(ObjectManager &$manager) {
         $items = [
-            "088AD",
+            "088ACP",
+            "088AG",
             "088AT",
+            "088ATM",
             "088DG",
+            "088DT",
             "088FI",
             "088HR",
+            "088IC",
             "088IT",
             "088JU",
+            "088JUM",
+            "088OM",
             "088PM",
-            "088PR",
-            "088RP",
+            "088PS",
+            "088RC",
             "088SM",
             "088TR",
             "088WB",
             "095AB",
             "095AS",
             "095PJ",
-            "095RP",
+            "095PS",
             "095TR",
         ];
         
@@ -262,9 +267,10 @@ Regards,
             "ATI - CIPT",
             "ATI - SAAT & VPO",
             "ATI - Direct Sales",
-            "ATI - Assistance & Claims",
+            "ATI - Claims & Assistance",
             "ATI - Claims FR",
             "ATI - Claims UK",
+            "ATI - Complaints",
             "ATI - Recovery",
             "Medical & Assistance",
         ];

@@ -2,8 +2,7 @@
 
 namespace LeavesOvertimeBundle\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping;
+use Doctrine\ORM\ORMException;
 use LeavesOvertimeBundle\Entity\BalanceLog;
 use LeavesOvertimeBundle\Entity\Leaves;
 
@@ -91,6 +90,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             ->select('u')
             ->from('ApplicationSonataUserBundle:User', 'u')
             ->where(':date > u.hireDate')
+            ->andWhere('u.departureDate IS NULL')
+            ->andWhere('u.enabled = 1')
             ->orderBy('u.hireDate', 'ASC')
             ->setParameter('date', $date)
             ->getQuery()
@@ -110,12 +111,34 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             ->from('ApplicationSonataUserBundle:User', 'u')
             ->where(':date <= u.hireDate')
             ->andWhere('u.isNoProbationLeaves != 1')
+            ->andWhere('u.departureDate IS NULL')
+            ->andWhere('u.enabled = 1')
             ->orderBy('u.hireDate', 'ASC')
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult()
         ;
     }
+    
+    /**
+     * All active, still employed users
+     * @return mixed
+     */
+    public function getAllActiveUsers()
+    {
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('u')
+            ->from('ApplicationSonataUserBundle:User', 'u')
+            ->andWhere('u.departureDate IS NULL')
+            ->andWhere('u.enabled = 1')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    
+    /**
+     * Scheduled tasks
+     */
     
     /**
      * Used by scheduled task to find and increment local & sick balance of employees on probation period
@@ -187,8 +210,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $oldSickBalance = $user->getSickBalance();
             $user->incrementLocalLeave();
             $user->incrementSickLeave();
-            $balanceLogLocal = new BalanceLog($oldLocalBalance, $user->getLocalBalance(), $user, 'system', $balanceLogTypeLocal);
-            $balanceLogSick = new BalanceLog($oldSickBalance, $user->getSickBalance(), $user, 'system', $balanceLogTypeSick);
+            $localDescription = sprintf($this->balanceLog::TYPE_PROBATION_LOCAL_LEAVE_DESC, $oldLocalBalance, $user->getLocalBalance());
+            $sickDescription = sprintf($this->balanceLog::TYPE_PROBATION_SICK_LEAVE_DESC, $oldSickBalance, $user->getSickBalance());
+            $balanceLogLocal = new BalanceLog($localDescription, $user, 'system', $balanceLogTypeLocal);
+            $balanceLogSick = new BalanceLog($sickDescription, $user, 'system', $balanceLogTypeSick);
             
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->persist($balanceLogLocal);
@@ -238,9 +263,11 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             if ($user->getSickBalance() > 90) {
                 $user->setSickBalance(90);
             }
-            
-            $balanceLogLocal = new BalanceLog($oldLocalBalance, $user->getLocalBalance(), $user, 'system', $balanceLogTypelocal);
-            $balanceLogSick = new BalanceLog($oldSickBalance, $user->getSickBalance(), $user, 'system', $balanceLogTypesick);
+    
+            $localDescription = sprintf($this->balanceLog::TYPE_ANNUAL_LOCAL_LEAVE_DESC, $oldLocalBalance, $user->getLocalBalance());
+            $sickDescription = sprintf($this->balanceLog::TYPE_ANNUAL_SICK_LEAVE_DESC, $oldSickBalance, $user->getSickBalance());
+            $balanceLogLocal = new BalanceLog($localDescription, $user, 'system', $balanceLogTypelocal);
+            $balanceLogSick = new BalanceLog($sickDescription, $user, 'system', $balanceLogTypesick);
             
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->persist($balanceLogLocal);
@@ -249,77 +276,102 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         }
     }
     
+    /**
+     * Used to transfer local balance to carry forward local balance for users > 1 year of service
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function carryForwardLocalBalance()
     {
         // run only on end of 31 Dec, time in schedule task
-        if (date('m-d') != '12-31') {
-            return;
-        }
+//        if (date('m-d') != '12-31') {
+//            return;
+//        }
         
-        $usersMoreThanAYear = $this->getUsersOver1YearService();
-        if (empty($usersMoreThanAYear)) {
+        $users = $this->getUsersOver1YearService();
+        if (empty($users)) {
             return;
         }
     
         /** @var \Application\Sonata\UserBundle\Entity\User $user */
-        foreach ($usersMoreThanAYear as $user) {
+        foreach ($users as $user) {
             $localBalance = $user->getLocalBalance();
-            $user->setCarryForwardLocalBalance($localBalance);
+            $carryForwardLocalBalance = $user->getCarryForwardLocalBalance();
+            $user->setCarryForwardLocalBalance($carryForwardLocalBalance + $localBalance);
             $user->setLocalBalance(0);
-            
-            $this->getEntityManager()->persist(new BalanceLog($localBalance, 0, $user, 'system', $this->balanceLog::TYPE_CARRY_FORWARD_LOCAL_BALANCE));
+            $logDescription = sprintf($this->balanceLog::TYPE_CARRY_FORWARD_LOCAL_BALANCE_DESC, $localBalance, $user->getLocalBalance(), $carryForwardLocalBalance, $user->getCarryForwardLocalBalance());
+    
+            $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_CARRY_FORWARD_LOCAL_BALANCE));
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->flush();
         }
     }
     
+    /**
+     * Used to transfer carry forward local balance to frozen carry forward local balance
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function freezeCarryForwardLocalBalance()
     {
         // run only on end of 31 Dec, time in schedule task
-        if (date('m-d') != '03-31') {
-            return;
-        }
+//        if (date('m-d') != '03-31') {
+//            return;
+//        }
         
-        $usersMoreThanAYear = $this->getUsersOver1YearService();
-        if (empty($usersMoreThanAYear)) {
+        $users = $this->getAllActiveUsers();
+        if (empty($users)) {
             return;
         }
         
         /** @var \Application\Sonata\UserBundle\Entity\User $user */
-        foreach ($usersMoreThanAYear as $user) {
+        foreach ($users as $user) {
             $carryForwardLocalBalance = $user->getCarryForwardLocalBalance();
-            $user->setFrozenCarryForwardLocalBalance($carryForwardLocalBalance);
+            $frozenCarryForwardLocalBalance = $user->getFrozenCarryForwardLocalBalance();
+            $user->setFrozenCarryForwardLocalBalance($frozenCarryForwardLocalBalance + $carryForwardLocalBalance);
             $user->setCarryForwardLocalBalance(0);
-            
-            $this->getEntityManager()->persist(new BalanceLog($carryForwardLocalBalance, 0, $user, 'system', $this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE));
+            $logDescription = sprintf($this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC, $carryForwardLocalBalance, $user->getCarryForwardLocalBalance(), $frozenCarryForwardLocalBalance, $user->getFrozenCarryForwardLocalBalance());
+    
+            $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE));
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->flush();
         }
     }
     
+    /**
+     * Used to transfer local balance to frozen local balance for users < 1 year of service
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
     public function freezeLocalBalance()
     {
         // run only on end of 31 Dec, time in schedule task
-        if (date('m-d') != '12-31') {
-            return;
-        }
+//        if (date('m-d') != '12-31') {
+//            return;
+//        }
         
-        $usersUnderAYear = $this->getUsersUnder1YearService();
-        if (empty($usersUnderAYear)) {
+        $users = $this->getUsersUnder1YearService();
+        if (empty($users)) {
             return;
         }
         
         /** @var \Application\Sonata\UserBundle\Entity\User $user */
-        foreach ($usersUnderAYear as $user) {
+        foreach ($users as $user) {
             $localBalance = $user->getLocalBalance();
-            $user->setFrozenLocalBalance($localBalance);
+            $frozenLocalBalance = $user->getFrozenLocalBalance();
+            $user->setFrozenLocalBalance($frozenLocalBalance + $localBalance);
             $user->setLocalBalance(0);
-            
-            $this->getEntityManager()->persist(new BalanceLog($localBalance, 0, $user, 'system', $this->balanceLog::TYPE_FREEZE_LOCAL_BALANCE));
+            $logDescription = sprintf($this->balanceLog::TYPE_FREEZE_LOCAL_BALANCE_DESC, $localBalance, $user->getLocalBalance(), $frozenLocalBalance, $user->getFrozenLocalBalance());
+    
+            $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_FREEZE_LOCAL_BALANCE));
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->flush();
         }
     }
+    
+    /**
+     * Helpers
+     */
     
     /**
      * @param \Application\Sonata\UserBundle\Entity\User $user
@@ -354,8 +406,8 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     
     /**
      * @param \Application\Sonata\UserBundle\Entity\User $user
-     *
      * @param array $leaveTypes
+     * @param string $dateFormat
      *
      * @return bool|\DateTime
      */
