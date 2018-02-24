@@ -240,14 +240,10 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             if (!$this->isHireDateValid($user)) {
                 continue;
             }
-           
-            if (!$this->isTodayValidAnnualLeaveDate($user)) {
-                continue;
-            }
             
-            $balanceLogTypelocal = $this->balanceLog::TYPE_ANNUAL_LOCAL_LEAVE;
-            $balanceLogTypesick = $this->balanceLog::TYPE_ANNUAL_SICK_LEAVE;
-            if ($this->hasReceivedLeaveTypeThisDateFormat($user, [$balanceLogTypelocal, $balanceLogTypesick], 'Y-m-d')) {
+            $balanceLogTypeLocal = $this->balanceLog::TYPE_ANNUAL_LOCAL_LEAVE;
+            $balanceLogTypeSick = $this->balanceLog::TYPE_ANNUAL_SICK_LEAVE;
+            if ($this->hasReceivedLeaveTypeThisDateFormat($user, [$balanceLogTypeLocal, $balanceLogTypeSick], 'Y-m-d')) {
                 continue;
             }
             
@@ -266,9 +262,9 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     
             $localDescription = sprintf($this->balanceLog::TYPE_ANNUAL_LOCAL_LEAVE_DESC, $oldLocalBalance, $user->getLocalBalance());
             $sickDescription = sprintf($this->balanceLog::TYPE_ANNUAL_SICK_LEAVE_DESC, $oldSickBalance, $user->getSickBalance());
-            $balanceLogLocal = new BalanceLog($localDescription, $user, 'system', $balanceLogTypelocal);
-            $balanceLogSick = new BalanceLog($sickDescription, $user, 'system', $balanceLogTypesick);
-            
+            $balanceLogLocal = new BalanceLog($localDescription, $user, 'system', $balanceLogTypeLocal);
+            $balanceLogSick = new BalanceLog($sickDescription, $user, 'system', $balanceLogTypeSick);
+
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->persist($balanceLogLocal);
             $this->getEntityManager()->persist($balanceLogSick);
@@ -306,38 +302,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $this->getEntityManager()->flush();
         }
     }
-    
-    /**
-     * Used to transfer carry forward local balance to frozen carry forward local balance
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function freezeCarryForwardLocalBalance()
-    {
-        // run only on end of 31 Dec, time in schedule task
-//        if (date('m-d') != '03-31') {
-//            return;
-//        }
-        
-        $users = $this->getAllActiveUsers();
-        if (empty($users)) {
-            return;
-        }
-        
-        /** @var \Application\Sonata\UserBundle\Entity\User $user */
-        foreach ($users as $user) {
-            $carryForwardLocalBalance = $user->getCarryForwardLocalBalance();
-            $frozenCarryForwardLocalBalance = $user->getFrozenCarryForwardLocalBalance();
-            $user->setFrozenCarryForwardLocalBalance($frozenCarryForwardLocalBalance + $carryForwardLocalBalance);
-            $user->setCarryForwardLocalBalance(0);
-            $logDescription = sprintf($this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC, $carryForwardLocalBalance, $user->getCarryForwardLocalBalance(), $frozenCarryForwardLocalBalance, $user->getFrozenCarryForwardLocalBalance());
-    
-            $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE));
-            $this->getEntityManager()->persist($user);
-            $this->getEntityManager()->flush();
-        }
-    }
-    
+
     /**
      * Used to transfer local balance to frozen local balance for users < 1 year of service
      * @throws \Doctrine\ORM\ORMException
@@ -364,6 +329,37 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $logDescription = sprintf($this->balanceLog::TYPE_FREEZE_LOCAL_BALANCE_DESC, $localBalance, $user->getLocalBalance(), $frozenLocalBalance, $user->getFrozenLocalBalance());
     
             $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_FREEZE_LOCAL_BALANCE));
+            $this->getEntityManager()->persist($user);
+            $this->getEntityManager()->flush();
+        }
+    }
+    
+    /**
+     * Used to transfer carry forward local balance to frozen carry forward local balance
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function freezeCarryForwardLocalBalance()
+    {
+        // run only on end of 31 March, time in schedule task
+        //        if (date('m-d') != '03-31') {
+        //            return;
+        //        }
+        
+        $users = $this->getAllActiveUsers();
+        if (empty($users)) {
+            return;
+        }
+        
+        /** @var \Application\Sonata\UserBundle\Entity\User $user */
+        foreach ($users as $user) {
+            $carryForwardLocalBalance = $user->getCarryForwardLocalBalance();
+            $frozenCarryForwardLocalBalance = $user->getFrozenCarryForwardLocalBalance();
+            $user->setFrozenCarryForwardLocalBalance($frozenCarryForwardLocalBalance + $carryForwardLocalBalance);
+            $user->setCarryForwardLocalBalance(0);
+            $logDescription = sprintf($this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC, $carryForwardLocalBalance, $user->getCarryForwardLocalBalance(), $frozenCarryForwardLocalBalance, $user->getFrozenCarryForwardLocalBalance());
+            
+            $this->getEntityManager()->persist(new BalanceLog($logDescription, $user, 'system', $this->balanceLog::TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE));
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->flush();
         }
@@ -397,7 +393,9 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             return false;
         }
         if ($hireDate->format('d') != date('d')) {
-            if (!($hireDate->format('m-d') == '02-29' && date('m-d') == '02-28')) {
+            // skip not matching condition only if hire date 29 Feb, current year is not leap year and current date is 28 Feb
+            $isLeapYear = date('L');
+            if (!($hireDate->format('m-d') == '02-29' && !$isLeapYear && date('m-d') == '02-28')) {
                 return false;
             }
         }
@@ -439,28 +437,6 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     /**
      * @param \Application\Sonata\UserBundle\Entity\User $user
      *
-     * @return bool
-     * @throws \Exception
-     */
-    private function isTodayValidAnnualLeaveDate($user)
-    {
-        $hireDate = $user->getHireDate();
-        $yearsOfService = $hireDate->diff(new \DateTime('now'))->y;
-        $time = strtotime($hireDate->format('Y-m-d'));
-        $time1Month = strtotime('+1 month', $time);
-        $time1Year = strtotime(sprintf('+%s year', $yearsOfService), $time1Month);
-        $dateofAnnualLeaves = date('Y-m-d', $time1Year);
-        $currentDate = date('Y-m-d');
-        
-        if ($dateofAnnualLeaves == $currentDate) {
-            return true;
-        }
-        return false;
-    }
-    
-    /**
-     * @param \Application\Sonata\UserBundle\Entity\User $user
-     *
      * @return array
      */
     private function getLeaveAmountsByCriteria($user)
@@ -488,10 +464,19 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 $sickAmount = 15;
         }
         
-        $currentMonthNumber = new \DateTime('now');
-        $currentMonthNumber = $currentMonthNumber->format('n');
-        $localAmount = ((12 - ($currentMonthNumber - 1)) / 12) * $localAmount;
-        $sickAmount = ((12 - ($currentMonthNumber - 1)) / 12) * $sickAmount;
+        // after first year of service and before 31 Dec is pro-rated
+        $currentYear = date('Y');
+        $hireDate = $user->getHireDate();
+        $hireYear = $hireDate->format('Y');
+        if ($hireYear == $currentYear - 1) {
+            $endOfYear = new \DateTime(sprintf('%s-12-31', $currentYear));
+            $monthsTillEOY = $hireDate->diff($endOfYear)->m;
+            $localAmount = ($localAmount / 12) * $monthsTillEOY;
+            $sickAmount = ($sickAmount / 12) * $monthsTillEOY;
+            // 2 decimal places
+            $localAmount = round($localAmount, 2);
+            $sickAmount = round($sickAmount, 2);
+        }
         
         return [$localAmount, $sickAmount];
     }

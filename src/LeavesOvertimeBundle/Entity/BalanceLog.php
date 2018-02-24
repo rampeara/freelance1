@@ -26,9 +26,9 @@ class BalanceLog
     const TYPE_ANNUAL_LOCAL_LEAVE_DESC = 'User > 1 year - Local balance was %s, now %s';
     const TYPE_ANNUAL_SICK_LEAVE_DESC = 'User > 1 year - Sick balance was %s, now %s';
     const TYPE_APPLIED_LEAVE_DESC = 'Applied leave %s - User %s balance was %s, now %s%s';
-    const TYPE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 Dec User > 1 year: Local balance was %s, now %s - Carry forward balance was %s, now %s';
-    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 March User: Carry forward balance was %s, now %s - Frozen carry forward balance was %s, now %s';
-    const TYPE_FREEZE_LOCAL_BALANCE_DESC = '31 Dec User < 1 year: Local balance was %s, now %s - Frozen local balance was %s, now %s';
+    const TYPE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 Dec, User > 1 year: Local balance was %s, now %s - Carry forward balance was %s, now %s';
+    const TYPE_FREEZE_CARRY_FORWARD_LOCAL_BALANCE_DESC = '31 March, User: Carry forward balance was %s, now %s - Frozen carry forward balance was %s, now %s';
+    const TYPE_FREEZE_LOCAL_BALANCE_DESC = '31 Dec, User < 1 year: Local balance was %s, now %s - Frozen local balance was %s, now %s';
     
     /**
      * @var int

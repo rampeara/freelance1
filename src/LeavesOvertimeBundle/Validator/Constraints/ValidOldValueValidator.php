@@ -64,16 +64,19 @@ class ValidOldValueValidator extends ConstraintValidator
             return;
         }
 
-        $isSickLeave = $leaves->getType() == $leaves::TYPE_SICK_LEAVE;
-        $user = $leaves->getUser();
-        $currentBalance = $isSickLeave ? $user->getSickBalance() : $user->getTotalLocalBalance();
-        $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
-        $duration = $leaves->getDuration();
-        $newBalance = $isApprovedStatus ? $currentBalance - $duration : $currentBalance + $duration;
-        if ($newBalance < 0) {
-            $this->context->buildViolation($constraint->message)
-                ->setParameter("%message%", 'This operation would result in a negative balance, thus invalid.')
-                ->addViolation();
+        $leaveType = $leaves->getType();
+        if ($leaveType == $leaves::TYPE_SICK_LEAVE || $leaveType == $leaves::TYPE_LOCAL_LEAVE) {
+            $user = $leaves->getUser();
+            $isSickLeave = $leaveType == $leaves::TYPE_SICK_LEAVE;
+            $currentBalance = $isSickLeave ? $user->getSickBalance() : $user->getTotalLocalBalance();
+            $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
+            $duration = $leaves->getDuration();
+            $newBalance = $isApprovedStatus ? $currentBalance - $duration : $currentBalance + $duration;
+            if ($newBalance < 0) {
+                $this->context->buildViolation($constraint->message)
+                    ->setParameter("%message%", 'This operation would result in a negative balance, thus invalid.')
+                    ->addViolation();
+            }
         }
     }
 }
