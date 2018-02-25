@@ -1,0 +1,22 @@
+parameters:
+    database_host: 127.0.0.1
+    database_port: null
+    database_name: axa_hrm
+    database_user: root
+    database_password: null
+    mailer_transport: smtp
+    mailer_host: localhost
+    mailer_user: null
+    mailer_password: null
+    mailer_spool_type: null
+    mailer_spool_path: null
+    mailer_from_email: 'noreply@leaves-system.com'
+    ldap_base_dn: 'dc=example,dc=com'
+    ldap_host: ldap.forumsys.com
+    ldap_account_domain_name: null
+    ldap_username: null
+    ldap_password: null
+    ldap_attribute_username: uid
+    ldap_attribute_filter_username: null
+    application_leaves_email_signature: 'HRM'
+    application_bo_title: 'Leaves & Overtime'

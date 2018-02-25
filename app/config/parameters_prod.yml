@@ -1,0 +1,22 @@
+parameters:
+    database_host: 127.0.0.1
+    database_port: null
+    database_name: axa_hrm
+    database_user: root
+    database_password: null
+    mailer_transport: smtp
+    mailer_host: mail.axa-customerservices.com
+    mailer_user: svc_hrm
+    mailer_password: 'Password.$1'
+#    mailer_spool_type: file
+#    mailer_spool_path: 'E:\Mails'
+    mailer_from_email: 'noreply@leaves-system.com'
+    ldap_base_dn: 'dc=ros,dc=mu'
+    ldap_host: ros.mu
+    ldap_account_domain_name: ros
+    ldap_username: leaves
+    ldap_password: P@55w0rd
+    ldap_attribute_username: samaccountname
+    ldap_attribute_filter_username: sAMAccountName
+    application_leaves_email_signature: 'HRM'
+    application_bo_title: 'Leaves & Overtime'

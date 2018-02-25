@@ -1,16 +1,29 @@
 imports:
     - { resource: config_dev.yml }
-
-framework:
-    test: ~
-    session:
-        storage_id: session.storage.mock_file
-    profiler:
-        collect: false
-
-web_profiler:
-    toolbar: false
-    intercept_redirects: false
+    - { resource: parameters_test.yml }
 
 swiftmailer:
-    disable_delivery: true
+    disable_delivery: false
+
+fr3d_ldap:
+    driver:
+        host: '%ldap_host%'
+    user:
+        baseDn: '%ldap_base_dn%'
+        attributes:
+            - { ldap_attr: '%ldap_attribute_username%',  user_method: setUsername }
+            - { ldap_attr: mail,  user_method: setEmail }
+            - { ldap_attr: cn,  user_method: setFirstname }
+            - { ldap_attr: sn,  user_method: setLastname }
+        filter: (&(ObjectClass=person))
+
+#framework:
+#    test: ~
+#    session:
+#        storage_id: session.storage.mock_file
+#    profiler:
+#        collect: false
+#
+#web_profiler:
+#    toolbar: false
+#    intercept_redirects: false

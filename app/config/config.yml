@@ -1,5 +1,5 @@
 imports:
-    - { resource: parameters.yml }
+#    - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
     - { resource: "@LeavesOvertimeBundle/Resources/config/services.yml" }
@@ -10,45 +10,9 @@ parameters:
     locale: en
     datetime_format_export: 'd M Y H:i:s'
     date_format_export: 'd M Y'
-    from_email: 'noreply@leaves-system.com'
-    base_dn: 'dc=example,dc=com'
-    dn_username_attribute: 'uid'
-    leaves_email_signature_name: 'HRM'
-
-# LDAP config here
-fr3d_ldap:
-    driver:
-        host: ldap.forumsys.com
-    user:
-        baseDn: '%base_dn%'
-        attributes:
-            - { ldap_attr: '%dn_username_attribute%',  user_method: setUsername }
-            - { ldap_attr: mail,  user_method: setEmail }
-            - { ldap_attr: cn,  user_method: setFirstname }
-            - { ldap_attr: sn,  user_method: setLastname }
-        filter: (&(ObjectClass=person))
-
-#    driver:
-#        host: ros.mu
-##        accountDomainName: ros
-#        accountDomainNameShort: ros
-##        accountFilterFormat: (&('sAMAccountName'=%s))
-#        username: leaves
-#        password: P@55w0rd
-#    user:
-#        baseDn: '%base_dn%'
-#        attributes:
-#            - { ldap_attr: samaccountname,  user_method: setUsername }
-##            - { ldap_attr: mail,  user_method: setEmail }
-##            - { ldap_attr: cn,  user_method: setFirstname }
-##            - { ldap_attr: sn,  user_method: setLastname }
-##        filter: (&(ObjectClass=person))
-#        usernameAttribute: 'sAMAccountName'
-#    service:
-#        user_hydrator: leaves_overtime.ldap.user_hydrator
 
 sonata_admin:
-    title: Leaves & Overtime
+    title: '%application_bo_title%'
 #    title_logo: web/bundles/leavesovertime/axa-logo.svg
     templates:
         # Override default template
@@ -91,8 +55,8 @@ fos_user:
         user_manager: sonata.user.orm.user_manager
 
     from_email:
-        address:        '%from_email%'
-        sender_name:    AXA Leaves & Overtime System
+        address:        '%mailer_from_email%'
+        sender_name:    '%application_leaves_email_signature%'
 
 # Sonata Admin Bundle
 sonata_block:
@@ -110,7 +74,7 @@ framework:
         engines: ['twig']
     #esi: ~
     translator: { fallbacks: ['%locale%'] }
-    secret: '%secret%'
+    secret: '6KYrtrqe2$5G5lRxu3Wl'
     router:
         resource: '%kernel.project_dir%/app/config/routing.yml'
         strict_requirements: ~
@@ -169,10 +133,6 @@ doctrine:
 # Swiftmailer Configuration
 swiftmailer:
     transport: '%mailer_transport%'
-    host: '%mailer_host%'
-    username: '%mailer_user%'
-    password: '%mailer_password%'
-#    disable_delivery: true
-#    spool:
-#        type: '%mailer_spool_type%'
-#        path: '%mailer_spool_path%'
+    host:      '%mailer_host%'
+    username:  '%mailer_user%'
+    password:  '%mailer_password%'

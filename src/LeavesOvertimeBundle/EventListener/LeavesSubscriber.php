@@ -172,7 +172,7 @@ class LeavesSubscriber implements EventSubscriber
                 
                 $emailOptions = [
                     'subject' => sprintf('%s %s: %s', $leaves->getType(), $templateName, $leaves->getUser()->getFullname()),
-                    'from' => $this->container->getParameter('from_email'),
+                    'from' => $this->container->getParameter('mailer_from_email'),
                     'to' => $emailTo,
                     'body' => $templateContent,
                 ];
@@ -275,7 +275,7 @@ class LeavesSubscriber implements EventSubscriber
             $leaves->getEndDate()->format($dateFormat),
             $leaves->getType() == $leaves::TYPE_SICK_LEAVE ? $leaves->getHours() . ' hour(s)' : $leaves->getDuration() . ' day(s)',
             $leaves->getCreatedAt()->format($dateFormat . ' H:i:s'),
-            $this->container->getParameter('leaves_email_signature_name')
+            $this->container->getParameter('application_leaves_email_signature')
         ];
         return str_replace($searchFor, $replaceWith, $template);
     }
