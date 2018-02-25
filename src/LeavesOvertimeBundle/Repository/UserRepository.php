@@ -176,8 +176,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
     
-            if (!$this->isDatePartMatchingToday($hireDate))
-            {
+            if (!$this->isDatePartMatchingToday($hireDate)) {
                 continue;
             }
             
@@ -392,14 +391,18 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         if (!$hireDate instanceof \DateTime) {
             return false;
         }
-        if ($hireDate->format('d') != date('d')) {
-            // skip not matching condition only if hire date 29 Feb, current year is not leap year and current date is 28 Feb
-            $isLeapYear = date('L');
-            if (!($hireDate->format('m-d') == '02-29' && !$isLeapYear && date('m-d') == '02-28')) {
-                return false;
-            }
+        
+        // skip not matching condition only if hire date 29 Feb, current year is not leap year and current date is 28 Feb
+        $isLeapYear = date('L');
+        if ($hireDate->format('m-d') == '02-29' && !$isLeapYear && date('m-d') == '02-28') {
+            return true;
         }
-        return true;
+        
+        if ($hireDate->format('d') == date('d')) {
+            return true;
+        }
+        
+        return false;
     }
     
     /**
