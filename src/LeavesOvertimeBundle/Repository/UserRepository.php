@@ -229,6 +229,11 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
      */
     public function incrementBalancesForAnnualAccounts()
     {
+        // run only on end of 31 Dec, time in schedule task
+//        if (date('m-d') != '12-31') {
+//            return;
+//        }
+        
         $usersMoreThanAYear = $this->getUsersOver1YearService();
         if (empty($usersMoreThanAYear)) {
             return;
