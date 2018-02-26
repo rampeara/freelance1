@@ -171,7 +171,7 @@ class UserAdmin extends BaseUserAdmin
         $formMapper
             ->tab('User')
                 ->with('Status')
-//                    ->add('enabled', null, ['required' => false])
+                    ->add('enabled', null, ['required' => false, 'data' => true])
                     ->add('localBalance', NumberType::class, $balanceOptions)
                     ->add('sickBalance', NumberType::class, $balanceOptions)
                     ->add('carryForwardLocalBalance', NumberType::class, $balanceOptions)

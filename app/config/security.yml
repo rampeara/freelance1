@@ -62,7 +62,7 @@ security:
     providers:
         chain_provider:
             chain:
-                providers: [fos_userbundle, fr3d_ldapbundle]
+                providers: [fr3d_ldapbundle, fos_userbundle]
         fr3d_ldapbundle:
             id: fr3d_ldap.security.user.provider
         fos_userbundle:
@@ -81,7 +81,7 @@ security:
             fr3d_ldap:          ~
             context:            user
             form_login:
-                provider:       fos_userbundle
+#                provider:       fos_userbundle
                 login_path:     /admin/login
                 use_forward:    false
                 check_path:     /admin/login_check

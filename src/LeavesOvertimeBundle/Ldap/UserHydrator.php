@@ -30,11 +30,21 @@ class UserHydrator implements HydratorInterface
             return null;
         }
         
-        if (!array_key_exists('samaccountname', $ldapEntry)) {
+        $ldapAttributes = [
+            'username' => 'samaccountname',
+            'email' => 'mail',
+            'firstname' => 'givenname',
+            'lastname' => 'sn',
+            'dn' => 'distinguishedname',
+            'enabled' => 'useraccountcontrol'
+        ];
+        
+        $usernameAttr = $ldapAttributes['username'];
+        if (!array_key_exists($usernameAttr, $ldapEntry)) {
             return null;
         }
         
-        $username = $ldapEntry['samaccountname'][0];
+        $username = $ldapEntry[$usernameAttr][0];
         $userFromDB = $this->entityManager->getRepository('ApplicationSonataUserBundle:User')->findOneBy(['username' => $username]);
         if ($userFromDB == null) {
             $user = new User();
@@ -43,20 +53,25 @@ class UserHydrator implements HydratorInterface
         else {
             $user = $userFromDB;
         }
-        
+    
+        $emailAttr = $ldapAttributes['email'];
+        $firstNameAttr = $ldapAttributes['firstname'];
+        $lastNameAttr = $ldapAttributes['lastname'];
+        $dnAttr = $ldapAttributes['dn'];
+        $enabledAttr = $ldapAttributes['enabled'];
         // These are basically if statements without else in a short form, but do not call set methods with null
-        array_key_exists('mail', $ldapEntry) ? $user->setEmail($ldapEntry['mail'][0]) : null;
-        array_key_exists('givenname', $ldapEntry) ? $user->setFirstName($ldapEntry['givenname'][0]) : null;
-        array_key_exists('sn', $ldapEntry) ? $user->setLastName($ldapEntry['sn'][0]) : null;
-        array_key_exists('distinguishedname', $ldapEntry) ? $user->setDn($ldapEntry['distinguishedname'][0]) : null;
+        array_key_exists($emailAttr, $ldapEntry) ? $user->setEmail($ldapEntry[$emailAttr][0]) : null;
+        array_key_exists($firstNameAttr, $ldapEntry) ? $user->setFirstName($ldapEntry[$firstNameAttr][0]) : null;
+        array_key_exists($lastNameAttr, $ldapEntry) ? $user->setLastName($ldapEntry[$lastNameAttr][0]) : null;
+        array_key_exists($dnAttr, $ldapEntry) ? $user->setDn($ldapEntry[$dnAttr][0]) : null;
         /**
          * 512 = Enabled
          * 514 = Disabled
          * 66048 = Enabled, password never expires
          * 66050 = Disabled, password never expires
          */
-        $user->setEnabled(array_key_exists('useraccountcontrol', $ldapEntry) ?
-            $ldapEntry['useraccountcontrol'][0] == 512 || 66048 ? true : false : true);
+        $user->setEnabled(array_key_exists($enabledAttr, $ldapEntry) ?
+            $ldapEntry[$enabledAttr][0] == 512 || 66048 ? true : false : true);
         $user->setUsername($username);
         
         return $user;
