@@ -11,21 +11,21 @@ swiftmailer:
 
 fr3d_ldap:
     driver:
-        host: '%ldap_host%'
+        host: ros.mu
 #        accountDomainName: ros
-        accountDomainNameShort: '%ldap_account_domain_name%'
+        accountDomainNameShort: ros
 #        accountFilterFormat: (&('sAMAccountName'=%s))
-        username: '%ldap_username%'
-        password: '%ldap_password%'
+        username: leaves
+        password: P@55w0rd
     user:
-        baseDn: '%ldap_base_dn%'
+        baseDn: 'dc=ros,dc=mu'
         attributes:
-            - { ldap_attr: '%ldap_attribute_username%',  user_method: setUsername }
+            - { ldap_attr: samaccountname,  user_method: setUsername }
 #            - { ldap_attr: mail,  user_method: setEmail }
 #            - { ldap_attr: cn,  user_method: setFirstname }
 #            - { ldap_attr: sn,  user_method: setLastname }
 #        filter: (&(ObjectClass=person))
-        usernameAttribute: '%ldap_attribute_filter_username%'
+        usernameAttribute: 'sAMAccountName'
     service:
         user_hydrator: leaves_overtime.ldap.user_hydrator
 
