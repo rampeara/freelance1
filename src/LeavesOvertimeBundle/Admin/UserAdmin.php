@@ -128,7 +128,7 @@ class UserAdmin extends BaseUserAdmin
     {
         parent::configureFormFields($formMapper);
         
-        $supervisorOptions = $this->getSupervisorFormOptions($this->getUser());
+        $supervisorOptions = $this->getSupervisorFormOptions();
         $simpleEntityOptions = $this->getSimpleEntityOptions();
         $datepickerOptions = new DatepickerOptions($this->getContainer()->get('doctrine'));
         $disabledDatesFormatted = $datepickerOptions->getDisabledDatesFormatted();
