@@ -91,8 +91,9 @@ class LeavesAdmin extends CommonAdmin
         $listMapper
             ->add('id')
             ->add('user')
-            ->add('user.totalLocalBalance')
+            ->add('user.localBalance')
             ->add('user.sickBalance')
+            ->add('user.carryForwardLocalBalance')
             ->add('type')
             ->add('startDate')
             ->add('endDate')
@@ -178,6 +179,7 @@ class LeavesAdmin extends CommonAdmin
             'Updated by' => 'updatedBy',
             'Current local leave balance' => 'user.totalLocalBalance',
             'Current sick leave balance' => 'user.sickBalance',
+            'Current carry forward local balance' => 'user.carryForwardLocalBalance',
         ];
     }
     
