@@ -156,6 +156,7 @@ class LeavesSubscriber implements EventSubscriber
         // mail to supervisors
         if ($templateName == $leaves::STATUS_REQUESTED) { //|| $templateName == $leaves::STATUS_WITHDRAWN
             $emailTo = $this->getSupervisorsEmails($leaveApplicant, TRUE);
+            $cc = $leaveApplicant->getEmail();
         }
         // mail to leave applicant, cc all supervisors
         else {
