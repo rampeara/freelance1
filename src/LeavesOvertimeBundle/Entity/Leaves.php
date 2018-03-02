@@ -4,6 +4,7 @@ namespace LeavesOvertimeBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use LeavesOvertimeBundle\Validator\Constraints as CustomAssert;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Leaves
@@ -67,12 +68,13 @@ class Leaves extends EntityBase
      *
      * @ORM\Column(name="start_date", type="date", nullable=true)
      */
-    private $startDate;
-
+    public $startDate;
+    
     /**
      * @var \DateTime|null
      *
      * @ORM\Column(name="end_date", type="date", nullable=true)
+     * @Assert\Expression("value >= this.startDate", message="End date must be greater or equal to start date.")
      */
     private $endDate;
     
