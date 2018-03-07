@@ -74,7 +74,7 @@ class Leaves extends EntityBase
      * @var \DateTime|null
      *
      * @ORM\Column(name="end_date", type="date", nullable=true)
-     * @Assert\Expression("value >= this.startDate", message="End date must be greater or equal to start date.")
+     * @Assert\Expression("value == this.startDate", message="End date must be equal to start date.")
      */
     private $endDate;
     

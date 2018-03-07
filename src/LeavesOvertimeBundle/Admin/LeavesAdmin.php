@@ -116,7 +116,7 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $datetimeOptions = []; //$this->getDateTimeFormOptions();
+        $datetimeOptions = ['dp_min_date' => date('MMM d, Y')]; //$this->getDateTimeFormOptions();
     
         if ($this->getRole() != 'ROLE_EMPLOYEE') {
             $formMapper
@@ -128,9 +128,7 @@ class LeavesAdmin extends CommonAdmin
         }
         
         $formMapper
-            ->add('startDate', 'sonata_type_date_picker', [
-                'dp_min_date' => date('MMM d, Y'),
-            ])
+            ->add('startDate', 'sonata_type_date_picker', $datetimeOptions)
             ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
             ->add('duration', ChoiceType::class, [
                 'choices'  => [
