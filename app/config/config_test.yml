@@ -16,6 +16,8 @@ fr3d_ldap:
             - { ldap_attr: cn,  user_method: setFirstname }
             - { ldap_attr: sn,  user_method: setLastname }
         filter: (&(ObjectClass=person))
+    service:
+        user_hydrator: leaves_overtime.ldap.user_hydrator
 
 framework:
     router:

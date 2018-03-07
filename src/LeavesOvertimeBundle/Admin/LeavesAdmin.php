@@ -128,16 +128,23 @@ class LeavesAdmin extends CommonAdmin
         }
         
         $formMapper
-            ->add('startDate', 'sonata_type_date_picker', $datetimeOptions)
-            ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
-            ->add('duration', NumberType::class, [
-                'required' => true,
-                'attr' => [
-                    'min' => 0.5,
-                    'step' => 0.5,
-                    'numberType' => true, // overridden template to change field type from text to number
-                ],
+            ->add('startDate', 'sonata_type_date_picker', [
+                'dp_min_date' => date('MMM d, Y'),
             ])
+            ->add('endDate', 'sonata_type_date_picker', $datetimeOptions)
+            ->add('duration', ChoiceType::class, [
+                'choices'  => [
+                    '0.5' => 0.5,
+                    '1' => 1,
+                ]])
+//            ->add('duration', NumberType::class, [
+//                'required' => true,
+//                'attr' => [
+//                    'min' => 0.5,
+//                    'step' => 0.5,
+//                    'numberType' => true, // overridden template to change field type from text to number
+//                ],
+//            ])
         ;
     }
 
