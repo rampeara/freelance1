@@ -182,7 +182,7 @@ class LeavesAdmin extends CommonAdmin
             'Created by' => 'createdBy',
             'Updated at' => 'updatedAt',
             'Updated by' => 'updatedBy',
-            'Current local leave balance' => 'user.totalLocalBalance',
+            'Current local leave balance' => 'user.localBalance',
             'Current sick leave balance' => 'user.sickBalance',
             'Current carry forward local balance' => 'user.carryForwardLocalBalance',
         ];
