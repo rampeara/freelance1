@@ -11,7 +11,7 @@ swiftmailer:
 
 fr3d_ldap:
     driver:
-        host: ros.mu
+        host: 10.2.43.211 #ros.mu
 #        accountDomainName: ros
         accountDomainNameShort: ros
 #        accountFilterFormat: (&('sAMAccountName'=%s))

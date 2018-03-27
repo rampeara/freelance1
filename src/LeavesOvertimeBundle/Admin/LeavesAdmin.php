@@ -116,7 +116,7 @@ class LeavesAdmin extends CommonAdmin
 
     protected function configureFormFields(FormMapper $formMapper)
     {
-        $datetimeOptions = ['dp_min_date' => date('MMM d, Y')]; //$this->getDateTimeFormOptions();
+        $datetimeOptions = []; // ['dp_min_date' => date('MMM d, Y')]; //$this->getDateTimeFormOptions();
     
         if ($this->getRole() != 'ROLE_EMPLOYEE') {
             $formMapper
