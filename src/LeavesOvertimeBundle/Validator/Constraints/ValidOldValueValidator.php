@@ -30,8 +30,14 @@ class ValidOldValueValidator extends ConstraintValidator
             ->getOriginalEntityData($leaves);
     
         // $oldData is empty if we create a new Leaves object.
-        if (!(is_array($oldData) && !empty($oldData)))
-        {
+        if (!(is_array($oldData) && !empty($oldData))) {
+            return;
+        }
+    
+        if ($newValue == null) {
+            $this->context->buildViolation($constraint->message)
+                ->setParameter("%message%", 'Please select a leave status.')
+                ->addViolation();
             return;
         }
         
