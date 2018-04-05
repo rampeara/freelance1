@@ -134,7 +134,9 @@ class LeavesAdmin extends CommonAdmin
                 'choices'  => [
                     '0.5' => 0.5,
                     '1' => 1,
-                ]])
+                ],
+                'placeholder' => 'Choose a duration'
+            ])
 //            ->add('duration', NumberType::class, [
 //                'required' => true,
 //                'attr' => [
