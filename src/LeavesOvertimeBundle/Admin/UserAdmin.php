@@ -245,6 +245,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('gender')
             ->add('firstname')
             ->add('lastname')
+            ->add('userType')
             ->add('jobTitle')
             ->add('businessUnit')
             ->add('department')
@@ -277,6 +278,7 @@ class UserAdmin extends BaseUserAdmin
             'Gender' => 'gender',
             'First name' => 'firstname',
             'Last name' => 'lastname',
+            'User type' => 'userType',
             'Job title' => 'jobTitle',
             'Business unit' => 'businessUnit',
             'Department' => 'department',
