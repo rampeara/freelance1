@@ -72,6 +72,7 @@
         </id>
         <field name="abNumber" column="ab_number" type="string" length="255" nullable="true" />
         <field name="title" column="title" type="string" length="255" nullable="true" />
+        <field name="userType" column="user_type" type="string" length="255" nullable="true" />
         <field name="hireDate" column="hire_date" type="date" nullable="true" />
         <field name="employmentStatus" column="employment_status" type="string" length="255" nullable="true" />
         <field name="departureDate" column="departure_date" type="date" nullable="true" />

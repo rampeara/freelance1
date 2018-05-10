@@ -449,21 +449,22 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
      */
     private function getLeaveAmountsByCriteria($user)
     {
-        $id = 0;
-        if ($user->getJobTitle()) {
-            $id = $user->getJobTitle()->getId();
+        $userType = '';
+//        if ($user->getJobTitle()) {
+//            $id = $user->getJobTitle()->getId();
+//        }
+        if ($user->getUserType()) {
+            $userType = $user->getUserType();
         }
-        switch($id) {
+
+        switch($userType) {
             // support comex sub group
-            case 15:
-            case 16:
-            case 25:
-            case 26:
+            case 'Excom':
                 $localAmount = 25;
                 $sickAmount = 15;
                 break;
             // support attendant
-            case 38:
+            case 'Office attendant':
                 $localAmount = 16;
                 $sickAmount = 21;
                 break;

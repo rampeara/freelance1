@@ -4,12 +4,14 @@ imports:
     - { resource: services.yml }
     - { resource: "@LeavesOvertimeBundle/Resources/config/services.yml" }
 
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
     datetime_format_export: 'd M Y H:i:s'
     date_format_export: 'd M Y'
+    user_types:
+        Staff: 'Staff'
+        'Office attendant': 'Office attendant'
+        Excom: 'Excom'
 
 sonata_admin:
     title: '%application_bo_title%'

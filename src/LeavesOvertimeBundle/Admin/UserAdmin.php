@@ -79,6 +79,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('title')
             ->add('firstname')
             ->add('lastname')
+            ->add('userType')
             ->add('jobTitle')
             ->add('businessUnit')
             ->add('department')
@@ -99,6 +100,7 @@ class UserAdmin extends BaseUserAdmin
             ->add('gender')
             ->add('firstname')
             ->add('lastname')
+            ->add('userType')
             ->add('username')
             ->add('email')
             ->add('jobTitle')
@@ -167,7 +169,8 @@ class UserAdmin extends BaseUserAdmin
                 ->with('Profile', ['class' => 'col-md-12'])->end()
             ->end()
         ;
-        
+
+        $userTypes = $this->getContainer()->getParameter('user_types');
         $formMapper
             ->tab('User')
                 ->with('Status')
@@ -192,6 +195,9 @@ class UserAdmin extends BaseUserAdmin
                     ])
                     ->add('firstname', TextType::class, ['required' => true])
                     ->add('lastname', TextType::class, ['required' => true])
+                    ->add('userType', ChoiceType::class, [
+                        'choices'  => $userTypes
+                    ])
                     ->add('jobTitle', EntityType::class, array_merge($simpleEntityOptions, [
                         'class' => JobTitle::class
                     ]))

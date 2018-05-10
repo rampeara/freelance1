@@ -113,6 +113,11 @@ class User extends BaseUser implements LdapUserInterface
      * @var string|null
      */
     protected $dn;
+
+    /**
+     * @var string|null
+     */
+    protected $userType;
     
     /**
      * @var string|null
@@ -813,5 +818,21 @@ class User extends BaseUser implements LdapUserInterface
     public function getFrozenCarryForwardLocalBalance()
     {
         return $this->frozenCarryForwardLocalBalance;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getUserType()
+    {
+        return $this->userType;
+    }
+
+    /**
+     * @param null|string $userType
+     */
+    public function setUserType($userType)
+    {
+        $this->userType = $userType;
     }
 }
