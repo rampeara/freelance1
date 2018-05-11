@@ -153,7 +153,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
             $leaves::TYPE_LEAVE_WITHOUT_PAY,
             $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
-            $leaves::TYPE_PATERNITY_LEAVES_WITHOUT_PAY,
+            $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY,
             $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
         ];
         

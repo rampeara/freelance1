@@ -29,13 +29,15 @@ class Leaves extends EntityBase
     const TYPE_MATERNITY_LEAVE = 'Maternity leave';
     const TYPE_MATERNITY_LEAVE_WITHOUT_PAY = 'Maternity leave without pay';
     const TYPE_PATERNITY_LEAVE = 'Paternity leave';
-    const TYPE_PATERNITY_LEAVES_WITHOUT_PAY = 'Paternity leaves without pay';
+    const TYPE_PATERNITY_LEAVE_WITHOUT_PAY = 'Paternity leave without pay';
     const TYPE_COMPASSIONATE_LEAVE = 'Compassionate leave';
     const TYPE_WEDDING_LEAVE = 'Wedding leave';
     const TYPE_WEDDING_LEAVE_WITHOUT_PAY = 'Wedding leave without pay';
     const TYPE_INJURY_LEAVE = 'Injury leave';
     const TYPE_INJURY_LEAVE_WITHOUT_PAY = 'Injury leave without pay';
-    
+    const TYPE_BUSINESS_TRIP = 'Business trip';
+    const TYPE_STUDY_LEAVE = 'Study leave';
+
     /**
      * @ORM\ManyToOne(targetEntity="Application\Sonata\UserBundle\Entity\User", inversedBy="leaves")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
@@ -263,12 +265,14 @@ class Leaves extends EntityBase
             'Maternity leave' => $this::TYPE_MATERNITY_LEAVE,
             'Maternity leave without pay' => $this::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
             'Paternity leave' => $this::TYPE_PATERNITY_LEAVE,
-            'Paternity leaves without pay' => $this::TYPE_PATERNITY_LEAVES_WITHOUT_PAY,
+            'Paternity leave without pay' => $this::TYPE_PATERNITY_LEAVE_WITHOUT_PAY,
             'Compassionate leave' => $this::TYPE_COMPASSIONATE_LEAVE,
             'Wedding leave' => $this::TYPE_WEDDING_LEAVE,
             'Wedding leave without pay' => $this::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
             'Injury leave' => $this::TYPE_INJURY_LEAVE,
             'Injury leave without pay' => $this::TYPE_INJURY_LEAVE_WITHOUT_PAY,
+            'Business trip' => $this::TYPE_BUSINESS_TRIP,
+            'Study leave' => $this::TYPE_STUDY_LEAVE,
         ];
     }
     
