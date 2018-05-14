@@ -94,6 +94,6 @@ services:
 
     validator.valid_old_value:
         class: LeavesOvertimeBundle\Validator\Constraints\ValidOldValueValidator
-        arguments: ["@doctrine.orm.entity_manager", "@security.token_storage"]
+        arguments: ["@doctrine.orm.entity_manager", "@security.token_storage", %leave_type_limits%]
         tags:
             - { name: validator.constraint_validator }

@@ -2,7 +2,7 @@
 
 namespace LeavesOvertimeBundle\Validator\Constraints;
 
-use LeavesOvertimeBundle\Entity\BalanceLog;
+use LeavesOvertimeBundle\Entity\Leaves;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Doctrine\ORM\EntityManager;
@@ -11,15 +11,17 @@ class ValidOldValueValidator extends ConstraintValidator
 {
     protected $entityManager;
     protected $securityContext;
-    
-    public function __construct(EntityManager $entityManager, $securityContext)
+    protected $leaveTypeLimits;
+
+    public function __construct(EntityManager $entityManager, $securityContext, $leaveTypeLimits)
     {
         $this->entityManager = $entityManager;
         $this->securityContext = $securityContext;
+        $this->leaveTypeLimits = $leaveTypeLimits;
     }
     
     /**
-     * Checks previous status was Approved before allowing to change it to Cancelled
+     * Various validations before changing the current leave's status
      * @param \LeavesOvertimeBundle\Entity\Leaves $leaves $leaves
      * @param \Symfony\Component\Validator\Constraint $constraint
      */
@@ -71,92 +73,117 @@ class ValidOldValueValidator extends ConstraintValidator
             return;
         }
 
+        // check if resulting balance will be negative after approval or cancellation
+
         $leaveType = $leaves->getType();
         $user = $leaves->getUser();
         $duration = $leaves->getDuration();
+        $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
+
         if ($leaveType == $leaves::TYPE_SICK_LEAVE || $leaveType == $leaves::TYPE_LOCAL_LEAVE) {
             $isSickLeave = $leaveType == $leaves::TYPE_SICK_LEAVE;
             $currentBalance = $isSickLeave ? $user->getSickBalance() : $user->getTotalLocalBalance();
-            $isApprovedStatus = $leaves->getStatus() == $leaves::STATUS_APPROVED;
             $newBalance = $isApprovedStatus ? $currentBalance - $duration : $currentBalance + $duration;
             if ($newBalance < 0) {
                 $this->context->buildViolation($constraint->message)
                     ->setParameter("%message%", 'This operation would result in a negative balance, thus invalid.')
                     ->addViolation();
+                return;
             }
         }
 
 
         // check yearly limits per leave type
 
-        $yearlyLimit = 0;
-        switch ($leaveType) {
-            case $leaves::TYPE_MATERNITY_LEAVE:
-            case $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY:
-                $yearlyLimit = 98;
-                break;
-            case $leaves::TYPE_PATERNITY_LEAVE:
-            case $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY:
-                $yearlyLimit = 5;
-                break;
-            case $leaves::TYPE_COMPASSIONATE_LEAVE:
-                $yearlyLimit = 2;
-                break;
-            case $leaves::TYPE_WEDDING_LEAVE:
-                $yearlyLimit = 5;
-                break;
-            case $leaves::TYPE_INJURY_LEAVE:
-                $yearlyLimit = 14;
-                break;
-            case $leaves::TYPE_SICK_LEAVE:
-                $yearlyLimit = $user->getUserType() == 'Office attendant' ? 21 : 15;
-                break;
-            default:
-                break;
+        if (!$isApprovedStatus) {
+            return;
         }
 
+        $yearlyLimit = $this->getLeaveYearlyLimit($leaves, $leaveType, $user);
         if (!$yearlyLimit) {
             return;
         }
 
-        $userBalanceLogs = $user->getBalanceLogs();
-        if (!$userBalanceLogs) {
+        $userLeaves = $user->getLeaves();
+        if (!$userLeaves) {
             return;
         }
 
-        $leaveAmountTaken = $this->getLeaveAmountTaken($leaves, $userBalanceLogs, $leaveType);
+        $currentLeaveId = $leaves->getId();
+        $leaveAmountTaken = $this->getSimilarLeaveAmountTaken($userLeaves, $leaveType, $currentLeaveId);
         if ($leaveAmountTaken + $duration > $yearlyLimit) {
             $this->context->buildViolation($constraint->message)
                 ->setParameter("%message%", 'This operation would exceed the yearly limit on this leave type, thus invalid.')
                 ->addViolation();
+            return;
         }
     }
 
     /**
-     * @param $leaves
-     * @param $userBalanceLogs
+     * Returns total of similar leaves taken this year
+     * @param $userLeaves
      * @param $leaveType
+     * @param $currentLeaveId
      * @return int
      */
-    public function getLeaveAmountTaken($leaves, $userBalanceLogs, $leaveType)
+    public function getSimilarLeaveAmountTaken($userLeaves, $leaveType, $currentLeaveId)
     {
         $leaveAmountTaken = 0;
-        /** @var BalanceLog $userBalanceLog */
-        foreach ($userBalanceLogs as $userBalanceLog) {
-            if (!($userBalanceLog->getType() == $leaveType && $userBalanceLog->getLeave()->getStatus() == $leaves::STATUS_APPROVED)) {
+        /** @var Leaves $userLeaves */
+        foreach ($userLeaves as $userLeave) {
+            if (!($userLeave->getType() == $leaveType && $userLeave->getStatus() == $userLeave::STATUS_APPROVED && $userLeave->getId() != $currentLeaveId)) {
                 continue;
             }
 
-            // matches leave type and approved, check was created current year
+            // matches leave type and is approved, now check was created in current year
             $dateFormat = 'Y';
-            $balanceLogDate = $userBalanceLog->getCreatedAt() instanceof \DateTime
-                ? $userBalanceLog->getCreatedAt()->format($dateFormat) : null;
+            $balanceLogDate = $userLeave->getCreatedAt() instanceof \DateTime
+                ? $userLeave->getCreatedAt()->format($dateFormat) : null;
             $currentDate = date($dateFormat);
             if ($balanceLogDate == $currentDate) {
-                $leaveAmountTaken++;
+                $leaveAmountTaken += $userLeave->getDuration();
             }
         }
 
         return $leaveAmountTaken;
+    }
+
+    /**
+     * Returns yearly limit of given leave type
+     * @param $leaves
+     * @param $leaveType
+     * @param $user
+     * @return int
+     */
+    protected function getLeaveYearlyLimit($leaves, $leaveType, $user)
+    {
+        $yearlyLimit = 0;
+        switch ($leaveType) {
+            case $leaves::TYPE_MATERNITY_LEAVE:
+            case $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY:
+                $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_MATERNITY_LEAVE];
+                break;
+            case $leaves::TYPE_PATERNITY_LEAVE:
+            case $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY:
+                $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_PATERNITY_LEAVE];
+                break;
+            case $leaves::TYPE_COMPASSIONATE_LEAVE:
+                $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_COMPASSIONATE_LEAVE];
+                break;
+            case $leaves::TYPE_WEDDING_LEAVE:
+            case $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY:
+                $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_WEDDING_LEAVE];
+                break;
+            case $leaves::TYPE_INJURY_LEAVE:
+            case $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY:
+                $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_INJURY_LEAVE];
+                break;
+            case $leaves::TYPE_SICK_LEAVE:
+                $yearlyLimit = $user->getUserType() == 'Office attendant' ? $this->leaveTypeLimits['Sick leave office attendant'] : $this->leaveTypeLimits[$leaves::TYPE_SICK_LEAVE];
+                break;
+            default:
+                break;
+        }
+        return $yearlyLimit;
     }
 }

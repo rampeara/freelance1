@@ -9,9 +9,17 @@ parameters:
     datetime_format_export: 'd M Y H:i:s'
     date_format_export: 'd M Y'
     user_types:
-        Staff: 'Staff'
+        'Staff': 'Staff'
         'Office attendant': 'Office attendant'
-        Excom: 'Excom'
+        'Excom': 'Excom'
+    leave_type_limits:
+        'Sick leave': 15
+        'Sick leave office attendant': 21
+        'Maternity leave': 98
+        'Paternity leave': 5
+        'Compassionate leave': 2
+        'Wedding leave': 5
+        'Injury leave': 14
 
 sonata_admin:
     title: '%application_bo_title%'
