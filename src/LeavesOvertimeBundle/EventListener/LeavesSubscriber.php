@@ -2,6 +2,7 @@
 
 namespace LeavesOvertimeBundle\EventListener;
 
+use Application\Sonata\UserBundle\Entity\User;
 use LeavesOvertimeBundle\Common\Utility;
 use LeavesOvertimeBundle\Entity\BalanceLog;
 use LeavesOvertimeBundle\Entity\Leaves;
@@ -74,11 +75,26 @@ class LeavesSubscriber implements EventSubscriber
     {
         $entity = $eventArgs->getObject();
         if ($entity instanceof Leaves) {
+            $leaves = $entity;
+            $absenceLeaveTypes = [
+                $leaves::TYPE_ABSENCE_FROM_WORK,
+                $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
+                $leaves::TYPE_LEAVE_WITHOUT_PAY,
+                $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
+                $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY,
+                $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
+            ];
             $objectManager = $eventArgs->getObjectManager();
-            if ($entity->getType() == $entity::TYPE_SICK_LEAVE || $entity->getType() == $entity::TYPE_LOCAL_LEAVE) {
-                $this->updateLeaveBalance($entity, $objectManager);
+            $leaveType = $leaves->getType();
+
+            if ($leaveType == $leaves::TYPE_SICK_LEAVE || $leaveType == $leaves::TYPE_LOCAL_LEAVE) {
+                $this->updateLeaveBalance($leaves, $objectManager);
             }
-            $this->sendEmail($entity, $objectManager);
+            elseif (in_array($leaveType, $absenceLeaveTypes) && $leaves->getStatus() == $leaves::STATUS_APPROVED) {
+                $this->updateUserLastAbsenceDate($leaves, $objectManager);
+            }
+
+            $this->sendEmail($leaves, $objectManager);
         }
     }
     
@@ -279,5 +295,17 @@ class LeavesSubscriber implements EventSubscriber
             $this->container->getParameter('application_leaves_email_signature')
         ];
         return str_replace($searchFor, $replaceWith, $template);
+    }
+
+    /**
+     * @param $leaves
+     * @param $objectManager
+     */
+    private function updateUserLastAbsenceDate($leaves, $objectManager): void
+    {
+        $user = $leaves->getUser();
+        $user->setLastAbsenceDate($leaves->getEndDate());
+        $objectManager->persist($user);
+        $objectManager->flush();
     }
 }

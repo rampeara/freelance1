@@ -4,14 +4,19 @@ imports:
     - { resource: services.yml }
     - { resource: "@LeavesOvertimeBundle/Resources/config/services.yml" }
 
+### APPLICATION GLOBAL PARAMETERS
+### DO NOT edit anything apart from parameters below
 parameters:
     locale: en
+    # general date formats used in reports
     datetime_format_export: 'd M Y H:i:s'
     date_format_export: 'd M Y'
+    # used for defining user types only
     user_types:
         'Staff': 'Staff'
         'Office attendant': 'Office attendant'
         'Excom': 'Excom'
+    # used for leave approval validations only
     leave_type_limits:
         'Sick leave': 15
         'Sick leave office attendant': 21
@@ -20,6 +25,10 @@ parameters:
         'Compassionate leave': 2
         'Wedding leave': 5
         'Injury leave': 14
+    application_leaves_email_signature: 'LMS'
+    application_bo_title: 'Leaves Management System'
+
+### DO NOT EDIT BELOW CONFIGURATIONS
 
 sonata_admin:
     title: '%application_bo_title%'

@@ -99,25 +99,30 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     }
     
     /**
-     * Includes filter on isNoProbationLeaves != 1
+     * Returns users under 1 year of service
+     * @param $includeAbscence boolean DEFAULT FALSE
      * @return mixed
      */
-    public function getUsersUnder1YearService()
+    public function getUsersUnder1YearService($includeAbscence = false)
     {
         $date = new \DateTime('-1 year');
         $date = $date->format('Y-m-d');
-        return $this->getEntityManager()->createQueryBuilder()
+        $qb = $this->getEntityManager()->createQueryBuilder()
             ->select('u')
             ->from('ApplicationSonataUserBundle:User', 'u')
             ->where(':date <= u.hireDate')
-            ->andWhere('u.isNoProbationLeaves != 1')
             ->andWhere('u.departureDate IS NULL')
             ->andWhere('u.enabled = 1')
-            ->orderBy('u.hireDate', 'ASC')
+            ->orderBy('u.hireDate', 'DESC')
             ->setParameter('date', $date)
-            ->getQuery()
-            ->getResult()
         ;
+
+        if ($includeAbscence) {
+            // a little inefficient put no better choice as Doctrine doesn't support INTERVAL
+            $qb->orWhere('u.lastAbsenceDate IS NOT NULL');
+        }
+
+        return $qb->getQuery()->getResult();
     }
     
     /**
@@ -147,18 +152,9 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
      */
     public function incrementBalancesForProbationAccounts()
     {
-        $leaves = new Leaves();
-        $invalidLeaveType = [
-            $leaves::TYPE_ABSENCE_FROM_WORK,
-            $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
-            $leaves::TYPE_LEAVE_WITHOUT_PAY,
-            $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
-            $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY,
-            $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
-        ];
-        
         // not yet 1 year in company
-        $usersLessThanAYear = $this->getUsersUnder1YearService();
+        $includeAbscence = true;
+        $usersLessThanAYear = $this->getUsersUnder1YearService($includeAbscence);
         if (empty($usersLessThanAYear)) {
             return;
         }
@@ -169,35 +165,31 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
                 continue;
             }
 
+            $absenceDate = $user->getLastAbsenceDate();
             $hireDate = $user->getHireDate();
-            $monthsOfService = $hireDate->diff(new \DateTime('now'))->m;
-            $yearsOfService = $hireDate->diff(new \DateTime('now'))->y;
-            if (!($monthsOfService > 6 || $yearsOfService == 1)) {
+            $hireDateClone = clone $hireDate;
+            $hireDateAdd1Year = $hireDateClone->modify('+1 year');
+
+            // check if absence date found and it was within hire date + 1 year, if yes take its following day as valid date
+            if ($absenceDate instanceof \DateTime && ($absenceDate >= $hireDate && $absenceDate <= $hireDateAdd1Year)) {
+                // CAUTION: modify changed source date, if persisted this must be changed to a clone like for hireDate
+                $absenceDate = $absenceDate->modify('+1 day');
+            }
+
+            $hireOrResetDate = $absenceDate ? $absenceDate : $hireDate;
+            $monthsOfService = $hireOrResetDate->diff(new \DateTime('now'))->m;
+            $yearsOfService = $hireOrResetDate->diff(new \DateTime('now'))->y;
+            // allow 6th to 12th month only
+            if (!($monthsOfService > 5 || $yearsOfService == 1)) {
                 continue;
             }
-    
-            if (!$this->isDatePartMatchingToday($hireDate)) {
+
+            // allow day matching $hireOrResetDate's day only
+            if (!$this->isDayPartMatchingToday($hireOrResetDate)) {
                 continue;
             }
-            
-            $userLeaves = $user->getLeaves();
-            $noProbationLeaves = false;
-            /** @var Leaves $userLeave */
-            foreach ($userLeaves as $userLeave) {
-                if (in_array($userLeave->getType(), $invalidLeaveType)) {
-                    $noProbationLeaves = true;
-                    break;
-                }
-            }
-            if ($noProbationLeaves) {
-                // user will only get leaves after 1 year completion
-                // set no probation leaves to true so that next time the search result doesn't take this user into account
-                $user->setIsNoProbationLeaves($noProbationLeaves);
-                $this->getEntityManager()->persist($user);
-                $this->getEntityManager()->flush();
-                continue;
-            }
-            
+
+            // check already allocated probation leaves this month
             $balanceLogTypeLocal = $this->balanceLog::TYPE_PROBATION_LOCAL_LEAVE;
             $balanceLogTypeSick = $this->balanceLog::TYPE_PROBATION_SICK_LEAVE;
             if ($this->hasReceivedLeaveTypeThisDateFormat($user, [$balanceLogTypeLocal, $balanceLogTypeSick])) {
@@ -205,14 +197,21 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             }
             
             // all conditions satisfied, increment & log
+
             $oldLocalBalance = $user->getLocalBalance();
             $oldSickBalance = $user->getSickBalance();
-            $user->incrementLocalLeave();
-            $user->incrementSickLeave();
+
+            // for 6th and 12th month, adjust amount based on valid date
+            $incrementAmount = $this->getProbationLeaveIncrementAmount($monthsOfService, $user, $hireDate, $hireDateAdd1Year);
+            $user->incrementLocalLeave($incrementAmount);
+            $user->incrementSickLeave($incrementAmount);
+
             $localDescription = sprintf($this->balanceLog::TYPE_PROBATION_LOCAL_LEAVE_DESC, $oldLocalBalance, $user->getLocalBalance());
             $sickDescription = sprintf($this->balanceLog::TYPE_PROBATION_SICK_LEAVE_DESC, $oldSickBalance, $user->getSickBalance());
             $balanceLogLocal = new BalanceLog($localDescription, $user, 'system', $balanceLogTypeLocal);
+            $balanceLogLocal->setProbationLeaveAmount($incrementAmount);
             $balanceLogSick = new BalanceLog($sickDescription, $user, 'system', $balanceLogTypeSick);
+            $balanceLogSick->setProbationLeaveAmount($incrementAmount);
             
             $this->getEntityManager()->persist($user);
             $this->getEntityManager()->persist($balanceLogLocal);
@@ -220,7 +219,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $this->getEntityManager()->flush();
         }
     }
-    
+
     /**
      * Used by scheduled task to find and increment local & sick balance of employees annually
      * @throws \Doctrine\ORM\ORMException
@@ -391,7 +390,7 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
      *
      * @return bool
      */
-    private function isDatePartMatchingToday($hireDate)
+    private function isDayPartMatchingToday($hireDate)
     {
         if (!$hireDate instanceof \DateTime) {
             return false;
@@ -488,5 +487,50 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         }
         
         return [$localAmount, $sickAmount];
+    }
+
+    /**
+     * Returns probation leave increment value based on nth month and date
+     * @param $monthsOfServiceHireOrResetDate
+     * @param $user
+     * @param $hireDate
+     * @param $hireDateAdd1Year
+     * @return float|int|null
+     */
+    private function getProbationLeaveIncrementAmount($monthsOfServiceHireOrResetDate, $user, $hireDate, $hireDateAdd1Year)
+    {
+        $incrementAmount = 1;
+        $yearsOfServiceHireDate = $hireDate->diff(new \DateTime('now'))->y;
+
+        // if first month 6th month after final date, apply pro-rated
+        if ($monthsOfServiceHireOrResetDate == 6) {
+            $dateDayPart = date('d');
+            if ($dateDayPart > 22) {
+                $incrementAmount = 0;
+            } elseif ($dateDayPart > 15) {
+                $incrementAmount = 0.5;
+            }
+        }
+        // if 12 months after hire date, do 6 - total allocated before
+        elseif ($yearsOfServiceHireDate == 1) {
+            $userBalanceLogs = $user->getBalanceLogs();
+            $totalProbationLeaveReceived = 0;
+            /** @var BalanceLog $userBalanceLog */
+            foreach ($userBalanceLogs as $userBalanceLog) {
+                if ($userBalanceLog->getType() == $userBalanceLog::TYPE_PROBATION_LOCAL_LEAVE
+                    && ($userBalanceLog->getCreatedAt() >= $hireDate && $userBalanceLog->getCreatedAt() <= $hireDateAdd1Year)
+                ) {
+                    $totalProbationLeaveReceived += $userBalanceLog->getProbationLeaveAmount();
+                }
+            }
+
+            // should receive a max of 6 probation leaves, expected values being 0 / 0.5 / 1
+            $incrementAmount = 6 - $totalProbationLeaveReceived;
+            if ($incrementAmount > 1) {
+                $incrementAmount = 1;
+            }
+        }
+
+        return $incrementAmount;
     }
 }

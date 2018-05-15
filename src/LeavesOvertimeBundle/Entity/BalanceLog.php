@@ -61,6 +61,13 @@ class BalanceLog
      * @ORM\Column(name="carry_forward_amount", type="float", nullable=true)
      */
     private $carryForwardAmount;
+
+    /**
+     * @var float|null
+     *
+     * @ORM\Column(name="probation_leave_amount", type="float", nullable=true)
+     */
+    private $probationLeaveAmount;
     
     /**
      * @var integer
@@ -269,4 +276,21 @@ class BalanceLog
         return $this;
     }
 
+    /**
+     * @return float|null
+     */
+    public function getProbationLeaveAmount()
+    {
+        return $this->probationLeaveAmount;
+    }
+
+    /**
+     * @param float|null $probationLeaveAmount
+     * @return BalanceLog
+     */
+    public function setProbationLeaveAmount($probationLeaveAmount)
+    {
+        $this->probationLeaveAmount = $probationLeaveAmount;
+        return $this;
+    }
 }

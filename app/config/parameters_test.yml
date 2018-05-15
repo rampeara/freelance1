@@ -10,6 +10,4 @@ parameters:
     mailer_password: null
     mailer_spool_type: null
     mailer_spool_path: null
-    mailer_from_email: 'noreply@leaves-system.com'
-    application_leaves_email_signature: 'HRM'
-    application_bo_title: 'Leaves & Overtime'
+    mailer_from_email: 'test-environment@leaves-management-system.com'

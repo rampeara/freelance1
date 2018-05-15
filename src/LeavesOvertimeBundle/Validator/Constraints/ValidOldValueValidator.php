@@ -171,11 +171,11 @@ class ValidOldValueValidator extends ConstraintValidator
                 $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_COMPASSIONATE_LEAVE];
                 break;
             case $leaves::TYPE_WEDDING_LEAVE:
-            case $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY:
+//            case $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY:
                 $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_WEDDING_LEAVE];
                 break;
             case $leaves::TYPE_INJURY_LEAVE:
-            case $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY:
+//            case $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY:
                 $yearlyLimit = $this->leaveTypeLimits[$leaves::TYPE_INJURY_LEAVE];
                 break;
             case $leaves::TYPE_SICK_LEAVE:

@@ -105,11 +105,6 @@ class User extends BaseUser implements LdapUserInterface
     protected $frozenCarryForwardLocalBalance = 0;
     
     /**
-     * @var boolean|null
-     */
-    protected $isNoProbationLeaves = false;
-    
-    /**
      * @var string|null
      */
     protected $dn;
@@ -118,6 +113,11 @@ class User extends BaseUser implements LdapUserInterface
      * @var string|null
      */
     protected $userType;
+
+    /**
+     * @var \DateTime|null
+     */
+    protected $lastAbsenceDate;
     
     /**
      * @var string|null
@@ -737,30 +737,6 @@ class User extends BaseUser implements LdapUserInterface
     }
 
     /**
-     * Set isNoProbationLeaves.
-     *
-     * @param bool|null $isNoProbationLeaves
-     *
-     * @return User
-     */
-    public function setIsNoProbationLeaves($isNoProbationLeaves = null)
-    {
-        $this->isNoProbationLeaves = $isNoProbationLeaves;
-
-        return $this;
-    }
-
-    /**
-     * Get isNoProbationLeaves.
-     *
-     * @return bool|null
-     */
-    public function getIsNoProbationLeaves()
-    {
-        return $this->isNoProbationLeaves;
-    }
-
-    /**
      * Add balanceLog.
      *
      * @param \LeavesOvertimeBundle\Entity\BalanceLog $balanceLog
@@ -834,5 +810,24 @@ class User extends BaseUser implements LdapUserInterface
     public function setUserType($userType)
     {
         $this->userType = $userType;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getLastAbsenceDate()
+    {
+        return $this->lastAbsenceDate;
+    }
+
+    /**
+     * @param \DateTime|null $lastAbsenceDate
+     * @return User
+     */
+    public function setLastAbsenceDate(\DateTime $lastAbsenceDate)
+    {
+        $this->lastAbsenceDate = $lastAbsenceDate;
+
+        return $this;
     }
 }
