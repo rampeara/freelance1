@@ -3,3 +3,18 @@
 {% block side_bar_after_nav %}
     <p class="text-center"></p>
 {% endblock %}
+
+{% block stylesheets %}
+    {% for stylesheet in sonata_admin.adminPool.getOption('stylesheets', []) %}
+        <link rel="stylesheet" href="{{ asset(stylesheet) }}">
+    {% endfor %}
+    <style type="text/css">
+        div .login-logo {
+            font-size: 31px !important;
+        }
+        .main-header .logo span {
+            font-size: 15px !important;
+            margin-left: 12px;
+        }
+    </style>
+{% endblock %}
