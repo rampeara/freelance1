@@ -1,6 +1,7 @@
 <?php
 
 namespace LeavesOvertimeBundle\Repository;
+use LeavesOvertimeBundle\Entity\Leaves;
 
 /**
  * LeavesRepository
@@ -10,4 +11,51 @@ namespace LeavesOvertimeBundle\Repository;
  */
 class LeavesRepository extends \Doctrine\ORM\EntityRepository
 {
+    public function getAbsenceTypeLeaves()
+    {
+        $leaves = new Leaves();
+        $absenceLeaveTypes = [
+            $leaves::TYPE_ABSENCE_FROM_WORK,
+            $leaves::TYPE_INJURY_LEAVE_WITHOUT_PAY,
+            $leaves::TYPE_LEAVE_WITHOUT_PAY,
+            $leaves::TYPE_MATERNITY_LEAVE_WITHOUT_PAY,
+            $leaves::TYPE_PATERNITY_LEAVE_WITHOUT_PAY,
+            $leaves::TYPE_WEDDING_LEAVE_WITHOUT_PAY,
+        ];
+
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('l')
+            ->from('LeavesOvertimeBundle:Leaves', 'l')
+            ->where("l.type IN (:absenceTypes)")
+            ->andWhere("l.status = 'Approved'")
+            ->orderBy('l.endDate', 'DESC')
+            ->setParameter('absenceTypes', $absenceLeaveTypes)
+        ;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Used by command to update last absence date of users in their profile
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     */
+    public function updateUserLastAbsenceDate()
+    {
+        $leaves = $this->getAbsenceTypeLeaves();
+
+        $latestLeaves = [];
+        foreach ($leaves as $leave) {
+            $userId = $leave->getUser()->getId();
+            if (array_key_exists($userId, $latestLeaves)) {
+                continue;
+            }
+            $latestLeaves[$userId] = $leave;
+        }
+
+        foreach ($latestLeaves as $leave) {
+            $this->getEntityManager()->persist($leave->getUser()->setLastAbsenceDate($leave->getEndDate()));
+        }
+        $this->getEntityManager()->flush();
+    }
 }
