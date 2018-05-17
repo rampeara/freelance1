@@ -301,9 +301,15 @@ class LeavesSubscriber implements EventSubscriber
      * @param $leaves
      * @param $objectManager
      */
-    private function updateUserLastAbsenceDate($leaves, $objectManager): void
+    private function updateUserLastAbsenceDate($leaves, $objectManager)
     {
         $user = $leaves->getUser();
+        $lastAbsenceDate = $user->getLastAbsenceDate();
+        // do not update if date is less than already recorded
+        if ($lastAbsenceDate instanceOf \DateTime && $leaves->getEndDate() < $lastAbsenceDate) {
+            return;
+        }
+
         $user->setLastAbsenceDate($leaves->getEndDate());
         $objectManager->persist($user);
         $objectManager->flush();
