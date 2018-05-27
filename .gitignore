@@ -16,3 +16,6 @@
 /vendor/
 /web/bundles/
 .idea
+/app/config/parameters_local.yml
+/web/uploads/user_import/*
+/RF11022018170332901866402.ico
