@@ -480,20 +480,24 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
             $currentYear = date('Y');
             $endOfYear = new \DateTime(sprintf('%s-12-31 23:59:59', $currentYear));
             $monthsTillEOY = $user->getHireDate()->modify('+1 year')->diff($endOfYear)->m;
+            $monthsTillEOY = date('d') <= 15 ? $monthsTillEOY + 1 : $monthsTillEOY;
             $localAmount = ($localAmount / 12) * $monthsTillEOY;
             $sickAmount = ($sickAmount / 12) * $monthsTillEOY;
-            // 2 decimal places
-            $localAmount = round($localAmount, 2);
-            $sickAmount = round($sickAmount, 2);
+            // rounded down to nearest 0.5
+            $localAmount = floor($localAmount * 2) / 2;
+            $sickAmount = floor($sickAmount * 2) / 2;
         }
         
         return [$localAmount, $sickAmount];
     }
-
+    
     /**
      * Returns probation leave increment value based on nth month and date
+     *
      * @param $monthsOfService
      * @param $user
+     * @param $lastDayOfProbation
+     *
      * @return float|int|null
      */
     private function getProbationLeaveIncrementAmount($monthsOfService, $user, $lastDayOfProbation)
