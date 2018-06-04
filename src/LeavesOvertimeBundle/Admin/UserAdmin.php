@@ -137,7 +137,7 @@ class UserAdmin extends BaseUserAdmin
         $balanceOptions = [
             'required' => false,
             'attr' => [
-                'step' => 0.5,
+//                'step' => 0.5,
                 'numberType' => true, // overridden template to change field type from text to number
             ]
         ];
@@ -174,7 +174,7 @@ class UserAdmin extends BaseUserAdmin
         $formMapper
             ->tab('User')
                 ->with('Status')
-                    ->add('enabled', null, ['required' => false, 'data' => true])
+                    ->add('enabled', null, ['required' => false])
                     ->add('localBalance', NumberType::class, $balanceOptions)
                     ->add('sickBalance', NumberType::class, $balanceOptions)
                     ->add('carryForwardLocalBalance', NumberType::class, $balanceOptions)
